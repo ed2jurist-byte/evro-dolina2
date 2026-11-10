@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>КП «Европейская долина 2» — ООО «ЭК ЕД2»</title>
+<style>
+:root{--green:#2e7d32;--green-d:#1b5e20;--bg:#f4f6f4;--card:#fff;--text:#212121;--muted:#666;--red:#c62828}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,-apple-system,'Segoe UI',Roboto,Arial,sans-serif;background:var(--bg);color:var(--text);line-height:1.55}
+header{background:linear-gradient(135deg,var(--green-d),var(--green));color:#fff;padding:28px 16px;text-align:center}
+header h1{font-size:1.6rem} header p{opacity:.9;font-size:.95rem}
+nav{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;background:var(--green-d);padding:10px;position:sticky;top:0;z-index:5}
+nav button{background:transparent;border:1px solid rgba(255,255,255,.4);color:#fff;padding:8px 14px;border-radius:20px;cursor:pointer;font-size:.9rem}
+nav button.active,nav button:hover{background:#fff;color:var(--green-d)}
+main{max-width:860px;margin:0 auto;padding:20px 14px}
+section{display:none}section.active{display:block}
+.card{background:var(--card);border-radius:12px;padding:20px;margin-bottom:16px;box-shadow:0 1px 4px rgba(0,0,0,.08)}
+h2{font-size:1.2rem;color:var(--green-d);margin-bottom:12px}
+label{display:block;font-size:.85rem;color:var(--muted);margin:10px 0 4px}
+input,select,textarea{width:100%;padding:10px;border:1px solid #ccc;border-radius:8px;font-size:.95rem;font-family:inherit}
+textarea{min-height:90px;resize:vertical}
+.btn{display:inline-block;background:var(--green);color:#fff;border:none;padding:11px 20px;border-radius:8px;font-size:.95rem;cursor:pointer;margin-top:14px}
+.btn:hover{background:var(--green-d)} .btn.gray{background:#607d8b}
+.msg{margin-top:12px;padding:10px 12px;border-radius:8px;font-size:.9rem;display:none}
+.msg.ok{display:block;background:#e8f5e9;border:1px solid var(--green);color:var(--green-d)}
+.msg.err{display:block;background:#ffebee;border:1px solid var(--red);color:var(--red)}
+table{width:100%;border-collapse:collapse;font-size:.88rem;margin-top:10px}
+th,td{padding:8px 10px;border-bottom:1px solid #e0e0e0;text-align:left}
+th{background:#f0f4f0;color:var(--green-d)}
+.note{font-size:.82rem;color:var(--muted);background:#f0f4f0;border-left:3px solid var(--green);padding:10px 12px;border-radius:0 8px 8px 0;margin-top:12px}
+.warn{border-left-color:var(--red);background:#fdf0f0}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:600px){.row{grid-template-columns:1fr}}
+.item{border:1px solid #e0e0e0;border-radius:8px;padding:12px;margin-top:10px;font-size:.9rem}
+.item b{color:var(--green-d)}
+.badge{display:inline-block;font-size:.72rem;background:#e8f5e9;color:var(--green-d);border-radius:10px;padding:2px 8px;margin-left:6px}
+footer{text-align:center;font-size:.8rem;color:var(--muted);padding:24px 10px}
+</style>
+</head>
+<body>
+<header>
+  <h1>КП «Европейская долина 2»</h1>
+  <p>ООО «Эксплуатирующая компания ЕД2» — официальный сайт собственников</p>
+</header>
+<nav>
+  <button data-tab="home" class="active">Главная</button>
+  <button data-tab="meters">Показания счётчиков</button>
+  <button data-tab="issues">Заявки и предложения</button>
+  <button data-tab="debts">Задолженности</button>
+  <button data-tab="reg">Регистрация</button>
+</nav>
+<main>
+
+<!-- ГЛАВНАЯ -->
+<section id="home" class="active">
+  <div class="card">
+    <h2>Добро пожаловать</h2>
+    <p>Сайт предназначен для собственников КП «Европейская долина 2». Здесь вы можете:</p>
+    <ul style="margin:10px 0 0 20px;font-size:.95rem">
+      <li>передавать показания счётчиков воды и электроэнергии в ООО «ЭК ЕД2» (если у вас нет прямого договора с Мосэнергосбыт);</li>
+      <li>направлять заявки по фактическим проблемам (освещение, дороги, водоснабжение и т.п.);</li>
+      <li>видеть реестр задолженностей по коммунальным и эксплуатационным услугам (только по номерам участков).</li>
+    </ul>
+    <div class="note">Доступ к передаче показаний и заявкам — только для зарегистрированных собственников.</div>
+  </div>
+  <div class="card">
+    <h2>Реквизиты</h2>
+    <p style="font-size:.92rem">ООО «ЭК ЕД2» · ИНН/КПП: уточняются · E-mail: info@example.ru · Телефон: +7 (___) ___-__-__</p>
+    <div class="warn note">Перед публикацией заполните актуальные реквизиты, контакты ЭК и реквизиты для оплаты.</div>
+  </div>
+</section>
+
+<!-- РЕГИСТРАЦИЯ -->
+<section id="reg">
+  <div class="card">
+    <h2>Регистрация собственника</h2>
+    <p style="font-size:.9rem;color:var(--muted)">Введите данные один раз — они сохранятся в вашем браузере и подставятся в формы.</p>
+    <div class="row">
+      <div><label>ФИО *</label><input id="r_fio" placeholder="Иванов Иван Иванович"></div>
+      <div><label>№ участка / дома *</label><input id="r_lot" placeholder="например, 15"></div>
+    </div>
+    <div class="row">
+      <div><label>Телефон</label><input id="r_tel" placeholder="+7 ___ ___-__-__"></div>
+      <div><label>E-mail</label><input id="r_mail" type="email" placeholder="you@mail.ru"></div>
+    </div>
+    <button class="btn" onclick="saveProfile()">Сохранить</button>
+    <button class="btn gray" onclick="clearProfile()">Очистить</button>
+    <div class="msg" id="reg_msg"></div>
+    <div class="note">GitHub Pages — статический хостинг: данные хранятся только локально в браузере. Для серверной регистрации подключите Supabase/Firebase или Google-форму (см. README).</div>
+  </div>
+</section>
+
+<!-- ПОКАЗАНИЯ -->
+<section id="meters">
+  <div class="card">
+    <h2>Передача показаний</h2>
+    <p style="font-size:.9rem;color:var(--muted)">Для собственников без прямых договоров с Мосэнергосбыт.</p>
+    <div class="row">
+      <div><label>Тип счётчика *</label>
+        <select id="m_type">
+          <option value="ХВС (вода)">ХВС (холодная вода)</option>
+          <option value="ГВС (вода)">ГВС (горячая вода)</option>
+          <option value="Электроэнергия (день)">Электроэнергия, день (Т1)</option>
+          <option value="Электроэнергия (ночь)">Электроэнергия, ночь (Т2)</option>
+        </select>
+      </div>
+      <div><label>Дата *</label><input id="m_date" type="date"></div>
+    </div>
+    <div class="row">
+      <div><label>Текущее показание *</label><input id="m_cur" type="number" min="0" placeholder="например, 012345"></div>
+      <div><label>Предыдущее показание</label><input id="m_prev" type="number" min="0" placeholder="для сверки"></div>
+    </div>
+    <div><label>Номер счётчика / примечание</label><input id="m_note" placeholder="заводской номер, серия"></div>
+    <button class="btn" onclick="addReading()">Сохранить показание</button>
+    <div class="msg" id="m_msg"></div>
+  </div>
+  <div class="card">
+    <h2>История показаний</h2>
+    <div id="m_list"><p style="font-size:.9rem;color:var(--muted)">Показаний пока нет.</p></div>
+    <button class="btn gray" onclick="exportCSV()">Выгрузить CSV для ЭК</button>
+    <button class="btn gray" onclick="genLetter()">Сформировать письмо</button>
+    <pre id="m_letter" style="display:none;background:#f0f4f0;padding:12px;border-radius:8px;font-size:.85rem;white-space:pre-wrap;margin-top:10px"></pre>
+  </div>
+</section>
+
+<!-- ЗАЯВКИ -->
+<section id="issues">
+  <div class="card">
+    <h2>Заявка / предложение</h2>
+    <p style="font-size:.9rem;color:var(--muted)">Опишите фактическую проблему: что случилось, где, когда замечено.</p>
+    <label>Категория *</label>
+    <select id="i_cat">
+      <option>Дороги</option><option>Освещение</option><option>Водоснабжение</option>
+      <option>Электроснабжение</option><option>Благоустройство</option><option>Охрана / въезд</option><option>Прочее</option>
+    </select>
+    <label>Кратко о проблеме *</label><input id="i_title" placeholder="например, Не работает фонарь на ул. Лесной">
+    <label>Описание *</label><textarea id="i_text" placeholder="Место, время, обстоятельства..."></textarea>
+    <button class="btn" onclick="addIssue()">Отправить на модерацию</button>
+    <div class="msg" id="i_msg"></div>
+    <div class="warn note">Сообщения проверяются перед публикацией. Провокационные, оскорбительные и заведомо ложные обращения не публикуются и не передаются в ЭК.</div>
+  </div>
+  <div class="card">
+    <h2>Опубликованные обращения</h2>
+    <div id="i_list"><p style="font-size:.9rem;color:var(--muted)">Обращений пока нет.</p></div>
+  </div>
+</section>
+
+<!-- ЗАДОЛЖЕННОСТИ -->
+<section id="debts">
+  <div class="card">
+    <h2>Задолженности по КУ и эксплуатации</h2>
+    <div class="warn note"><b>Правило публикации:</b> реестр содержит <b>только номера участков</b>. ФИО собственников, телефоны и иные персональные данные на сайте не размещаются (152-ФЗ «О персональных данных»).</div>
+    <table id="d_table">
+      <thead><tr><th>Участок</th><th>Услуга</th><th>Период</th><th>Сумма, ₽</th><th>Статус</th></tr></thead>
+      <tbody><tr><td colspan="5" style="text-align:center;color:var(--muted)">Реестр выкладывает бухгалтерия ООО «ЭК ЕД2» (файл debts.csv в репозитории)</td></tr></tbody>
+    </table>
+    <div class="note">Чтобы узнать свой статус, найдите в таблице номер своего участка. Если вашего участка нет — задолженности нет. Вопросы по начислениям: бухгалтерия ЭК.</div>
+  </div>
+</section>
+
+</main>
+<footer>© ООО «ЭК ЕД2» · КП «Европейская долина 2» · Сайт работает на GitHub Pages</footer>
+
+<script>
+// ---------- ТАБЫ ----------
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('nav button').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('section').forEach(s=>s.classList.remove('active'));
+  b.classList.add('active');document.getElementById(b.dataset.tab).classList.add('active');
+});
+
+// ---------- ПРОФИЛЬ ----------
+function prof(){try{return JSON.parse(localStorage.getItem('ed2_profile'))||null}catch(e){return null}}
+function saveProfile(){
+  const p={fio:r_fio.value.trim(),lot:r_lot.value.trim(),tel:r_tel.value.trim(),mail:r_mail.value.trim()};
+  if(!p.fio||!p.lot)return show('reg_msg','err','Заполните ФИО и № участка.');
+  localStorage.setItem('ed2_profile',JSON.stringify(p));
+  show('reg_msg','ok','Данные сохранены.');
+}
+function clearProfile(){localStorage.removeItem('ed2_profile');['r_fio','r_lot','r_tel','r_mail'].forEach(id=>document.getElementById(id).value='');show('reg_msg','ok','Данные удалены.');}
+(function(){const p=prof();if(p){r_fio.value=p.fio;r_lot.value=p.lot;r_tel.value=p.tel;r_mail.value=p.mail;}})();
+
+// ---------- ПОКАЗАНИЯ ----------
+m_date.valueAsDate=new Date();
+function readings(){try{return JSON.parse(localStorage.getItem('ed2_meters'))||[]}catch(e){return[]}}
+function addReading(){
+  const p=prof();if(!p)return show('m_msg','err','Сначала зарегистрируйтесь во вкладке «Регистрация».');
+  const cur=parseFloat(m_cur.value),prev=m_prev.value===''?null:parseFloat(m_prev.value);
+  if(isNaN(cur)||cur<0)return show('m_msg','err','Введите корректное текущее показание.');
+  if(prev!==null&&cur<prev)return show('m_msg','err','Текущее показание меньше предыдущего — проверьте ввод.');
+  const r=readings();r.push({date:m_date.value,type:m_type.value,cur:cur,prev:prev,note:m_note.value.trim(),lot:p.lot,fio:p.fio});
+  localStorage.setItem('ed2_meters',JSON.stringify(r));
+  m_cur.value='';m_prev.value='';m_note.value='';
+  show('m_msg','ok','Показание сохранено. Выгрузите CSV и отправьте в ЭК (кнопка ниже).');
+  renderReadings();
+}
+function renderReadings(){
+  const r=readings(),el=document.getElementById('m_list');
+  if(!r.length){el.innerHTML='<p style="font-size:.9rem;color:var(--muted)">Показаний пока нет.</p>';return;}
+  el.innerHTML='<table><thead><tr><th>Дата</th><th>Тип</th><th>Показание</th><th>Примечание</th></tr></thead><tbody>'+
+    r.slice().reverse().map(x=>`<tr><td>${x.date}</td><td>${x.type}</td><td>${x.cur}</td><td>${x.note||'—'}</td></tr>`).join('')+'</tbody></table>';
+}
+renderReadings();
+function exportCSV(){
+  const r=readings();if(!r.length)return alert('Нет данных для выгрузки.');
+  const csv=['Участок;ФИО;Дата;Тип;Текущее;Предыдущее;Примечание',
+    ...r.map(x=>[x.lot,x.fio,x.date,x.type,x.cur,x.prev??'',x.note||''].join(';'))].join('\n');
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob(['\ufeff'+csv],{type:'text/csv'}));
+  a.download='pokazaniya_ED2.csv';a.click();
+}
+function genLetter(){
+  const r=readings(),p=prof();if(!p||!r.length)return alert('Нет данных.');
+  const t=`Кому: ООО «ЭК ЕД2»
+От: собственника участка ${p.lot}, ${p.fio}
+Тема: Передача показаний счётчиков
+
+Уважаемые коллеги!
+Передаю показания приборов учёта:
+${r.map(x=>`- ${x.date}, ${x.type}: ${x.cur}${x.prev!==null&&x.prev!==undefined?' (пред. '+x.prev+')':''}${x.note?' — '+x.note:''}`).join('\n')}
+Прошу учесть при начислении.
+Тел.: ${p.tel||'—'}, e-mail: ${p.mail||'—'}`;
+  const el=document.getElementById('m_letter');el.style.display='block';el.textContent=t;
+}
+
+// ---------- ЗАЯВКИ + МОДЕРАЦИЯ ----------
+// База запрещённых формулировок. В продакшене — серверный фильтр, список ведёт ЭК.
+const STOP=['оскорб','дурак','идиот','предатель','взятк','судиться буду','провокац','говн','порядки навод','саботаж'];
+function moderate(t){t=t.toLowerCase();return STOP.find(w=>t.includes(w))||null;}
+function issues(){try{return JSON.parse(localStorage.getItem('ed2_issues'))||[]}catch(e){return[]}}
+function addIssue(){
+  const p=prof();if(!p)return show('i_msg','err','Сначала зарегистрируйтесь.');
+  const txt=(i_title.value+' '+i_text.value).trim();
+  if(txt.length<10)return show('i_msg','err','Опишите проблему подробнее.');
+  const bad=moderate(txt);
+  if(bad)return show('i_msg','err',`Сообщение отклонено модерацией (недопустимая формулировка). Сформулируйте по существу, без оценочных и провокационных высказываний.`);
+  const list=issues();list.push({date:new Date().toLocaleDateString('ru-RU'),cat:i_cat.value,title:i_title.value.trim(),text:i_text.value.trim(),lot:p.lot});
+  localStorage.setItem('ed2_issues',JSON.stringify(list));
+  i_title.value='';i_text.value='';show('i_msg','ok','Обращение принято и опубликовано ниже.');
+  renderIssues();
+}
+function renderIssues(){
+  const list=issues(),el=document.getElementById('i_list');
+  if(!list.length){el.innerHTML='<p style="font-size:.9rem;color:var(--muted)">Обращений пока нет.</p>';return;}
+  el.innerHTML=list.slice().reverse().map(x=>`<div class="item"><b>${x.title}</b><span class="badge">${x.cat}</span><br>
+    <span style="color:var(--muted);font-size:.8rem">${x.date} · участок ${x.lot}</span><p style="margin-top:6px">${x.text}</p></div>`).join('');
+}
+renderIssues();
+
+function show(id,type,text){const el=document.getElementById(id);el.className='msg '+type;el.textContent=text;}
+</script>
+</body>
+</html>
