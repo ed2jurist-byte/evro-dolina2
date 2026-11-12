@@ -3,7 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta http-equiv="Content-Security-Policy" content="base-uri &apos;none&apos;; connect-src &apos;self&apos; injections.adguard.org; default-src injections.adguard.org data:; font-src &apos;self&apos; data:; form-action &apos;none&apos;; img-src &apos;self&apos; data: blob: injections.adguard.org; script-src &apos;self&apos; &apos;unsafe-inline&apos; injections.adguard.org; style-src &apos;self&apos; &apos;unsafe-inline&apos; injections.adguard.org"/>
+<meta http-equiv="Content-Security-Policy"
+      content="default-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; font-src 'self'; base-uri 'none'; form-action 'none'">
 <title>КП «Европейская долина 2» — личный кабинет собственника</title>
 <style>
 :root{--green:#2e7d32;--gd:#1b5e20;--gl:#e8f5e9;--bg:#f4f6f4;--muted:#666;--red:#c62828;--amber:#ef6c00;--ab:#fff3e0}
@@ -50,7 +51,7 @@ tr.mine{background:var(--gl)}
 pre{background:#f0f4f0;padding:12px;border-radius:8px;font-size:.84rem;white-space:pre-wrap;margin-top:10px;display:none}
 footer{text-align:center;font-size:.8rem;color:var(--muted);padding:22px 10px}
 </style>
-<script type="text/javascript" nonce="c12b73e9411d44fd9efb8d6eb0d" src="//injections.adguard.org?ts=1794500190069&amp;type=content-script&amp;dmn=contribution.usercontent.google.com&amp;url=https%3A%2F%2Fcontribution.usercontent.google.com%2Fdownload%3Fc%3DCgxiYXJkX3N0b3JhZ2USUBINcmVzcG9uc2VfZGF0YRo_CjBlNzUzZDg2NDJlNzBkNWE4MDAwNjYwMTZiZGQ5NDRkZjAyMjdiZjg2YjcxYjVhOGUSCxIHEJOt3r6qDhgB%26filename%3Dindex.html%26opi%3D103135050&amp;app=msedge.exe&amp;css=3&amp;js=1&amp;rel=1&amp;rji=1&amp;sbe=1&amp;stealth=1&amp;st-dnt"></script><script type="text/javascript" nonce="c12b73e9411d44fd9efb8d6eb0d" src="//injections.adguard.org?ts=1794500190069&amp;name=AdGuard%20Extra&amp;type=user-script"></script></head>
+</head>
 <body>
 <header>
   <h1 id="h_set">КП «Европейская долина 2»</h1>
@@ -94,10 +95,13 @@ footer{text-align:center;font-size:.8rem;color:var(--muted);padding:22px 10px}
 <section id="meters">
   <div class="card">
     <h2>Передача показаний счётчиков воды</h2>
-    <p style="font-size:.87rem;color:var(--muted)">Рекомендуемый срок передачи показаний — до 25 числа ежемесячно. Показания электросчётчиков передаются инженером УК (или напрямую в Мосэнерго при наличии прямого договора), а ГВС отсутствует. Внесите актуальные данные по воде.</p>
+    <p style="font-size:.87rem;color:var(--muted)">Рекомендуемый срок передачи показаний — до 25 числа ежемесячно. Показания электросчётчиков передаются инженером УК (или напрямую в Мосэнерго при наличии прямого договора).</p>
     <div class="row">
-      <div><label>Тип счётчика *</label><select id="m_type">
-        <option>ХВС (холодная вода)</option><option>Водоотведение</option></select></div>
+      <div><label>Тип счётчика *</label>
+        <select id="m_type">
+          <option>ХВС (холодная вода)</option>
+        </select>
+      </div>
       <div><label>Дата снятия *</label><input id="m_date" type="date"></div>
     </div>
     <div class="row">
@@ -164,7 +168,7 @@ footer{text-align:center;font-size:.8rem;color:var(--muted);padding:22px 10px}
   <div class="card"><h2>Новости и опрос</h2><div id="news"></div><div id="poll" class="item"></div></div>
 </section>
 
-<!-- РАЗДЕЛ ПОКАЗАНИЙ (новый) -->
+<!-- РАЗДЕЛ ПОКАЗАНИЙ (Интеграция с инженером) -->
 <section id="meters_lk">
   <div class="card">
     <h2>📍 Показания приборов учёта</h2>
@@ -174,7 +178,8 @@ footer{text-align:center;font-size:.8rem;color:var(--muted);padding:22px 10px}
       <div class="row">
         <div>
           <label>Электричество (кВт·ч)</label>
-          <input id="m_elec" type="number" step="0.01" readonly style="background:#f0f4f0;color:#666">
+          <!-- Изменено на type="text" для корректного отображения "—" и "Нет данных" -->
+          <input id="m_elec" type="text" readonly style="background:#f0f4f0;color:#666">
           <small id="m_elec_hint" style="color:var(--muted);font-size:.75rem"></small>
         </div>
         <div>
@@ -182,9 +187,12 @@ footer{text-align:center;font-size:.8rem;color:var(--muted);padding:22px 10px}
           <input id="m_water" type="number" step="0.01" min="0" placeholder="Введите показания">
         </div>
       </div>
-      <div style="margin-top:10px">
-        <label>Водоотведение (м³)</label>
-        <input id="m_sewage" type="number" step="0.01" min="0" placeholder="По желанию">
+      <div class="row" style="margin-top:10px">
+        <!-- Поле горячей воды удалено -->
+        <div>
+          <label>Водоотведение (м³)</label>
+          <input id="m_sewage" type="number" step="0.01" min="0" placeholder="По желанию">
+        </div>
       </div>
       <button class="btn" id="btn_save_meters" style="margin-top:16px">Сохранить показания</button>
       <div class="msg" id="meters_msg"></div>
@@ -247,10 +255,7 @@ footer{text-align:center;font-size:.8rem;color:var(--muted);padding:22px 10px}
       </div>
     </div>
     <div class="note" style="margin-top:8px">
-      <b>Зачем это нужно:</b> собственники без прямого договора с Мосэнерго получают
-      показания общего счётчика от инженера УК. После подтверждения наличия прямого
-      договора в вашем личном кабинете появится возможность прикрепить скан и передавать
-      показания напрямую в Мосэнерго.
+      <b>Зачем это нужно:</b> собственники без прямого договора с Мосэнерго получают показания общего счётчика от инженера УК. После подтверждения наличия прямого договора в вашем личном кабинете появится возможность прикрепить скан и передавать показания напрямую в Мосэнерго.
     </div>
 
     <div class="chk">
@@ -267,7 +272,6 @@ footer{text-align:center;font-size:.8rem;color:var(--muted);padding:22px 10px}
 </main>
 <footer id="footer">© ООО «ЭК «ЕД-2»</footer>
 
-<script src="qrcode.min.js"></script>
 <script>
 /* ---------- утилиты ---------- */
 function $(id){return document.getElementById(id);}
@@ -385,8 +389,7 @@ function loadDebts(){
     if(!r.ok) throw 0; return r.text();
   }).then(function(txt){
     var rows=[];
-    txt.split(/?
-/).forEach(function(line){
+    txt.split(/\r?\n/).forEach(function(line){
       line=line.trim(); if(!line) return;
       var c=line.split(";"); if(c.length<4) return;
       var lot=c[0].trim();
@@ -502,27 +505,18 @@ function exportCSV(){
   var r=readings(); if(!r.length) return alert("Нет данных для выгрузки.");
   function q(v){return '"'+String(v==null?"":v).replace(/"/g,'""')+'"';}
   var csv=["Участок;Кадастр;ФИО;Дата;Тип;Текущее;Предыдущее;Примечание"].concat(
-    r.map(function(x){return [x.lot,x.cad,x.fio,x.date,x.type,x.cur,x.prev,x.note].map(q).join(";");})).join("
-");
+    r.map(function(x){return [x.lot,x.cad,x.fio,x.date,x.type,x.cur,x.prev,x.note].map(q).join(";");})).join("\n");
   var a=document.createElement("a");
-  a.href=URL.createObjectURL(new Blob(["﻿"+csv],{type:"text/csv"}));
+  a.href=URL.createObjectURL(new Blob(["\ufeff"+csv],{type:"text/csv"}));
   a.download="pokazaniya_ED2_"+normLot(r[0].lot).replace(/\//g,"-")+".csv";a.click();
 }
 function genLetter(){
   var r=readings(),p=prof(); if(!p||!r.length) return alert("Нет данных.");
-  var t="Кому: Бухгалтерия "+(D.company.short||"ООО «ЭК «ЕД-2»")+" ("+(D.company.email_buh||"")+")
-"+
-    "От: собственника участка №"+p.lot+" (кадастр "+p.cad+"), "+p.fio+"
-"+
-    "Адрес участка: "+p.addr_full+"
-Тема: Передача показаний приборов учёта
-
-"+
-    r.map(function(x){return "- "+x.date+" | "+x.type+": "+x.cur+(x.prev!=null?" (пред. "+x.prev+")":"");}).join("
-")+
-    "
-
-Телефон: "+p.tel+", e-mail: "+p.mail;
+  var t="Кому: Бухгалтерия "+(D.company.short||"ООО «ЭК «ЕД-2»")+" ("+(D.company.email_buh||"")+")\n"+
+    "От: собственника участка №"+p.lot+" (кадастр "+p.cad+"), "+p.fio+"\n"+
+    "Адрес участка: "+p.addr_full+"\nТема: Передача показаний приборов учёта\n\n"+
+    r.map(function(x){return "- "+x.date+" | "+x.type+": "+x.cur+(x.prev!=null?" (пред. "+x.prev+")":"");}).join("\n")+
+    "\n\nТелефон: "+p.tel+", e-mail: "+p.mail;
   var el=$("m_letter");el.style.display="block";el.textContent=t;
 }
 
@@ -562,14 +556,10 @@ function renderPasses(){
 }
 function guardText(){
   var list=passes(),p=prof(); if(!p||!list.length) return alert("Нет пропусков.");
-  var t="КПП "+(D.company.settlement||"")+" (охрана "+((D.company.phones||{})["КПП (охрана)"]||"")+")
-"+
-    "Адрес КПП: "+(D.company.office_address||"")+"
-"+
-    "Заявка от собственника участка №"+p.lot+" ("+p.fio+", тел. "+p.tel+"):
-"+
-    list.map(function(x){return "• "+x.code+" | по "+x.until+" ("+x.type+") | "+x.plate+" | "+x.guest;}).join("
-");
+  var t="КПП "+(D.company.settlement||"")+" (охрана "+((D.company.phones||{})["КПП (охрана)"]||"")+")\n"+
+    "Адрес КПП: "+(D.company.office_address||"")+"\n"+
+    "Заявка от собственника участка №"+p.lot+" ("+p.fio+", тел. "+p.tel+"):\n"+
+    list.map(function(x){return "• "+x.code+" | по "+x.until+" ("+x.type+") | "+x.plate+" | "+x.guest;}).join("\n");
   var el=$("p_txt");el.style.display="block";el.textContent=t;
 }
 
@@ -691,12 +681,11 @@ function loadMetersUI(){
   sewageInput.value=saved.sewage||"";
 
   if(p.mosenergo==="yes"){
-    elecInput.type="text";
     elecInput.value="—";
     elecInput.style.background="#f0f4f0";
     elecInput.style.color="#666";
     elecHint.textContent="Передавайте показания напрямую в АО «Мосэнерго».";
-    periodInfo.innerHTML="Период: <b>Текущий месяц</b>. У вас есть прямой договор с Мосэнерго — введите показания холодной воды.";
+    periodInfo.innerHTML="Период: <b>Текущий месяц</b>. У вас есть прямой договор с Мосэнерго — введите показания воды для учёта общедомовых нужд.";
     $("mosenergo_info_block").innerHTML=
       "<div class='note' style='border-left-color:var(--green)'>"+
       "✓ У вас зарегистрирован прямой договор с АО «Мосэнерго»"+
@@ -706,14 +695,12 @@ function loadMetersUI(){
       "Для изменения данных обратитесь в раздел «Регистрация».</div>";
   }else{
     if(meterData){
-      elecInput.type="number";
       elecInput.value=meterData.electricity;
       elecInput.style.background="#e8f5e9";
       elecInput.style.color="#2e7d32";
       elecHint.textContent="Данные предоставлены инженером ООО «ЭК «ЕД-2»";
-      periodInfo.innerHTML="Период: <b>"+esc(meterData.period||"Текущий")+"</b>. Электричество учтено УК. Введите показания холодной воды.";
+      periodInfo.innerHTML="Период: <b>"+esc(meterData.period||"Текущий")+"</b>. Электричество учтено УК. Введите показания воды.";
     }else{
-      elecInput.type="text";
       elecInput.value="Нет данных";
       elecInput.style.background="#fff3e0";
       elecInput.style.color="#ef6c00";
@@ -777,13 +764,13 @@ function payload(){
           poll_votes:(function(){try{return JSON.parse(localStorage.getItem("ed2_"+(D.poll?D.poll.id:"poll_1")));}catch(e){return null;}})()};
 }
 function exportJSON(){
-  var d=payload(); if(!d||!d.owner_profile) return alert("Сначала заполните профиль собственника.");
+  var d=payload(); if(!d.owner_profile) return alert("Сначала заполните профиль собственника.");
   var a=document.createElement("a");
   a.href=URL.createObjectURL(new Blob([JSON.stringify(d,null,2)],{type:"application/json"}));
   a.download="ed2_uch_"+normLot(d.owner_profile.lot).replace(/\//g,"-")+"_"+Date.now()+".json";a.click();
 }
 function copyJSON(){
-  var d=payload(); if(!d||!d.owner_profile) return alert("Сначала заполните профиль собственника.");
+  var d=payload(); if(!d.owner_profile) return alert("Сначала заполните профиль собственника.");
   navigator.clipboard.writeText(JSON.stringify(d,null,2)).then(function(){alert("Пакет скопирован в буфер обмена.");});
 }
 
