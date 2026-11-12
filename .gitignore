@@ -1,0 +1,7 @@
+# Публикуем только обезличенные данные личного кабинета
+*
+!.gitignore
+!index.html
+!qrcode.min.js
+!data/
+!data/**
