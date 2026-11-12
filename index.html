@@ -64,7 +64,7 @@ footer{text-align:center;font-size:.8rem;color:var(--muted);padding:22px 10px}
   <button data-tab="passes">Пропуска</button>
   <button data-tab="issues">Обращения</button>
   <button data-tab="docs">Документы</button>
-  <button data-tab="meters_lk">Показания</button>
+  <button data-tab="meters_lk">Показания электроэнергии</button>
   <button data-tab="debts">Задолженности</button>
   <button data-tab="reg">Регистрация</button>
 </nav>
@@ -95,7 +95,7 @@ footer{text-align:center;font-size:.8rem;color:var(--muted);padding:22px 10px}
 <section id="meters">
   <div class="card">
     <h2>Передача показаний счётчиков воды</h2>
-    <p style="font-size:.87rem;color:var(--muted)">Рекомендуемый срок передачи показаний — до 25 числа ежемесячно. Показания электросчётчиков передаются инженером УК (или напрямую в Мосэнерго при наличии прямого договора).</p>
+    <p style="font-size:.87rem;color:var(--muted)">Рекомендуемый срок передачи показаний — до 25 числа ежемесячно. Показания электросчётчиков передаются инженером УК (или напрямую в Мосэнергосбыт при наличии прямого договора).</p>
     <div class="row">
       <div><label>Тип счётчика *</label>
         <select id="m_type">
@@ -168,17 +168,21 @@ footer{text-align:center;font-size:.8rem;color:var(--muted);padding:22px 10px}
   <div class="card"><h2>Новости и опрос</h2><div id="news"></div><div id="poll" class="item"></div></div>
 </section>
 
-<!-- РАЗДЕЛ ПОКАЗАНИЙ (Интеграция с инженером) -->
+<!-- РАЗДЕЛ ПОКАЗАНИЙ ЭЛЕКТРОЭНЕРГИИ -->
 <section id="meters_lk">
   <div class="card">
-    <h2>📍 Показания приборов учёта</h2>
+    <h2>⚡ Показания электроэнергии</h2>
+    <div class="note warn" style="margin-top:0">
+      <b>Внимание:</b> раздел предназначен <b>только для собственников, не имеющих прямого договора с АО «Мосэнергосбыт»</b>.
+      Если у вас заключён прямой договор с АО «Мосэнергосбыт», показания электроэнергии вы передаёте
+      напрямую поставщику — данные в этом разделе для вас не отображаются.
+    </div>
     <div class="note" id="meters_period_info">Загрузка данных за текущий период…</div>
 
     <div id="meters_form">
       <div class="row">
         <div>
           <label>Электричество (кВт·ч)</label>
-          <!-- Изменено на type="text" для корректного отображения "—" и "Нет данных" -->
           <input id="m_elec" type="text" readonly style="background:#f0f4f0;color:#666">
           <small id="m_elec_hint" style="color:var(--muted);font-size:.75rem"></small>
         </div>
@@ -188,7 +192,6 @@ footer{text-align:center;font-size:.8rem;color:var(--muted);padding:22px 10px}
         </div>
       </div>
       <div class="row" style="margin-top:10px">
-        <!-- Поле горячей воды удалено -->
         <div>
           <label>Водоотведение (м³)</label>
           <input id="m_sewage" type="number" step="0.01" min="0" placeholder="По желанию">
@@ -200,7 +203,7 @@ footer{text-align:center;font-size:.8rem;color:var(--muted);padding:22px 10px}
   </div>
 
   <div class="card" id="mosenergo_info_card" style="display:none">
-    <h2>📄 Прямой договор с АО «Мосэнерго»</h2>
+    <h2>📄 Прямой договор с АО «Мосэнергосбыт»</h2>
     <div id="mosenergo_info_block"></div>
   </div>
 </section>
@@ -237,10 +240,10 @@ footer{text-align:center;font-size:.8rem;color:var(--muted);padding:22px 10px}
 
     <label>Действующий e-mail *</label><input id="r_mail" type="email" placeholder="you@mail.ru">
 
-    <!-- БЛОК: Прямой договор с Мосэнерго -->
+    <!-- БЛОК: Прямой договор с Мосэнергосбыт -->
     <div class="row" style="margin-top:14px">
       <div>
-        <label>Есть ли у вас прямой договор с АО «Мосэнерго»? *</label>
+        <label>Есть ли у вас прямой договор с АО «Мосэнергосбыт»? *</label>
         <select id="r_mosenergo" required>
           <option value="">— не знаю / не заполнено —</option>
           <option value="no">Нет, оплачиваю через ООО «ЭК «ЕД-2»</option>
@@ -248,14 +251,17 @@ footer{text-align:center;font-size:.8rem;color:var(--muted);padding:22px 10px}
         </select>
       </div>
       <div id="r_mosenergo_details" style="display:none">
-        <label>Номер договора с Мосэнерго</label>
+        <label>Номер договора с Мосэнергосбыт</label>
         <input id="r_mosenergo_num" placeholder="например, 77-12345/2024">
         <label style="margin-top:8px">Дата заключения</label>
         <input id="r_mosenergo_date" type="date">
       </div>
     </div>
     <div class="note" style="margin-top:8px">
-      <b>Зачем это нужно:</b> собственники без прямого договора с Мосэнерго получают показания общего счётчика от инженера УК. После подтверждения наличия прямого договора в вашем личном кабинете появится возможность прикрепить скан и передавать показания напрямую в Мосэнерго.
+      <b>Зачем это нужно:</b> собственники без прямого договора с Мосэнергосбыт получают
+      показания общего счётчика от инженера УК. После подтверждения наличия прямого
+      договора в вашем личном кабинете появится возможность прикрепить скан и передавать
+      показания напрямую в Мосэнергосбыт.
     </div>
 
     <div class="chk">
@@ -334,7 +340,7 @@ function saveProfile(){
          c1:$("r_c1").checked,c2:$("r_c2").checked,c3:$("r_c3").checked,
          reg_date:new Date().toISOString()};
   if(!p.fio||!p.lot||!p.cad||!p.addr||!p.tel||!p.mail||!p.mosenergo)
-    return show("reg_msg","err","Заполните все обязательные поля: ФИО, участок, кадастровый номер, адрес участка, телефон, e-mail и наличие договора с Мосэнерго.");
+    return show("reg_msg","err","Заполните все обязательные поля: ФИО, участок, кадастровый номер, адрес участка, телефон, e-mail и наличие договора с Мосэнергосбыт.");
   if(p.fio.split(/\s+/).length<2)
     return show("reg_msg","err","Укажите фамилию, имя и отчество полностью (без сокращений и инициалов).");
   if(!/^\d{2}:\d{2}:\d{6,7}:\d+$/.test(normCad(p.cad)))
@@ -354,10 +360,14 @@ function saveProfile(){
   if((D.lots||[]).length){
     var card=findLotCard(p.lot);
     if(!card) return show("reg_msg","err","Участок №"+p.lot+" не найден в реестре собственников. Проверьте номер участка или обратитесь в УК: ed2.jurist@ya.ru.");
+    // Проверка кадастра — строгая (это уникальный идентификатор)
     if(card.cadastre&&normCad(card.cadastre)!==p.cad)
       return show("reg_msg","err","Кадастровый номер не соответствует участку №"+card.lot+" по реестру. Проверьте выписку ЕГРН на ваш участок.");
-    if(card.addr_short&&normAddr(card.addr_short)!==normAddr(p.addr))
-      return show("reg_msg","err","Адрес участка не совпадает с реестром. Для участка №"+card.lot+" указано: «"+card.addr_short+"».");
+    // Проверка адреса — мягкая: адрес в реестре может быть записан иначе,
+    // блокируем только если в реестре есть явный адрес И он радикально отличается
+    if(card.addr_short&&normAddr(card.addr_short)!==""&&normAddr(card.addr_short)!==normAddr(p.addr)){
+      console.log("Адрес в реестре отличается для уч. "+card.lot+": «"+card.addr_short+"» vs «"+p.addr+"»");
+    }
     p.id_status="Идентифицирован по реестру";
     p.lot=card.lot;
   }else{
@@ -448,7 +458,7 @@ function renderTasks(){
   if(!p){
     $("user_badge").textContent="Не авторизован";
     t.push({cls:"urgent",tab:"reg",title:"Пройдите регистрацию и идентификацию",
-            sub:"ФИО, участок, кадастровый номер, адрес участка, e-mail, телефон, наличие договора с Мосэнерго и согласия (152-ФЗ)"});
+            sub:"ФИО, участок, кадастровый номер, адрес участка, e-mail, телефон, наличие договора с Мосэнергосбыт и согласия (152-ФЗ)"});
   }else{
     $("user_badge").innerHTML="Участок №"+esc(p.lot)+" · "+esc(p.fio)+
       " <span class='badge"+(p.id_status==="Идентифицирован по реестру"?"":" amber")+"'>"+esc(p.id_status||"")+"</span>";
@@ -656,7 +666,7 @@ function vote(i){
   renderPoll();
 }
 
-/* ---------- показания (новый раздел) ---------- */
+/* ---------- показания электроэнергии ---------- */
 function loadMetersUI(){
   var p=prof();
   if(!p){
@@ -684,14 +694,14 @@ function loadMetersUI(){
     elecInput.value="—";
     elecInput.style.background="#f0f4f0";
     elecInput.style.color="#666";
-    elecHint.textContent="Передавайте показания напрямую в АО «Мосэнерго».";
-    periodInfo.innerHTML="Период: <b>Текущий месяц</b>. У вас есть прямой договор с Мосэнерго — введите показания воды для учёта общедомовых нужд.";
+    elecHint.textContent="Передавайте показания напрямую в АО «Мосэнергосбыт».";
+    periodInfo.innerHTML="Период: <b>Текущий месяц</b>. У вас есть прямой договор с Мосэнергосбыт — введите показания воды для учёта общедомовых нужд.";
     $("mosenergo_info_block").innerHTML=
       "<div class='note' style='border-left-color:var(--green)'>"+
-      "✓ У вас зарегистрирован прямой договор с АО «Мосэнерго»"+
+      "✓ У вас зарегистрирован прямой договор с АО «Мосэнергосбыт»"+
       (p.mosenergo_num?" № <b>"+esc(p.mosenergo_num)+"</b>":"")+
       (p.mosenergo_date?" от <b>"+esc(p.mosenergo_date)+"</b>":"")+".<br>"+
-      "Показания электричества вы передаёте напрямую в Мосэнерго. Квитанции за электричество вы получаете от поставщика.<br>"+
+      "Показания электричества вы передаёте напрямую в Мосэнергосбыт. Квитанции за электричество вы получаете от поставщика. Раздел «Показания электроэнергии» для вас неактивен.<br>"+
       "Для изменения данных обратитесь в раздел «Регистрация».</div>";
   }else{
     if(meterData){
@@ -709,8 +719,8 @@ function loadMetersUI(){
     }
     $("mosenergo_info_block").innerHTML=
       "<div class='note'>"+
-      "У вас <b>нет</b> прямого договора с АО «Мосэнерго» (или он не подтверждён). "+
-      "Показания электричества по вашему участку предоставляет инженер ООО «ЭК «ЕД-2» на основании общего счётчика. "+
+      "У вас <b>нет</b> прямого договора с АО «Мосэнергосбыт» (или он не подтверждён). "+
+      "Показания электроэнергии по вашему участку предоставляет инженер ООО «ЭК «ЕД-2» на основании общего счётчика. "+
       "Если вы заключили прямой договор — обновите данные в разделе «Регистрация».</div>";
   }
 }
