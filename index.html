@@ -54,6 +54,8 @@ footer{text-align:center;font-size:.8rem;color:var(--muted);padding:22px 10px}
 .qr-block img,.qr-block canvas{margin:0 auto}
 .photo-preview{max-width:100%;max-height:200px;margin-top:8px;border-radius:8px;border:1px solid #ddd}
 .elec-block{background:#e8f5e9;padding:14px;border-radius:8px;margin-top:12px;border-left:4px solid var(--green)}
+.elec-value{font-size:1.1rem;font-weight:600;color:var(--amber);margin-top:4px}
+.elec-value.filled{color:var(--gd)}
 </style>
 </head>
 <body>
@@ -95,7 +97,7 @@ footer{text-align:center;font-size:.8rem;color:var(--muted);padding:22px 10px}
   </div>
 </section>
 
-<!-- ОБЪЕДИНЁННЫЙ РАЗДЕЛ СЧЁТЧИКОВ -->
+<!-- ОБЪЕДИНЁННЫЙ РАЗДЕЛ СЧЁТЧИКОВ: ВОДА + ЭЛЕКТРИЧЕСТВО -->
 <section id="meters">
   <div class="card">
     <h2>💧 Показания счётчиков воды</h2>
@@ -104,7 +106,6 @@ footer{text-align:center;font-size:.8rem;color:var(--muted);padding:22px 10px}
       <div><label>Тип счётчика *</label>
         <select id="m_type">
           <option>ХВС (холодная вода)</option>
-          <option>ГВС (горячая вода)</option>
           <option>Водоотведение</option>
         </select>
       </div>
@@ -115,13 +116,7 @@ footer{text-align:center;font-size:.8rem;color:var(--muted);padding:22px 10px}
       <div><label>Предыдущее показание</label><input id="m_prev" type="number" step="0.01" min="0"></div>
     </div>
     <label>Заводской номер / примечание</label><input id="m_note">
-    
-    <!-- ДОБАВЛЕНО: Фото водосчётчика -->
-    <label style="margin-top:10px">Фото водосчётчика (необязательно)</label>
-    <input id="m_water_photo" type="file" accept="image/*" capture="environment">
-    <img id="m_water_photo_preview" class="photo-preview" style="display:none">
-    
-    <button class="btn" id="btn_meter" style="margin-top:12px">Сохранить показание</button>
+    <button class="btn" id="btn_meter">Сохранить показание</button>
     <div class="msg" id="m_msg"></div>
   </div>
 
@@ -130,18 +125,20 @@ footer{text-align:center;font-size:.8rem;color:var(--muted);padding:22px 10px}
     <button class="btn gray" id="btn_letter">Письмо в бухгалтерию</button>
     <pre id="m_letter"></pre></div>
 
-  <!-- БЛОК ЭЛЕКТРОЭНЕРГИИ (только для собственников с прямым договором) -->
+  <!-- БЛОК ЭЛЕКТРОЭНЕРГИИ: ВСЕГДА ВИДЕН ДЛЯ ЗАРЕГИСТРИРОВАННОГО, МЕНЯЕТ СОДЕРЖИМОЕ -->
   <div class="card" id="elec_card" style="display:none">
     <h2>⚡ Показания электросчётчика</h2>
     <div class="elec-block">
       <p style="font-size:.87rem;color:var(--gd);margin-bottom:10px">
         <b>Показания электросчётчиков передаются инженером ООО «ЭК «ЕД-2».</b><br>
-        <b>Внимание:</b> раздел предназначен только для собственников, имеющих прямые договоры с АО «Мосэнергосбыт».
+        <b>Внимание:</b> раздел предназначен только для собственников, имеющих прямые договора с АО «Мосэнергосбыт».
       </p>
       <div class="note" id="elec_period_info">Период: Текущий месяц. Данные от инженера УК ожидаются.</div>
     </div>
+
+    <!-- СОСТОЯНИЕ 1: есть прямой договор → форма ввода + фото -->
     <div id="elec_form_block" style="display:none">
-      <div class="note" id="elec_eng_hint" style="margin-top:12px"></div>
+      <div class="note" id="elec_eng_hint"></div>
       <div class="row" style="margin-top:14px">
         <div>
           <label>Электричество (кВт·ч) — текущее *</label>
@@ -152,12 +149,14 @@ footer{text-align:center;font-size:.8rem;color:var(--muted);padding:22px 10px}
           <input id="m_elec_prev" type="number" step="0.01" min="0" placeholder="Введите предыдущее показание">
         </div>
       </div>
-      <label style="margin-top:10px">Фото электросчётчика (необязательно)</label>
+      <label>Фото электросчётчика (необязательно)</label>
       <input id="m_elec_photo" type="file" accept="image/*" capture="environment">
       <img id="m_elec_photo_preview" class="photo-preview" style="display:none">
       <button class="btn" id="btn_save_elec" style="margin-top:12px">Сохранить показания электроэнергии</button>
       <div class="msg" id="m_elec_msg"></div>
     </div>
+
+    <!-- СОСТОЯНИЕ 2: нет прямого договора → заглушка + подсказка -->
     <div id="elec_info_block" style="display:none">
       <div class="item">
         <label style="margin-top:0">Электричество (кВт·ч)</label>
@@ -363,7 +362,7 @@ function saveProfile(){
          c1:$("r_c1").checked,c2:$("r_c2").checked,c3:$("r_c3").checked,
          reg_date:new Date().toISOString()};
   if(!p.fio||!p.lot||!p.cad||!p.addr||!p.tel||!p.mail||!p.mosenergo)
-    return show("reg_msg","err","Заполните все обязательные поля: ФИО, участок, кадастровый номер, адрес участка, телефон, e-mail и наличие договора с Мосэнергосбыт.");
+    return show("reg_msg","err","Заполните все обязательные поля: ФИО, участок, кадастровый номер, адрес участка, телефон, e-mail и наличие договора с АО «Мосэнергосбыт».");
   if(p.fio.split(/\s+/).length<2)
     return show("reg_msg","err","Укажите фамилию, имя и отчество полностью (без сокращений и инициалов).");
   if(!/^\d{2}:\d{2}:\d{6,7}:\d+$/.test(normCad(p.cad)))
@@ -479,7 +478,7 @@ function renderTasks(){
   if(!p){
     $("user_badge").textContent="Не авторизован";
     t.push({cls:"urgent",tab:"reg",title:"Пройдите регистрацию и идентификацию",
-            sub:"ФИО, участок, кадастровый номер, адрес участка, e-mail, телефон, наличие договора с Мосэнергосбыт и согласия (152-ФЗ)"});
+            sub:"ФИО, участок, кадастровый номер, адрес участка, e-mail, телефон, наличие договора с АО «Мосэнергосбыт» и согласия (152-ФЗ)"});
   }else{
     $("user_badge").innerHTML="Участок №"+esc(p.lot)+" · "+esc(p.fio)+
       " <span class='badge"+(p.id_status==="Идентифицирован по реестру"?"":" amber")+"'>"+esc(p.id_status||"")+"</span>";
@@ -512,58 +511,26 @@ function renderTasks(){
 
 /* ---------- счётчики воды ---------- */
 function readings(){var l=myLot();return loadArr("ed2_meters").filter(function(r){return l&&lotMatch(r.lot,l);});}
-
 function addReading(){
   var p=prof(); if(!p) return show("m_msg","err","Сначала пройдите регистрацию.");
   var cur=parseFloat($("m_cur").value), prev=$("m_prev").value===""?null:parseFloat($("m_prev").value);
   if(isNaN(cur)||cur<0) return show("m_msg","err","Введите корректное текущее показание.");
   if(prev!==null&&cur<=prev) return show("m_msg","err","Текущее показание должно быть больше предыдущего ("+prev+").");
-  
-  var photoFile = $("m_water_photo").files[0];
-  if(photoFile){
-    if(photoFile.size > 5*1024*1024) return show("m_msg","err","Фото слишком большое (макс. 5 МБ).");
-    var reader = new FileReader();
-    reader.onload = function(e){
-      finishSaveReading(p, cur, prev, e.target.result);
-    };
-    reader.readAsDataURL(photoFile);
-  } else {
-    finishSaveReading(p, cur, prev, null);
-  }
-}
-
-function finishSaveReading(p, cur, prev, photoData){
   var all=loadArr("ed2_meters");
-  all.push({
-    id: Date.now(),
-    date: $("m_date").value,
-    type: $("m_type").value,
-    cur: cur,
-    prev: prev,
-    note: $("m_note").value.trim(),
-    lot: p.lot,
-    cad: p.cad,
-    fio: p.fio,
-    photo: photoData
-  });
-  saveArr("ed2_meters", all);
-  $("m_cur").value=""; $("m_prev").value=""; $("m_note").value="";
-  $("m_water_photo").value = "";
-  $("m_water_photo_preview").style.display = "none";
+  all.push({id:Date.now(),date:$("m_date").value,type:$("m_type").value,cur:cur,prev:prev,
+            note:$("m_note").value.trim(),lot:p.lot,cad:p.cad,fio:p.fio});
+  saveArr("ed2_meters",all);
+  $("m_cur").value="";$("m_prev").value="";$("m_note").value="";
   show("m_msg","ok","Показание сохранено. Выгрузите CSV или пакет JSON для УК.");
-  renderReadings(); renderTasks();
+  renderReadings();renderTasks();
 }
-
 function renderReadings(){
-  var r=readings(), el=$("m_list");
+  var r=readings(),el=$("m_list");
   if(!r.length){el.innerHTML="<p style='color:#666;font-size:.9rem'>Показаний пока нет.</p>";return;}
-  el.innerHTML="<table><thead><tr><th>Дата</th><th>Тип</th><th>Текущее</th><th>Пред.</th><th>Примечание</th><th>Фото</th></tr></thead><tbody>"+
-    r.slice().reverse().map(function(x){
-      var photoHtml = x.photo ? "<span style='color:var(--green)'>📷 Есть</span>" : "—";
-      return "<tr><td>"+esc(x.date)+"</td><td>"+esc(x.type)+"</td><td><b>"+esc(x.cur)+"</b></td><td>"+esc(x.prev==null?"—":x.prev)+"</td><td>"+esc(x.note||"—")+"</td><td>"+photoHtml+"</td></tr>";
-    }).join("")+"</tbody></table>";
+  el.innerHTML="<table><thead><tr><th>Дата</th><th>Тип</th><th>Текущее</th><th>Пред.</th><th>Примечание</th></tr></thead><tbody>"+
+    r.slice().reverse().map(function(x){return "<tr><td>"+esc(x.date)+"</td><td>"+esc(x.type)+"</td><td><b>"+esc(x.cur)+
+      "</b></td><td>"+esc(x.prev==null?"—":x.prev)+"</td><td>"+esc(x.note||"—")+"</td></tr>";}).join("")+"</tbody></table>";
 }
-
 function exportCSV(){
   var r=readings(); if(!r.length) return alert("Нет данных для выгрузки.");
   function q(v){return '"'+String(v==null?"":v).replace(/"/g,'""')+'"';}
@@ -583,7 +550,7 @@ function genLetter(){
   var el=$("m_letter");el.style.display="block";el.textContent=t;
 }
 
-/* ---------- электросчётчик ---------- */
+/* ---------- электросчётчик: ДВА СОСТОЯНИЯ ---------- */
 function renderElecBlock(){
   var p=prof();
   var card=$("elec_card");
@@ -599,17 +566,19 @@ function renderElecBlock(){
   var saved=savedElec[lot]||{};
 
   if(p.mosenergo==="yes"){
+    /* Прямой договор → форма ввода + фото */
     formBlock.style.display="block";
     infoBlock.style.display="none";
     $("m_elec_cur").value=saved.cur||"";
     $("m_elec_prev").value=saved.prev||"";
     var hint=$("elec_eng_hint");
     if(meterData){
-      hint.innerHTML="Ориентир от инженера за период <b>"+esc(meterData.period||"текущий")+"</b>: <b>"+meterData.electricity+" кВт·ч</b> (общий счётчик).";
+      hint.innerHTML="Ориентир от инженера за период <b>"+esc(meterData.period||"текущий")+"</b>: <b>"+meterData.electricity+" кВт·ч</b> (по общему счётчику).";
     }else{
       hint.textContent="Данные инженера за текущий период ещё не внесены — введите показания самостоятельно.";
     }
   }else{
+    /* Нет прямого договора → заглушка + подсказка */
     formBlock.style.display="none";
     infoBlock.style.display="block";
     $("elec_period_info").innerHTML="Период: <b>Текущий месяц</b>. Данные от инженера УК ожидаются.";
@@ -651,19 +620,11 @@ function finishSaveElec(lot,cur,prev,photoData){
   var savedElec=JSON.parse(localStorage.getItem("ed2_elec_meters")||"{}");
   savedElec[lot]={cur:cur,prev:prev,date:new Date().toISOString(),photo:photoData,mosenergo_contract:"yes"};
   localStorage.setItem("ed2_elec_meters",JSON.stringify(savedElec));
-  $("m_elec_cur").value=""; $("m_elec_prev").value=""; $("m_elec_photo").value="";
+  $("m_elec_cur").value="";$("m_elec_prev").value="";$("m_elec_photo").value="";
   $("m_elec_photo_preview").style.display="none";
   show("m_elec_msg","ok","Показания электроэнергии сохранены "+new Date().toLocaleString("ru-RU")+". Они будут переданы в УК при выгрузке пакета JSON.");
   renderElecBlock();
 }
-
-$("m_water_photo").addEventListener("change",function(e){
-  var file=e.target.files[0]; if(!file) return;
-  var reader=new FileReader();
-  reader.onload=function(ev){$("m_water_photo_preview").src=ev.target.result;$("m_water_photo_preview").style.display="block";};
-  reader.readAsDataURL(file);
-});
-
 $("m_elec_photo").addEventListener("change",function(e){
   var file=e.target.files[0]; if(!file) return;
   var reader=new FileReader();
