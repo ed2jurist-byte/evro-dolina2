@@ -50,6 +50,10 @@ tr.mine{background:var(--gl)}
 .chk input{width:18px;height:18px;flex-shrink:0;margin-top:2px}
 pre{background:#f0f4f0;padding:12px;border-radius:8px;font-size:.84rem;white-space:pre-wrap;margin-top:10px;display:none}
 footer{text-align:center;font-size:.8rem;color:var(--muted);padding:22px 10px}
+.qr-block{text-align:center;margin-top:16px;padding:16px;background:#f9fbf9;border-radius:8px}
+.qr-block img,.qr-block canvas{margin:0 auto}
+.photo-preview{max-width:100%;max-height:200px;margin-top:8px;border-radius:8px;border:1px solid #ddd}
+.elec-block{background:#e8f5e9;padding:14px;border-radius:8px;margin-top:12px;border-left:4px solid var(--green)}
 </style>
 </head>
 <body>
@@ -64,7 +68,6 @@ footer{text-align:center;font-size:.8rem;color:var(--muted);padding:22px 10px}
   <button data-tab="passes">Пропуска</button>
   <button data-tab="issues">Обращения</button>
   <button data-tab="docs">Документы</button>
-  <button data-tab="meters_lk">Показания электроэнергии</button>
   <button data-tab="debts">Задолженности</button>
   <button data-tab="reg">Регистрация</button>
 </nav>
@@ -92,14 +95,16 @@ footer{text-align:center;font-size:.8rem;color:var(--muted);padding:22px 10px}
   </div>
 </section>
 
+<!-- ОБЪЕДИНЁННЫЙ РАЗДЕЛ СЧЁТЧИКОВ -->
 <section id="meters">
   <div class="card">
-    <h2>Передача показаний счётчиков воды</h2>
-    <p style="font-size:.87rem;color:var(--muted)">Рекомендуемый срок передачи показаний — до 25 числа ежемесячно. Показания электросчётчиков передаются инженером УК (или напрямую в Мосэнергосбыт при наличии прямого договора).</p>
+    <h2>💧 Показания счётчиков воды</h2>
+    <p style="font-size:.87rem;color:var(--muted)">Рекомендуемый срок передачи показаний — до 25 числа ежемесячно.</p>
     <div class="row">
       <div><label>Тип счётчика *</label>
         <select id="m_type">
           <option>ХВС (холодная вода)</option>
+          <option>Водоотведение</option>
         </select>
       </div>
       <div><label>Дата снятия *</label><input id="m_date" type="date"></div>
@@ -112,10 +117,38 @@ footer{text-align:center;font-size:.8rem;color:var(--muted);padding:22px 10px}
     <button class="btn" id="btn_meter">Сохранить показание</button>
     <div class="msg" id="m_msg"></div>
   </div>
-  <div class="card"><h2>История показаний</h2><div id="m_list"></div>
+
+  <div class="card"><h2>📜 История показаний воды</h2><div id="m_list"></div>
     <button class="btn gray" id="btn_csv">Выгрузить CSV</button>
     <button class="btn gray" id="btn_letter">Письмо в бухгалтерию</button>
     <pre id="m_letter"></pre></div>
+
+  <!-- БЛОК ЭЛЕКТРОЭНЕРГИИ (только для собственников с прямым договором) -->
+  <div class="card" id="elec_card" style="display:none">
+    <h2>⚡ Показания электросчётчика</h2>
+    <div class="elec-block">
+      <p style="font-size:.87rem;color:var(--gd);margin-bottom:10px">
+        <b>Показания электросчётчиков передаются инженером ООО «ЭК «ЕД-2».</b><br>
+        <b>Внимание:</b> раздел предназначен только для собственников, имеющих прямые договоры с АО «Мосэнергосбыт».
+      </p>
+      <div class="note" id="elec_period_info">Период: Текущий месяц. Данные от инженера УК ожидаются.</div>
+    </div>
+    <div class="row" style="margin-top:14px">
+      <div>
+        <label>Электричество (кВт·ч) — текущее *</label>
+        <input id="m_elec_cur" type="number" step="0.01" min="0" placeholder="Введите текущее показание">
+      </div>
+      <div>
+        <label>Электричество (кВт·ч) — предыдущее</label>
+        <input id="m_elec_prev" type="number" step="0.01" min="0" placeholder="Введите предыдущее показание">
+      </div>
+    </div>
+    <label>Фото электросчётчика</label>
+    <input id="m_elec_photo" type="file" accept="image/*" capture="environment">
+    <img id="m_elec_photo_preview" class="photo-preview" style="display:none">
+    <button class="btn" id="btn_save_elec" style="margin-top:12px">Сохранить показания электроэнергии</button>
+    <div class="msg" id="m_elec_msg"></div>
+  </div>
 </section>
 
 <section id="passes">
@@ -168,54 +201,28 @@ footer{text-align:center;font-size:.8rem;color:var(--muted);padding:22px 10px}
   <div class="card"><h2>Новости и опрос</h2><div id="news"></div><div id="poll" class="item"></div></div>
 </section>
 
-<!-- РАЗДЕЛ ПОКАЗАНИЙ ЭЛЕКТРОЭНЕРГИИ -->
-<section id="meters_lk">
-  <div class="card">
-    <h2>⚡ Показания электроэнергии</h2>
-    <div class="note warn" style="margin-top:0">
-      <b>Внимание:</b> раздел предназначен <b>только для собственников, не имеющих прямого договора с АО «Мосэнергосбыт»</b>.
-      Если у вас заключён прямой договор с АО «Мосэнергосбыт», показания электроэнергии вы передаёте
-      напрямую поставщику — данные в этом разделе для вас не отображаются.
-    </div>
-    <div class="note" id="meters_period_info">Загрузка данных за текущий период…</div>
-
-    <div id="meters_form">
-      <div class="row">
-        <div>
-          <label>Электричество (кВт·ч)</label>
-          <input id="m_elec" type="text" readonly style="background:#f0f4f0;color:#666">
-          <small id="m_elec_hint" style="color:var(--muted);font-size:.75rem"></small>
-        </div>
-        <div>
-          <label>Вода холодная (м³) *</label>
-          <input id="m_water" type="number" step="0.01" min="0" placeholder="Введите показания">
-        </div>
-      </div>
-      <div class="row" style="margin-top:10px">
-        <div>
-          <label>Водоотведение (м³)</label>
-          <input id="m_sewage" type="number" step="0.01" min="0" placeholder="По желанию">
-        </div>
-      </div>
-      <button class="btn" id="btn_save_meters" style="margin-top:16px">Сохранить показания</button>
-      <div class="msg" id="meters_msg"></div>
-    </div>
-  </div>
-
-  <div class="card" id="mosenergo_info_card" style="display:none">
-    <h2>📄 Прямой договор с АО «Мосэнергосбыт»</h2>
-    <div id="mosenergo_info_block"></div>
-  </div>
-</section>
-
+<!-- ЗАДОЛЖЕННОСТИ (только для зарегистрированных) -->
 <section id="debts">
   <div class="card">
     <h2>Реестр задолженностей</h2>
     <div class="note warn"><b>152-ФЗ:</b> публикуются только номера участков. ФИО, телефоны, e-mail и иные персональные данные не размещаются.</div>
+    <div id="debts_auth_block"></div>
     <div class="note" id="debts_date"></div>
-    <table><thead><tr><th>Участок</th><th>Услуга</th><th>Период</th><th>Сумма, ₽</th><th>Статус</th></tr></thead>
-      <tbody id="d_body"><tr><td colspan="5" style="text-align:center;color:#666">Загрузка…</td></tr></tbody></table>
-    <div class="note">Если участка нет в списке — задолженность не зафиксирована. Сверка начислений: бухгалтерия УК.</div>
+    <div id="debts_table_block" style="display:none">
+      <table><thead><tr><th>Участок</th><th>Услуга</th><th>Период</th><th>Сумма, ₽</th><th>Статус</th></tr></thead>
+        <tbody id="d_body"><tr><td colspan="5" style="text-align:center;color:#666">Загрузка…</td></tr></tbody></table>
+      <div class="note">Если участка нет в списке — задолженность не зафиксирована. Сверка начислений: бухгалтерия УК.</div>
+      
+      <!-- QR-код оплаты -->
+      <div id="payment_qr_block" style="display:none">
+        <h3 style="margin-top:16px;color:var(--gd)">💳 Оплата задолженности</h3>
+        <div class="qr-block">
+          <p style="font-size:.85rem;color:var(--muted);margin-bottom:10px">Отсканируйте QR-код для оплаты через банковское приложение (СБП, Сбербанк Онлайн и др.)</p>
+          <div id="payment-qr"></div>
+          <p style="font-size:.78rem;color:var(--muted);margin-top:8px">Получатель: ООО «ЭК «ЕД-2» · ИНН 7751167800 · КПП 770501001</p>
+        </div>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -258,10 +265,7 @@ footer{text-align:center;font-size:.8rem;color:var(--muted);padding:22px 10px}
       </div>
     </div>
     <div class="note" style="margin-top:8px">
-      <b>Зачем это нужно:</b> собственники без прямого договора с Мосэнергосбыт получают
-      показания общего счётчика от инженера УК. После подтверждения наличия прямого
-      договора в вашем личном кабинете появится возможность прикрепить скан и передавать
-      показания напрямую в Мосэнергосбыт.
+      <b>Зачем это нужно:</b> собственники с прямым договором с Мосэнергосбыт получают показания общего счётчика от инженера ООО «ЭК «ЕД-2».
     </div>
 
     <div class="chk">
@@ -278,6 +282,7 @@ footer{text-align:center;font-size:.8rem;color:var(--muted);padding:22px 10px}
 </main>
 <footer id="footer">© ООО «ЭК «ЕД-2»</footer>
 
+<script src="qrcode.min.js"></script>
 <script>
 /* ---------- утилиты ---------- */
 function $(id){return document.getElementById(id);}
@@ -360,11 +365,8 @@ function saveProfile(){
   if((D.lots||[]).length){
     var card=findLotCard(p.lot);
     if(!card) return show("reg_msg","err","Участок №"+p.lot+" не найден в реестре собственников. Проверьте номер участка или обратитесь в УК: ed2.jurist@ya.ru.");
-    // Проверка кадастра — строгая (это уникальный идентификатор)
     if(card.cadastre&&normCad(card.cadastre)!==p.cad)
       return show("reg_msg","err","Кадастровый номер не соответствует участку №"+card.lot+" по реестру. Проверьте выписку ЕГРН на ваш участок.");
-    // Проверка адреса — мягкая: адрес в реестре может быть записан иначе,
-    // блокируем только если в реестре есть явный адрес И он радикально отличается
     if(card.addr_short&&normAddr(card.addr_short)!==""&&normAddr(card.addr_short)!==normAddr(p.addr)){
       console.log("Адрес в реестре отличается для уч. "+card.lot+": «"+card.addr_short+"» vs «"+p.addr+"»");
     }
@@ -489,13 +491,13 @@ function renderTasks(){
       "</div><div class='t-sub'>"+esc(x.sub)+"</div></div><div>→</div></div>";}).join("");
 }
 
-/* ---------- счётчики ---------- */
+/* ---------- счётчики воды ---------- */
 function readings(){var l=myLot();return loadArr("ed2_meters").filter(function(r){return l&&lotMatch(r.lot,l);});}
 function addReading(){
   var p=prof(); if(!p) return show("m_msg","err","Сначала пройдите регистрацию.");
   var cur=parseFloat($("m_cur").value), prev=$("m_prev").value===""?null:parseFloat($("m_prev").value);
   if(isNaN(cur)||cur<0) return show("m_msg","err","Введите корректное текущее показание.");
-  if(prev!==null&&cur<prev) return show("m_msg","err","Текущее показание меньше предыдущего.");
+  if(prev!==null&&cur<=prev) return show("m_msg","err","Текущее показание должно быть больше предыдущего ("+prev+").");
   var all=loadArr("ed2_meters");
   all.push({id:Date.now(),date:$("m_date").value,type:$("m_type").value,cur:cur,prev:prev,
             note:$("m_note").value.trim(),lot:p.lot,cad:p.cad,fio:p.fio});
@@ -529,6 +531,92 @@ function genLetter(){
     "\n\nТелефон: "+p.tel+", e-mail: "+p.mail;
   var el=$("m_letter");el.style.display="block";el.textContent=t;
 }
+
+/* ---------- электросчётчик (только для собственников с прямым договором) ---------- */
+function renderElecBlock(){
+  var p=prof();
+  var card=$("elec_card");
+  if(!p||p.mosenergo!=="yes"){
+    card.style.display="none";
+    return;
+  }
+  card.style.display="block";
+  
+  var lot=normLot(p.lot);
+  var engMeters=D.engineer_meters||{};
+  var meterData=engMeters[lot];
+  var periodInfo=$("elec_period_info");
+  
+  var savedElec=JSON.parse(localStorage.getItem("ed2_elec_meters")||"{}");
+  var saved=savedElec[lot]||{};
+  $("m_elec_cur").value=saved.cur||"";
+  $("m_elec_prev").value=saved.prev||"";
+  
+  if(meterData){
+    periodInfo.innerHTML="Период: <b>"+esc(meterData.period||"Текущий")+"</b>. Инженер внёс данные: <b>"+meterData.electricity+" кВт·ч</b> (общий счётчик). Введите ваше текущее показание.";
+  }else{
+    periodInfo.innerHTML="Период: <b>Текущий месяц</b>. Данные от инженера УК ожидаются.";
+  }
+}
+
+function saveElecReading(){
+  var p=prof();
+  if(!p) return show("m_elec_msg","err","Сначала пройдите регистрацию.");
+  if(p.mosenergo!=="yes") return show("m_elec_msg","err","Раздел доступен только собственникам с прямым договором с Мосэнергосбыт.");
+  
+  var cur=parseFloat($("m_elec_cur").value);
+  var prev=$("m_elec_prev").value===""?null:parseFloat($("m_elec_prev").value);
+  
+  if(isNaN(cur)||cur<0) return show("m_elec_msg","err","Введите корректное текущее показание.");
+  if(prev!==null&&cur<=prev) return show("m_elec_msg","err","Текущее показание должно быть больше предыдущего ("+prev+").");
+  
+  var lot=normLot(p.lot);
+  var savedElec=JSON.parse(localStorage.getItem("ed2_elec_meters")||"{}");
+  
+  var photoData=null;
+  var photoFile=$("m_elec_photo").files[0];
+  if(photoFile){
+    if(photoFile.size>5*1024*1024) return show("m_elec_msg","err","Фото слишком большое (макс. 5 МБ).");
+    var reader=new FileReader();
+    reader.onload=function(e){
+      photoData=e.target.result;
+      finishSaveElec(lot,cur,prev,photoData);
+    };
+    reader.readAsDataURL(photoFile);
+  }else{
+    finishSaveElec(lot,cur,prev,null);
+  }
+}
+
+function finishSaveElec(lot,cur,prev,photoData){
+  var savedElec=JSON.parse(localStorage.getItem("ed2_elec_meters")||"{}");
+  savedElec[lot]={
+    cur:cur,
+    prev:prev,
+    date:new Date().toISOString(),
+    photo:photoData,
+    mosenergo_contract:"yes"
+  };
+  localStorage.setItem("ed2_elec_meters",JSON.stringify(savedElec));
+  $("m_elec_cur").value="";
+  $("m_elec_prev").value="";
+  $("m_elec_photo").value="";
+  $("m_elec_photo_preview").style.display="none";
+  show("m_elec_msg","ok","Показания электроэнергии сохранены "+new Date().toLocaleString("ru-RU")+". Они будут переданы в УК при выгрузке пакета JSON.");
+  renderElecBlock();
+}
+
+// Предпросмотр фото
+$("m_elec_photo").addEventListener("change",function(e){
+  var file=e.target.files[0];
+  if(!file) return;
+  var reader=new FileReader();
+  reader.onload=function(ev){
+    $("m_elec_photo_preview").src=ev.target.result;
+    $("m_elec_photo_preview").style.display="block";
+  };
+  reader.readAsDataURL(file);
+});
 
 /* ---------- пропуска ---------- */
 function passes(){var l=myLot();return loadArr("ed2_passes").filter(function(r){return l&&lotMatch(r.lot,l);});}
@@ -666,90 +754,69 @@ function vote(i){
   renderPoll();
 }
 
-/* ---------- показания электроэнергии ---------- */
-function loadMetersUI(){
+/* ---------- задолженности (только для зарегистрированных) + QR ---------- */
+function renderDebts(){
   var p=prof();
+  var authBlock=$("debts_auth_block");
+  var tableBlock=$("debts_table_block");
+  var qrBlock=$("payment_qr_block");
+  
   if(!p){
-    $("meters_period_info").innerHTML="Пройдите регистрацию, чтобы увидеть показания по вашему участку.";
-    $("meters_form").style.display="none";
-    $("mosenergo_info_card").style.display="none";
+    // Гость — ничего не видит
+    authBlock.innerHTML="<div class='note warn'><b>Раздел доступен только зарегистрированным собственникам.</b><br>Пожалуйста, пройдите регистрацию и идентификацию в разделе «Регистрация», чтобы увидеть информацию о задолженности по вашему участку.</div>";
+    tableBlock.style.display="none";
+    qrBlock.style.display="none";
     return;
   }
-  $("meters_form").style.display="block";
-  $("mosenergo_info_card").style.display="block";
-
-  var lot=normLot(p.lot);
-  var engMeters=D.engineer_meters||{};
-  var meterData=engMeters[lot];
-
-  var elecInput=$("m_elec"), elecHint=$("m_elec_hint"), periodInfo=$("meters_period_info");
-  var waterInput=$("m_water"), sewageInput=$("m_sewage");
-
-  var savedMeters=JSON.parse(localStorage.getItem("ed2_meters_lk")||"{}");
-  var saved=savedMeters[lot]||{};
-  waterInput.value=saved.water||"";
-  sewageInput.value=saved.sewage||"";
-
-  if(p.mosenergo==="yes"){
-    elecInput.value="—";
-    elecInput.style.background="#f0f4f0";
-    elecInput.style.color="#666";
-    elecHint.textContent="Передавайте показания напрямую в АО «Мосэнергосбыт».";
-    periodInfo.innerHTML="Период: <b>Текущий месяц</b>. У вас есть прямой договор с Мосэнергосбыт — введите показания воды для учёта общедомовых нужд.";
-    $("mosenergo_info_block").innerHTML=
-      "<div class='note' style='border-left-color:var(--green)'>"+
-      "✓ У вас зарегистрирован прямой договор с АО «Мосэнергосбыт»"+
-      (p.mosenergo_num?" № <b>"+esc(p.mosenergo_num)+"</b>":"")+
-      (p.mosenergo_date?" от <b>"+esc(p.mosenergo_date)+"</b>":"")+".<br>"+
-      "Показания электричества вы передаёте напрямую в Мосэнергосбыт. Квитанции за электричество вы получаете от поставщика. Раздел «Показания электроэнергии» для вас неактивен.<br>"+
-      "Для изменения данных обратитесь в раздел «Регистрация».</div>";
+  
+  // Зарегистрированный — видит свою задолженность
+  authBlock.innerHTML="<div class='note' style='border-left-color:var(--green)'><b>Участок №"+esc(p.lot)+"</b> · "+esc(p.fio)+" · Кадастр: "+esc(p.cad)+"</div>";
+  tableBlock.style.display="block";
+  
+  var b=$("d_body");
+  if(!D.debts.length){b.innerHTML="<tr><td colspan='5' style='text-align:center;color:#666'>Реестр ожидает выгрузки бухгалтерией.</td></tr>";qrBlock.style.display="none";return;}
+  
+  var mine=D.debts.filter(function(d){return lotMatch(d.lot,p.lot);});
+  if(!mine.length){
+    b.innerHTML="<tr><td colspan='5' style='text-align:center;color:#666'>Задолженность по вашему участку не зафиксирована.</td></tr>";
+    qrBlock.style.display="none";
+    return;
+  }
+  
+  b.innerHTML=mine.map(function(d){
+    return "<tr class='mine'><td><b>"+esc(d.lot)+"</b></td><td>"+esc(d.srv)+"</td><td>"+esc(d.per)+
+      "</td><td>"+fmt(d.sum)+"</td><td><span class='badge red'>"+esc(d.st)+"</span></td></tr>";}).join("");
+  
+  // Генерация QR-кода оплаты (по первой задолженности)
+  if(mine.length>0){
+    var totalAmount=mine.reduce(function(a,b){return a+b.sum;},0);
+    generatePaymentQR(totalAmount,p.lot);
+    qrBlock.style.display="block";
   }else{
-    if(meterData){
-      elecInput.value=meterData.electricity;
-      elecInput.style.background="#e8f5e9";
-      elecInput.style.color="#2e7d32";
-      elecHint.textContent="Данные предоставлены инженером ООО «ЭК «ЕД-2»";
-      periodInfo.innerHTML="Период: <b>"+esc(meterData.period||"Текущий")+"</b>. Электричество учтено УК. Введите показания воды.";
-    }else{
-      elecInput.value="Нет данных";
-      elecInput.style.background="#fff3e0";
-      elecInput.style.color="#ef6c00";
-      elecHint.textContent="Инженер ещё не внёс данные за этот период.";
-      periodInfo.innerHTML="Период: <b>Текущий месяц</b>. Данные от инженера УК ожидаются.";
-    }
-    $("mosenergo_info_block").innerHTML=
-      "<div class='note'>"+
-      "У вас <b>нет</b> прямого договора с АО «Мосэнергосбыт» (или он не подтверждён). "+
-      "Показания электроэнергии по вашему участку предоставляет инженер ООО «ЭК «ЕД-2» на основании общего счётчика. "+
-      "Если вы заключили прямой договор — обновите данные в разделе «Регистрация».</div>";
+    qrBlock.style.display="none";
   }
 }
 
-function saveMeters(){
-  var p=prof();
-  if(!p) return show("meters_msg","err","Сначала пройдите регистрацию.");
-  var waterVal=$("m_water").value.trim();
-  if(!waterVal) return show("meters_msg","err","Пожалуйста, введите показания холодной воды.");
-  var lot=normLot(p.lot);
-  var savedMeters=JSON.parse(localStorage.getItem("ed2_meters_lk")||"{}");
-  savedMeters[lot]={
-    water:waterVal,
-    sewage:$("m_sewage").value.trim()||null,
-    date:new Date().toISOString(),
-    mosenergo_contract:p.mosenergo
-  };
-  localStorage.setItem("ed2_meters_lk",JSON.stringify(savedMeters));
-  show("meters_msg","ok","Показания сохранены "+new Date().toLocaleString("ru-RU")+". Они будут переданы в УК при выгрузке пакета JSON.");
-}
-
-/* ---------- реестр долгов ---------- */
-function renderDebts(){
-  var b=$("d_body"),p=prof();
-  if(!D.debts.length){b.innerHTML="<tr><td colspan='5' style='text-align:center;color:#666'>Реестр ожидает выгрузки бухгалтерией.</td></tr>";return;}
-  b.innerHTML=D.debts.map(function(d){
-    var mine=p&&lotMatch(d.lot,p.lot);
-    return "<tr"+(mine?" class='mine'":"")+"><td><b>"+esc(d.lot)+"</b></td><td>"+esc(d.srv)+"</td><td>"+esc(d.per)+
-      "</td><td>"+fmt(d.sum)+"</td><td><span class='badge red'>"+esc(d.st)+"</span></td></tr>";}).join("");
+function generatePaymentQR(amount,lot){
+  var qrContainer=$("payment-qr");
+  qrContainer.innerHTML="";
+  
+  // Формат ГОСТ Р 56042-2014 для QR-кода платежа
+  var sumKop=Math.round(amount*100);
+  var paymentString="ST00012|Name=ООО «ЭК «ЕД-2»|PersonalAcc=40702810938000335019|BankName=ПАО Сбербанк|BIC=044525225|CorrespAcc=30101810400000000225|PayeeINN=7751167800|KPP=770501001|Sum="+sumKop+"|Purpose=Оплата задолженности за участок №"+lot;
+  
+  if(typeof QRCode!=="undefined"){
+    new QRCode(qrContainer,{
+      text:paymentString,
+      width:220,
+      height:220,
+      colorDark:"#1b5e20",
+      colorLight:"#ffffff",
+      correctLevel:QRCode.CorrectLevel.M
+    });
+  }else{
+    qrContainer.innerHTML="<p style='color:var(--muted);font-size:.85rem'>QR-код недоступен. Реквизиты для оплаты:</p><pre style='display:block;font-size:.78rem;word-break:break-all'>"+esc(paymentString)+"</pre>";
+  }
 }
 
 /* ---------- экспорт ---------- */
@@ -758,6 +825,7 @@ function payload(){
   if(!p) return null;
   var lot=normLot(p.lot);
   var savedMeters=JSON.parse(localStorage.getItem("ed2_meters_lk")||"{}");
+  var savedElec=JSON.parse(localStorage.getItem("ed2_elec_meters")||"{}");
 
   var mosenergo_block=null;
   if(p.mosenergo==="yes"){
@@ -767,7 +835,9 @@ function payload(){
   }
 
   return {system:"KP_ED2_LK",exported_at:new Date().toISOString(),owner_profile:p,
-          meter_readings:readings(),kpp_passes:passes(),issues_and_requests:issues(),
+          meter_readings:readings(),
+          elec_meter_reading:savedElec[lot]||null,
+          kpp_passes:passes(),issues_and_requests:issues(),
           documents_confirmed:loadArr(signedKey()),
           uk_meters_declaration:savedMeters[lot]||null,
           mosenergo_contract:mosenergo_block,
@@ -794,7 +864,7 @@ function go(tab){
 }
 function renderAll(){
   renderCompany();renderTasks();renderReadings();renderPasses();renderIssues();
-  renderDocs();renderNews();renderPoll();renderDebts();loadMetersUI();
+  renderDocs();renderNews();renderPoll();renderDebts();renderElecBlock();
   var p=prof();
   if(p){
     $("r_fio").value=p.fio;$("r_lot").value=p.lot;$("r_cad").value=p.cad||"";
@@ -819,7 +889,7 @@ $("btn_save").onclick=saveProfile; $("btn_clear").onclick=clearProfile;
 $("btn_meter").onclick=addReading; $("btn_csv").onclick=exportCSV; $("btn_letter").onclick=genLetter;
 $("btn_pass").onclick=addPass; $("btn_guard").onclick=guardText;
 $("btn_issue").onclick=addIssue; $("btn_export").onclick=exportJSON; $("btn_copy").onclick=copyJSON;
-$("btn_save_meters").onclick=saveMeters;
+$("btn_save_elec").onclick=saveElecReading;
 $("r_mosenergo").addEventListener("change",function(){
   $("r_mosenergo_details").style.display=this.value==="yes"?"block":"none";
 });
