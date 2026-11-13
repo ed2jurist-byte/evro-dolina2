@@ -76,6 +76,16 @@ footer{text-align:center;font-size:.8rem;color:var(--muted);padding:22px 10px}
 
 <main>
 <section id="home" class="active">
+  <!-- ОБРАЩЕНИЕ ПО ТКО -->
+  <div class="card" style="border-left: 4px solid var(--red);">
+    <h2>🚨 Важно: Ситуация с вывозом ТКО</h2>
+    <p style="font-size:.9rem; margin-bottom:12px; color:var(--muted);">
+      В посёлке сложилась критическая ситуация с вывозом мусора. ООО «ЭК «ЕД-2» выступает за переход на прямые договоры собственников с региональным оператором АО «Экотехпром». 
+      Просим каждого собственника <b>проголосовать</b> в разделе «Документы» и актуализировать наличие прямого договора в разделе «Регистрация».
+    </p>
+    <button class="btn outline" data-go="docs" style="margin:0">Перейти к голосованию по ТКО</button>
+  </div>
+
   <div class="card">
     <h2><span>Центр задач</span><span id="user_badge" style="font-size:.82rem;font-weight:400;color:var(--muted)">Гость</span></h2>
     <div id="tasks"></div>
@@ -125,30 +135,37 @@ footer{text-align:center;font-size:.8rem;color:var(--muted);padding:22px 10px}
     <button class="btn gray" id="btn_letter">Письмо в бухгалтерию</button>
     <pre id="m_letter"></pre></div>
 
-  <!-- БЛОК ЭЛЕКТРОЭНЕРГИИ: ВСЕГДА ВИДЕН ДЛЯ ЗАРЕГИСТРИРОВАННОГО, МЕНЯЕТ СОДЕРЖИМОЕ -->
+  <!-- БЛОК ЭЛЕКТРОЭНЕРГИИ: ДВУХТАРИФНЫЙ УЧЁТ -->
   <div class="card" id="elec_card" style="display:none">
-    <h2>⚡ Показания электросчётчика</h2>
+    <h2>⚡ Показания электросчётчика (Т1 / Т2)</h2>
     <div class="elec-block">
       <p style="font-size:.87rem;color:var(--gd);margin-bottom:10px">
         <b>Показания электросчётчиков передаются инженером ООО «ЭК «ЕД-2».</b><br>
-        <b>Внимание:</b> раздел предназначен только для собственников, имеющих прямые договора с АО «Мосэнергосбыт».
+        <b>Внимание:</b> раздел предназначен для собственников, имеющих прямые договоры с АО «Мосэнергосбыт».
       </p>
       <div class="note" id="elec_period_info">Период: Текущий месяц. Данные от инженера УК ожидаются.</div>
     </div>
 
-    <!-- СОСТОЯНИЕ 1: есть прямой договор → форма ввода + фото -->
+    <!-- СОСТОЯНИЕ 1: есть прямой договор → форма ввода Т1 и Т2 + фото -->
     <div id="elec_form_block" style="display:none">
-      <div class="note" id="elec_eng_hint"></div>
-      <div class="row" style="margin-top:14px">
-        <div>
-          <label>Электричество (кВт·ч) — текущее *</label>
-          <input id="m_elec_cur" type="number" step="0.01" min="0" placeholder="Введите текущее показание">
-        </div>
-        <div>
-          <label>Электричество (кВт·ч) — предыдущее</label>
-          <input id="m_elec_prev" type="number" step="0.01" min="0" placeholder="Введите предыдущее показание">
+      <div class="note" id="elec_eng_hint" style="margin-bottom:12px"></div>
+      
+      <div style="background:#f9fbf9; padding:12px; border-radius:8px; margin-bottom:12px">
+        <h3 style="margin-top:0; font-size:.95rem; color:var(--amber)">Тариф Т1 (День)</h3>
+        <div class="row">
+          <div><label>Текущее Т1 *</label><input id="m_elec_t1_cur" type="number" step="0.01" min="0"></div>
+          <div><label>Предыдущее Т1</label><input id="m_elec_t1_prev" type="number" step="0.01" min="0"></div>
         </div>
       </div>
+
+      <div style="background:#f0f4f8; padding:12px; border-radius:8px; margin-bottom:12px">
+        <h3 style="margin-top:0; font-size:.95rem; color:#1565c0">Тариф Т2 (Ночь)</h3>
+        <div class="row">
+          <div><label>Текущее Т2 *</label><input id="m_elec_t2_cur" type="number" step="0.01" min="0"></div>
+          <div><label>Предыдущее Т2</label><input id="m_elec_t2_prev" type="number" step="0.01" min="0"></div>
+        </div>
+      </div>
+
       <label>Фото электросчётчика (необязательно)</label>
       <input id="m_elec_photo" type="file" accept="image/*" capture="environment">
       <img id="m_elec_photo_preview" class="photo-preview" style="display:none">
@@ -159,13 +176,13 @@ footer{text-align:center;font-size:.8rem;color:var(--muted);padding:22px 10px}
     <!-- СОСТОЯНИЕ 2: нет прямого договора → заглушка + подсказка -->
     <div id="elec_info_block" style="display:none">
       <div class="item">
-        <label style="margin-top:0">Электричество (кВт·ч)</label>
+        <label style="margin-top:0">Показания по общему счётчику (кВт·ч)</label>
         <div id="elec_value" class="elec-value">Нет данных</div>
         <div id="elec_value_sub" style="font-size:.82rem;color:var(--muted)">Инженер ещё не внёс данные за этот период.</div>
       </div>
       <div class="note">
         <b>Прямой договор с АО «Мосэнергосбыт».</b><br>
-        Показания электроэнергии по вашему участку предоставляет инженер ООО «ЭК «ЕД-2» на основании общего счётчика. Если вы заключили прямой договор — обновите данные в разделе «Регистрация».
+        Показания электроэнергии по вашему участку предоставляет инженер ООО «ЭК «ЕД-2» на основании общего счётчика. Если вы заключили прямой договор — обновите данные в разделе «Регистрация», чтобы вводить показания самостоятельно.
       </div>
     </div>
   </div>
@@ -198,7 +215,7 @@ footer{text-align:center;font-size:.8rem;color:var(--muted);padding:22px 10px}
       <div><label>Категория *</label><select id="i_cat">
         <option>Дороги и чистка снега</option><option>Уличное освещение</option>
         <option>Водоснабжение / канализация</option><option>Электроснабжение</option>
-        <option>Благоустройство и мусор</option><option>Охрана / КПП</option>
+        <option>Благоустройство и мусор (ТКО)</option><option>Охрана / КПП</option>
         <option>Бухгалтерия и начисления</option><option>Прочее</option></select></div>
       <div><label>Приоритет</label><select id="i_prio">
         <option>Обычный</option><option>Срочный (аварийная ситуация)</option></select></div>
@@ -282,7 +299,7 @@ footer{text-align:center;font-size:.8rem;color:var(--muted);padding:22px 10px}
       </div>
     </div>
     <div class="note" style="margin-top:8px">
-      <b>Зачем это нужно:</b> собственники с прямым договором с АО «Мосэнергосбыт» получают показания общего счётчика от инженера ООО «ЭК «ЕД-2».
+      <b>Зачем это нужно:</b> собственники с прямым договором с АО «Мосэнергосбыт» вводят показания самостоятельно. Собственники без прямого договора получают данные от инженера ООО «ЭК «ЕД-2».
     </div>
 
     <div class="chk">
@@ -550,7 +567,7 @@ function genLetter(){
   var el=$("m_letter");el.style.display="block";el.textContent=t;
 }
 
-/* ---------- электросчётчик: ДВА СОСТОЯНИЯ ---------- */
+/* ---------- электросчётчик: ДВУХТАРИФНЫЙ УЧЁТ ---------- */
 function renderElecBlock(){
   var p=prof();
   var card=$("elec_card");
@@ -566,14 +583,17 @@ function renderElecBlock(){
   var saved=savedElec[lot]||{};
 
   if(p.mosenergo==="yes"){
-    /* Прямой договор → форма ввода + фото */
+    /* Прямой договор → форма ввода Т1 и Т2 + фото */
     formBlock.style.display="block";
     infoBlock.style.display="none";
-    $("m_elec_cur").value=saved.cur||"";
-    $("m_elec_prev").value=saved.prev||"";
+    $("m_elec_t1_cur").value=saved.t1_cur||"";
+    $("m_elec_t1_prev").value=saved.t1_prev||"";
+    $("m_elec_t2_cur").value=saved.t2_cur||"";
+    $("m_elec_t2_prev").value=saved.t2_prev||"";
+    
     var hint=$("elec_eng_hint");
     if(meterData){
-      hint.innerHTML="Ориентир от инженера за период <b>"+esc(meterData.period||"текущий")+"</b>: <b>"+meterData.electricity+" кВт·ч</b> (по общему счётчику).";
+      hint.innerHTML="Ориентир от инженера за период <b>"+esc(meterData.period||"текущий")+"</b>: <b>"+meterData.electricity+" кВт·ч</b> (по общему счётчику). Используйте как ориентир для проверки.";
     }else{
       hint.textContent="Данные инженера за текущий период ещё не внесены — введите показания самостоятельно.";
     }
@@ -600,31 +620,47 @@ function saveElecReading(){
   if(!p) return show("m_elec_msg","err","Сначала пройдите регистрацию.");
   if(p.mosenergo!=="yes") return show("m_elec_msg","err","Раздел доступен только собственникам с прямым договором с АО «Мосэнергосбыт».");
 
-  var cur=parseFloat($("m_elec_cur").value);
-  var prev=$("m_elec_prev").value===""?null:parseFloat($("m_elec_prev").value);
-  if(isNaN(cur)||cur<0) return show("m_elec_msg","err","Введите корректное текущее показание.");
-  if(prev!==null&&cur<=prev) return show("m_elec_msg","err","Текущее показание должно быть больше предыдущего ("+prev+").");
+  var t1_cur = parseFloat($("m_elec_t1_cur").value);
+  var t1_prev = $("m_elec_t1_prev").value==="" ? null : parseFloat($("m_elec_t1_prev").value);
+  var t2_cur = parseFloat($("m_elec_t2_cur").value);
+  var t2_prev = $("m_elec_t2_prev").value==="" ? null : parseFloat($("m_elec_t2_prev").value);
+
+  if(isNaN(t1_cur) || isNaN(t2_cur)) return show("m_elec_msg","err","Введите корректные текущие показания для Т1 и Т2.");
+  if(t1_prev!==null && t1_cur<=t1_prev) return show("m_elec_msg","err","Текущее Т1 должно быть больше предыдущего Т1.");
+  if(t2_prev!==null && t2_cur<=t2_prev) return show("m_elec_msg","err","Текущее Т2 должно быть больше предыдущего Т2.");
 
   var lot=normLot(p.lot);
   var photoFile=$("m_elec_photo").files[0];
   if(photoFile){
     if(photoFile.size>5*1024*1024) return show("m_elec_msg","err","Фото слишком большое (макс. 5 МБ).");
     var reader=new FileReader();
-    reader.onload=function(e){finishSaveElec(lot,cur,prev,e.target.result);};
+    reader.onload=function(e){finishSaveElec(lot, t1_cur, t1_prev, t2_cur, t2_prev, e.target.result);};
     reader.readAsDataURL(photoFile);
   }else{
-    finishSaveElec(lot,cur,prev,null);
+    finishSaveElec(lot, t1_cur, t1_prev, t2_cur, t2_prev, null);
   }
 }
-function finishSaveElec(lot,cur,prev,photoData){
+
+function finishSaveElec(lot, t1_cur, t1_prev, t2_cur, t2_prev, photoData){
   var savedElec=JSON.parse(localStorage.getItem("ed2_elec_meters")||"{}");
-  savedElec[lot]={cur:cur,prev:prev,date:new Date().toISOString(),photo:photoData,mosenergo_contract:"yes"};
+  savedElec[lot]={
+    t1_cur: t1_cur, t1_prev: t1_prev,
+    t2_cur: t2_cur, t2_prev: t2_prev,
+    date: new Date().toISOString(),
+    photo: photoData,
+    mosenergo_contract: "yes"
+  };
   localStorage.setItem("ed2_elec_meters",JSON.stringify(savedElec));
-  $("m_elec_cur").value="";$("m_elec_prev").value="";$("m_elec_photo").value="";
+  
+  $("m_elec_t1_cur").value=""; $("m_elec_t1_prev").value="";
+  $("m_elec_t2_cur").value=""; $("m_elec_t2_prev").value="";
+  $("m_elec_photo").value="";
   $("m_elec_photo_preview").style.display="none";
-  show("m_elec_msg","ok","Показания электроэнергии сохранены "+new Date().toLocaleString("ru-RU")+". Они будут переданы в УК при выгрузке пакета JSON.");
+  
+  show("m_elec_msg","ok","Показания электроэнергии (Т1 и Т2) сохранены "+new Date().toLocaleString("ru-RU")+". Они будут переданы в УК при выгрузке пакета JSON.");
   renderElecBlock();
 }
+
 $("m_elec_photo").addEventListener("change",function(e){
   var file=e.target.files[0]; if(!file) return;
   var reader=new FileReader();
@@ -702,7 +738,7 @@ function renderIssues(){
       (x.prio.indexOf("Срочный")===0?"<span class='badge red'>Срочный</span>":"")+
       (x.legal_risk?"<span class='badge amber'>Юротдел</span>":"")+"<br>"+
       "<span style='color:#666;font-size:.8rem'>"+esc(x.id)+" · "+esc(x.date)+" · "+esc(x.status)+"</span>"+
-      "<p style='margin-top:6px'>"+esc(x.text)+"</p></div>";}).join("");
+      "<p style='margin-top:6px'>"+esc(x.text).replace(/\n/g,"<br>")+"</p></div>";}).join("");
 }
 
 /* ---------- документы ---------- */
@@ -744,28 +780,30 @@ function signConfirm(i){
 function renderNews(){
   $("news").innerHTML=(D.news||[]).map(function(n){
     return "<div class='item'><b>"+esc(n.title)+"</b><span class='badge'>Новости УК</span><br>"+
-      "<span style='color:#666;font-size:.8rem'>"+esc(n.date)+"</span><p style='margin-top:6px'>"+esc(n.text)+"</p></div>";}).join("");
+      "<span style='color:#666;font-size:.8rem'>"+esc(n.date)+"</span><p style='margin-top:6px'>"+esc(n.text).replace(/\n/g,"<br>")+"</p></div>";}).join("");
 }
 function renderPoll(){
   var box=$("poll"),poll=D.poll;
   if(!poll){box.innerHTML="<b>Опросов сейчас нет.</b>";return;}
   var my=null;try{my=JSON.parse(localStorage.getItem("ed2_"+poll.id));}catch(e){}
-  var html="<b>Опрос:</b> "+esc(poll.question)+"<span class='badge amber'>Голосование</span>";
-  if(my){html+="<p style='margin-top:6px'>Ваш голос: «"+esc(my.choice)+"». Он будет учтён при выгрузке пакета в УК.</p>";}
+  var html="<b>🗳️ Опрос:</b> "+esc(poll.question)+"<br><span class='badge amber' style='margin-top:4px'>Голосование</span>";
+  if(my){html+="<p style='margin-top:6px;color:#1b5e20'>Ваш голос: «"+esc(my.choice)+"» ("+esc(my.date||"")+"). Он будет учтён при выгрузке пакета в УК.</p>";}
   else{
     html+="<div style='margin-top:8px'>"+poll.options.map(function(o,i){
       return "<button class='btn outline' style='margin:4px 6px 0 0' data-vote='"+i+"'>"+esc(o.label)+"</button>";}).join("")+"</div>";
   }
   if(poll.total>0){
-    html+="<div style='margin-top:10px;font-size:.85rem;color:#1b5e20'>Учтено голосов: "+poll.total+"<br>"+
-      poll.options.map(function(o){return esc(o.label)+": "+o.votes;}).join(" · ")+"</div>";
+    html+="<div style='margin-top:10px;font-size:.85rem'>Учтено голосов: <b>"+poll.total+"</b>"+
+      poll.options.map(function(o){var pc=poll.total?Math.round(100*o.votes/poll.total):0;
+      return "<div style='margin-top:6px'>"+esc(o.label)+": <b>"+o.votes+"</b> ("+pc+"%)<div class='bar' style='height:8px;background:#e0e0e0;border-radius:4px;overflow:hidden;margin-top:2px'><div style='height:100%;width:"+pc+"%;background:var(--green)'></div></div></div>";}).join("")+"</div>";
   }
   box.innerHTML=html;
 }
 function vote(i){
   var p=prof(); if(!p) return alert("Голосовать могут зарегистрированные собственники.");
-  localStorage.setItem("ed2_"+D.poll.id,JSON.stringify({lot:p.lot,cad:p.cad,choice:D.poll.options[i].label,date:new Date().toISOString()}));
+  localStorage.setItem("ed2_"+D.poll.id,JSON.stringify({lot:p.lot,cad:p.cad,choice:D.poll.options[i].label,date:new Date().toLocaleDateString("ru-RU")}));
   renderPoll();
+  alert("Ваш голос учтён локально. Для передачи в УК нажмите «Выгрузить пакет JSON» на главной странице и отправьте файл на ed2.jurist@ya.ru.");
 }
 
 /* ---------- задолженности (только для зарегистрированных) + QR ---------- */
@@ -804,11 +842,11 @@ function generatePaymentQR(amount,lot){
   var qrContainer=$("payment-qr");
   qrContainer.innerHTML="";
   var sumKop=Math.round(amount*100);
-  var paymentString="ST00012|Name=ООО «ЭК «ЕД-2»|PersonalAcc=40702810938000335019|BankName=ПАО Сбербанк|BIC=044525225|CorrespAcc=30101810400000000225|PayeeINN=7751167800|KPP=770501001|Sum="+sumKop+"|Purpose=Оплата задолженности за участок №"+lot;
+  var paymentString="ST00012|Name=ООО ЭК ЕД-2|PersonalAcc=40702810938000335019|BankName=ПАО Сбербанк|BIC=044525225|CorrespAcc=30101810400000000225|PayeeINN=7751167800|KPP=770501001|Sum="+sumKop+"|Purpose=Оплата задолженности за участок №"+lot;
   if(typeof QRCode!=="undefined"){
     new QRCode(qrContainer,{text:paymentString,width:220,height:220,colorDark:"#1b5e20",colorLight:"#ffffff",correctLevel:QRCode.CorrectLevel.M});
   }else{
-    qrContainer.innerHTML="<p style='color:var(--muted);font-size:.85rem'>QR-код недоступен. Реквизиты для оплаты:</p><pre style='display:block;font-size:.78rem;word-break:break-all'>"+esc(paymentString)+"</pre>";
+    qrContainer.innerHTML="<p style='color:var(--muted);font-size:.85rem'>QR-код недоступен. Реквизиты для оплаты:</p><pre style='display:block;font-size:.75rem;word-break:break-all'>"+esc(paymentString)+"</pre>";
   }
 }
 
