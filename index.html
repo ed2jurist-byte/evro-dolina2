@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>КП «Европейская долина 2» — личный кабинет собственника</title>
+<script>document.documentElement.classList.add('js');</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;900&family=Golos+Text:wght@400;500;600;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
@@ -53,7 +54,6 @@ img{max-width:100%}
 .grain{position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.05;mix-blend-mode:multiply;
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E")}
 
-/* header */
 .head{position:fixed;top:0;left:0;right:0;height:var(--head);z-index:70;display:flex;align-items:center;gap:14px;padding:0 18px;
   background:rgba(6,23,16,.94);backdrop-filter:blur(16px);border-bottom:1px solid var(--ld);color:var(--od)}
 .brand{display:flex;align-items:center;gap:11px;text-decoration:none;min-width:0}
@@ -70,7 +70,6 @@ img{max-width:100%}
 .call-h{display:inline-flex;align-items:center;gap:8px;text-decoration:none;font-weight:700;font-size:.82rem;padding:9px 15px;border-radius:11px;color:#06170f;background:linear-gradient(135deg,#fff,var(--mint));box-shadow:0 8px 22px -10px rgba(45,212,191,.8);transition:.18s;white-space:nowrap}
 .call-h:hover{transform:translateY(-2px)}
 
-/* nav */
 .nav{position:fixed;top:var(--head);left:0;right:0;height:var(--nav);z-index:69;display:flex;align-items:center;gap:5px;padding:0 14px;
   background:rgba(11,38,24,.96);backdrop-filter:blur(14px);border-bottom:1px solid var(--ld);overflow-x:auto;scrollbar-width:none}
 .nav::-webkit-scrollbar{height:0}
@@ -84,8 +83,8 @@ img{max-width:100%}
 main{max-width:1280px;margin:0 auto;padding:calc(var(--head) + var(--nav) + 22px) 18px 60px}
 section{display:none}
 section.on{display:block}
-.reveal{opacity:0;transform:translateY(20px);transition:opacity .6s cubic-bezier(.2,.8,.2,1),transform .6s cubic-bezier(.2,.8,.2,1)}
-.reveal.in{opacity:1;transform:none}
+.js .reveal{opacity:0;transform:translateY(20px);transition:opacity .6s cubic-bezier(.2,.8,.2,1),transform .6s cubic-bezier(.2,.8,.2,1)}
+.js .reveal.in{opacity:1;transform:none}
 
 .card{background:var(--surf);border:1px solid var(--line);border-radius:var(--r);padding:20px;box-shadow:var(--sh);margin-bottom:16px}
 .card.tight{padding:16px}
@@ -103,16 +102,13 @@ h3{font-family:var(--d);font-size:.92rem;font-weight:700;margin:14px 0 8px}
 .band h2{color:#fff}
 .band .lead{color:var(--od)}
 .tag{display:inline-flex;align-items:center;gap:8px;font-size:.68rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--s900);background:linear-gradient(135deg,var(--lime),var(--mint));padding:6px 13px;border-radius:999px}
-.tag.red{background:linear-gradient(135deg,var(--red-l),var(--amber));color:#2b0a0a}
 .tag.sky{background:linear-gradient(135deg,var(--sky),var(--mint));color:#04121c}
 .band h1{font-family:var(--d);font-size:clamp(1.35rem,3.4vw,2.15rem);font-weight:900;color:#fff;line-height:1.16;margin:13px 0 10px}
 
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
 .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
-.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
-.side{display:grid;grid-template-columns:340px 1fr;gap:18px;align-items:start}
-@media(max-width:1040px){.side,.grid2{grid-template-columns:1fr}.grid4{grid-template-columns:1fr 1fr}}
-@media(max-width:760px){.grid3,.grid4{grid-template-columns:1fr}}
+@media(max-width:1040px){.grid2{grid-template-columns:1fr}}
+@media(max-width:760px){.grid3{grid-template-columns:1fr}}
 
 label{display:block;font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3);margin:10px 0 5px;font-weight:700}
 input,select,textarea{width:100%;padding:11px 13px;border:1px solid var(--line2);border-radius:11px;font-size:.88rem;background:var(--surf);color:var(--ink);transition:.18s}
@@ -130,14 +126,12 @@ textarea{min-height:92px;resize:vertical;line-height:1.6}
 .btn.dark{background:rgba(255,255,255,.09);color:#fff;border:1px solid rgba(255,255,255,.24)}
 .btn.dark:hover{background:rgba(255,255,255,.17)}
 .btn.danger{background:linear-gradient(135deg,var(--red-l),var(--red));color:#fff}
-.btn.sky{background:linear-gradient(135deg,var(--sky),var(--blue));color:#fff}
 .btn.sm{padding:7px 12px;font-size:.75rem;border-radius:9px}
 .btn:disabled{opacity:.45;cursor:not-allowed;transform:none;box-shadow:none}
 .btn-row{display:flex;gap:9px;flex-wrap:wrap;margin-top:14px}
 
 .note{font-size:.83rem;color:var(--ink2);background:var(--surf2);border-left:4px solid var(--s400);padding:12px 14px;border-radius:0 11px 11px 0;margin-top:13px}
 .note.warn{border-left-color:var(--red);background:#fdeeed;color:#7f1d1d}
-.note.amber{border-left-color:var(--amber);background:#fff6e6;color:#7a4a00}
 .note.sky{border-left-color:var(--sky);background:#eaf6fe;color:#0c4a6e}
 .msg{margin-top:12px;padding:11px 14px;border-radius:11px;font-size:.85rem;display:none}
 .msg.ok{display:block;background:#eaf7ec;border:1px solid var(--s300);color:var(--s600)}
@@ -153,7 +147,6 @@ tbody tr:last-child td{border-bottom:none}
 .badge.red{background:#fdeeed;color:var(--red);border-color:#f3c2c0}
 .badge.amber{background:#fff6e6;color:#9a5b00;border-color:#f5d9a4}
 .badge.sky{background:#eaf6fe;color:#1b3fa8;border-color:#c3d5fb}
-.badge.violet{background:#f3edff;color:#5b21b6;border-color:#ddd0fb}
 .badge.lime{background:#f0fbe0;color:#3f6212;border-color:#cfe8a8}
 
 .task{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:13px 15px;border:1px solid var(--line);border-radius:12px;margin-bottom:9px;cursor:pointer;transition:.18s;background:var(--surf)}
@@ -164,7 +157,6 @@ tbody tr:last-child td{border-bottom:none}
 .t-t{font-weight:700;font-size:.9rem}
 .t-s{font-size:.78rem;color:var(--ink2)}
 .item{border:1px solid var(--line);border-radius:12px;padding:14px;margin-top:10px;background:var(--surf2);font-size:.87rem}
-.code{font-family:var(--m);font-size:.9rem;background:var(--surf);border:1px dashed var(--s400);border-radius:9px;padding:8px 11px;display:inline-block;margin-top:7px;word-break:break-all}
 .chk{margin:14px 0;font-size:.8rem;background:var(--surf2);padding:14px;border-radius:12px;border:1px solid var(--line)}
 .chk label{display:flex;gap:10px;color:var(--ink);margin-bottom:11px;cursor:pointer;text-transform:none;letter-spacing:0;font-size:.8rem;font-weight:400;line-height:1.55}
 .chk input{width:18px;height:18px;flex:none;margin-top:2px;accent-color:var(--s500)}
@@ -174,7 +166,6 @@ pre{background:var(--surf2);padding:13px;border-radius:11px;font-size:.78rem;whi
 .qr-fallback{font-size:.76rem;color:var(--ink2);text-align:center;padding:12px}
 .qr-empty{width:212px;height:212px;flex:none;border-radius:14px;border:2px dashed var(--line2);display:grid;place-items:center;text-align:center;padding:16px;font-size:.78rem;color:var(--ink3);background:var(--surf2)}
 
-/* passes */
 .pass-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:24px}
 @media(max-width:940px){.pass-grid{grid-template-columns:1fr}}
 .stop{display:flex;gap:12px;align-items:flex-start;margin-top:16px;padding:14px 16px;border-radius:13px;background:rgba(229,57,53,.15);border:1px solid rgba(255,107,107,.45)}
@@ -210,7 +201,7 @@ pre{background:var(--surf2);padding:13px;border-radius:11px;font-size:.78rem;whi
 .dcard:hover{transform:translateY(-4px);border-color:var(--acc)}
 .dcard::before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:var(--acc)}
 .dcard .ord{position:absolute;right:15px;top:12px;font-family:var(--d);font-size:2.3rem;font-weight:900;color:var(--surf2);line-height:1}
-.di{width:44px;height:44px;border-radius:13px;display:grid;place-items:center;font-size:1.25rem;margin-bottom:11px;background:color-mix(in srgb,var(--acc) 14%,white);border:1px solid color-mix(in srgb,var(--acc) 34%,white)}
+.di{width:44px;height:44px;border-radius:13px;display:grid;place-items:center;font-size:1.25rem;margin-bottom:11px;background:var(--surf2);border:1px solid var(--line2)}
 .dcard h3{margin:0 0 6px;font-size:.98rem}
 .dcard p{font-size:.84rem;color:var(--ink2)}
 .ex{margin-top:11px;font-family:var(--m);font-size:.8rem;font-weight:600;background:var(--surf2);border:1px dashed var(--line2);border-radius:9px;padding:8px 11px;display:block}
@@ -225,7 +216,7 @@ pre{background:var(--surf2);padding:13px;border-radius:11px;font-size:.78rem;whi
 .tar-head b{font-family:var(--d);font-size:.92rem}
 .order{font-family:var(--m);font-size:.72rem;font-weight:700;background:var(--amber);color:#231400;padding:4px 10px;border-radius:7px}
 .cat{display:flex;align-items:center;gap:11px}
-.cdot{width:12px;height:12px;border-radius:4px;background:var(--acc);flex:none;box-shadow:0 0 0 3px color-mix(in srgb,var(--acc) 18%,white)}
+.cdot{width:12px;height:12px;border-radius:4px;background:var(--acc);flex:none}
 .cat b{font-weight:600}.cat small{display:block;font-size:.72rem;color:var(--ink3)}
 .price{font-family:var(--m);font-weight:700;font-size:.96rem;white-space:nowrap}
 .price small{font-family:var(--f);font-weight:500;font-size:.7rem;color:var(--ink3)}
@@ -237,7 +228,7 @@ pre{background:var(--surf2);padding:13px;border-radius:11px;font-size:.78rem;whi
 .chip{font-size:.72rem;font-weight:600;padding:4px 10px;border-radius:999px;background:#fff;border:1px solid #c9e8bd;color:#2f5a2a}
 .chartrow{display:grid;grid-template-columns:180px 1fr 88px;gap:12px;align-items:center;margin-bottom:9px;cursor:pointer;padding:6px 8px;border-radius:10px;border:1px solid transparent;transition:.16s}
 .chartrow:hover{background:var(--surf2)}
-.chartrow.on{background:color-mix(in srgb,var(--acc) 10%,white);border-color:color-mix(in srgb,var(--acc) 32%,white)}
+.chartrow.on{background:var(--surf2);border-color:var(--acc)}
 .cl{font-size:.79rem;font-weight:600;display:flex;align-items:center;gap:8px}
 .cbar{height:22px;border-radius:7px;background:var(--surf2);overflow:hidden}
 .cfill{height:100%;width:0;border-radius:7px;background:var(--acc);transition:width 1.05s cubic-bezier(.2,.8,.2,1)}
@@ -246,7 +237,7 @@ pre{background:var(--surf2);padding:13px;border-radius:11px;font-size:.78rem;whi
 .axis{display:grid;grid-template-columns:180px 1fr 88px;gap:12px;margin-top:5px}
 .axis div{display:flex;justify-content:space-between;font-family:var(--m);font-size:.64rem;color:var(--ink3)}
 @media(max-width:760px){.chartrow,.axis{grid-template-columns:112px 1fr 72px}.cl{font-size:.72rem}}
-.abon{padding:19px;border-radius:var(--r);color:#fff;position:relative;overflow:hidden;background:linear-gradient(140deg,var(--acc),color-mix(in srgb,var(--acc) 55%,#06170f))}
+.abon{padding:19px;border-radius:var(--r);color:#fff;position:relative;overflow:hidden;background:linear-gradient(140deg,var(--acc),#06170f)}
 .abon::after{content:"";position:absolute;right:-30px;top:-30px;width:140px;height:140px;border-radius:50%;background:rgba(255,255,255,.09)}
 .abon b{display:block;font-size:.8rem;opacity:.92;position:relative}
 .abon .sum{font-family:var(--d);font-size:1.75rem;font-weight:900;margin:6px 0 2px;position:relative}
@@ -300,7 +291,6 @@ pre{background:var(--surf2);padding:13px;border-radius:11px;font-size:.78rem;whi
 .ans{max-height:0;overflow:hidden;transition:max-height .35s cubic-bezier(.2,.8,.2,1)}
 .ans-in{padding:0 17px 16px;font-size:.85rem;color:var(--ink2)}
 
-/* console */
 .tally{display:flex;gap:15px;align-items:center;margin-bottom:14px}
 .ring{position:relative;width:104px;height:104px;flex:none}
 .ring svg{transform:rotate(-90deg)}
@@ -336,6 +326,7 @@ pre{background:var(--surf2);padding:13px;border-radius:11px;font-size:.78rem;whi
 .sg:hover{color:#fff}
 .sg.on{background:linear-gradient(135deg,var(--sky),var(--teal));color:#04121c}
 .dark select{background:rgba(0,0,0,.28);border-color:var(--ld);color:#fff}
+.dark select option{background:#0b2618}
 .views{display:flex;gap:7px;flex-wrap:wrap;align-items:center;margin-bottom:12px;padding:9px 11px;border:1px dashed var(--ld2);border-radius:11px;background:rgba(0,0,0,.16)}
 .views-l{font-size:.64rem;color:var(--od2);letter-spacing:.09em;text-transform:uppercase}
 .view{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--ld);background:rgba(0,0,0,.24);color:var(--od2);font-size:.73rem;font-weight:600;padding:6px 11px;border-radius:999px;cursor:pointer;transition:.15s;user-select:none}
@@ -363,7 +354,6 @@ pre{background:var(--surf2);padding:13px;border-radius:11px;font-size:.78rem;whi
 @keyframes flash{0%{background:rgba(163,230,53,.35)}100%{background:transparent}}
 .lotc{font-family:var(--m);font-weight:600;color:#fff;white-space:nowrap}
 .src{font-size:.65rem;font-family:var(--m);color:var(--od2)}
-.src.демо{color:var(--lilac)}.src.симуляция{color:var(--amber)}.src.кабинет{color:var(--lime)}.src.письмо{color:var(--sky)}
 .mk{font-size:.58rem;border:1px solid var(--ld2);border-radius:5px;padding:1px 5px;margin-left:5px;color:var(--od2)}
 .mk.act{color:var(--lime);border-color:rgba(163,230,53,.45)}
 .cb{width:17px;height:17px;accent-color:var(--magenta);cursor:pointer;flex:none}
@@ -374,7 +364,6 @@ pre{background:var(--surf2);padding:13px;border-radius:11px;font-size:.78rem;whi
 .paper h3{font-family:var(--d);font-size:.78rem;color:#232823;margin:0 0 4px}
 .paper .from{font-size:.7rem;color:#5c6357;margin-bottom:12px;font-family:var(--m);line-height:1.7}
 .paper textarea{background:#fffdf7;border:1px dashed #b9b19c;color:#232823;font-family:var(--m);font-size:.79rem;min-height:180px;line-height:1.85}
-.paper textarea:focus{border-color:var(--s500);box-shadow:0 0 0 3px rgba(46,125,50,.15)}
 .paper label{color:#5c6357}
 .paper input{background:#fff;border-color:#c9c1ab;color:#232823}
 .samples{display:flex;gap:6px;flex-wrap:wrap;margin-top:11px}
@@ -417,12 +406,10 @@ pre{background:var(--surf2);padding:13px;border-radius:11px;font-size:.78rem;whi
 .sw .track::after{content:"";position:absolute;top:2px;left:2px;width:15px;height:15px;border-radius:50%;background:var(--od2);transition:.2s}
 .sw input:checked+.track{background:rgba(255,107,107,.32);border-color:var(--red)}
 .sw input:checked+.track::after{left:19px;background:var(--red-l)}
-.sw input:focus-visible+.track{box-shadow:0 0 0 3px rgba(56,189,248,.35)}
 .ck-f{font-size:.59rem;color:var(--od2);margin-top:7px;text-align:right}
 .formwrap{background:#fff;border-radius:var(--r);padding:12px;border:1px solid var(--ld);overflow:hidden}
 .formwrap iframe{width:100%!important;max-width:100%;display:block;border:none;min-height:560px}
 
-/* drawer / toast / mobile */
 .scrim{position:fixed;inset:0;background:rgba(5,10,7,.62);backdrop-filter:blur(3px);z-index:88;opacity:0;pointer-events:none;transition:.25s}
 .scrim.on{opacity:1;pointer-events:auto}
 .drawer{position:fixed;top:0;right:0;bottom:0;width:430px;max-width:94vw;z-index:90;background:linear-gradient(180deg,#0b2618,#06170f);border-left:1px solid var(--ld2);transform:translateX(105%);transition:transform .34s cubic-bezier(.2,.8,.2,1);display:flex;flex-direction:column;box-shadow:-24px 0 64px rgba(0,0,0,.55);color:var(--od)}
@@ -481,7 +468,7 @@ footer{margin-top:30px;border-radius:20px;overflow:hidden;background:linear-grad
 <header class="head">
   <a class="brand" href="#" data-go="home">
     <span class="crest"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M3 17h18M5 17V9l7-5 7 5v8" stroke="#06170f" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 17v-4h6v4" stroke="#06170f" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-    <span class="bt" id="hSet">Европейская долина 2<small id="hOrg">ООО «ЭК «ЕД-2» · кабинет</small></span>
+    <span class="bt"><span id="hSet">Европейская долина 2</span><small id="hOrg">ООО «ЭК «ЕД-2» · кабинет</small></span>
   </a>
   <div class="head-r">
     <span class="clock" id="clock">--:--:--</span>
@@ -502,13 +489,12 @@ footer{margin-top:30px;border-radius:20px;overflow:hidden;background:linear-grad
 </nav>
 
 <main>
-<!-- ══════════ ГЛАВНАЯ ══════════ -->
 <section id="home" class="on">
   <div class="band reveal">
     <div class="band-in">
       <span class="tag">Личный кабинет собственника</span>
       <h1 id="heroTitle">КП «Европейская долина 2»</h1>
-      <p class="lead" id="heroLead">Задачи по вашему участку, показания счётчиков, пропуска на КПП, документы и расчёты — в одном месте. Данные хранятся в вашем браузере и передаются в УК выгрузкой пакета.</p>
+      <p class="lead">Задачи по вашему участку, показания счётчиков, пропуска на КПП, документы и расчёты — в одном месте. Данные хранятся в вашем браузере и передаются в УК выгрузкой пакета.</p>
       <div class="pills" style="margin-top:16px">
         <span class="pill">участков: <b id="stLots">529</b></span>
         <span class="pill">с долгом: <b id="stDebt">—</b></span>
@@ -547,7 +533,6 @@ footer{margin-top:30px;border-radius:20px;overflow:hidden;background:linear-grad
   </div>
 </section>
 
-<!-- ══════════ СЧЁТЧИКИ ══════════ -->
 <section id="meters">
   <div class="sec-head reveal"><span class="sec-num">01</span><h2 style="margin:0">Показания приборов учёта</h2></div>
   <div class="card reveal">
@@ -602,7 +587,6 @@ footer{margin-top:30px;border-radius:20px;overflow:hidden;background:linear-grad
   </div>
 </section>
 
-<!-- ══════════ ПРОПУСКА ══════════ -->
 <section id="passes">
   <div class="band reveal">
     <div class="band-in">
@@ -662,7 +646,7 @@ footer{margin-top:30px;border-radius:20px;overflow:hidden;background:linear-grad
   <div class="grid3 reveal">
     <article class="dcard" style="--acc:var(--blue)"><span class="ord">1</span><div class="di">👤</div><h3>ФИО гостя</h3><p>Фамилия, имя и отчество полностью — как в документе. Охрана сверяет данные при въезде.</p><span class="ex">Иванов Иван Иванович</span><span class="req">● Обязательно</span></article>
     <article class="dcard" style="--acc:var(--violet)"><span class="ord">2</span><div class="di">🚗</div><h3>Номер авто</h3><p>Госномер полностью, включая регион. Для спецтехники — номер или идентификатор машины.</p><span class="ex">А123АА799</span><span class="req">● Обязательно</span></article>
-    <article class="dcard" style="--acc:var(--teal)"><span class="ord">3</span><div class="di">📅</div><h3>Дата визита</h3><p>Конкретная дата въезда. Если визит повторяется или техника остаётся на несколько суток — скажите сразу.</p><span class="ex" id="exDate">18.11.2026</span><span class="req">● Обязательно</span></article>
+    <article class="dcard" style="--acc:var(--teal)"><span class="ord">3</span><div class="di">📅</div><h3>Дата визита</h3><p>Конкретная дата въезда. Если визит повторяется или техника остаётся на несколько суток — скажите сразу.</p><span class="ex" id="exDate">—</span><span class="req">● Обязательно</span></article>
   </div>
   <div class="memo reveal">
     <div class="memo-t"><b>Памятка для звонка</b><span>Скопируйте шаблон, заполните три пункта и держите перед глазами — охрана продиктует порядок действий дальше.</span></div>
@@ -743,7 +727,6 @@ footer{margin-top:30px;border-radius:20px;overflow:hidden;background:linear-grad
   <div class="faq reveal" id="faq"></div>
 </section>
 
-<!-- ══════════ ОБРАЩЕНИЯ ══════════ -->
 <section id="issues">
   <div class="sec-head reveal"><span class="sec-num">01</span><h2 style="margin:0">Заявка / обращение в УК</h2></div>
   <div class="card reveal">
@@ -760,7 +743,6 @@ footer{margin-top:30px;border-radius:20px;overflow:hidden;background:linear-grad
   <div class="card reveal"><h2>Журнал обращений <span class="tail" id="iCount">0 записей</span></h2><div id="iList"></div></div>
 </section>
 
-<!-- ══════════ ДОКУМЕНТЫ И ГОЛОСОВАНИЕ ══════════ -->
 <section id="docs">
   <div class="sec-head reveal"><span class="sec-num">01</span><h2 style="margin:0">Документы по вашему участку</h2></div>
   <div class="card reveal">
@@ -773,7 +755,6 @@ footer{margin-top:30px;border-radius:20px;overflow:hidden;background:linear-grad
   <div class="card reveal"><h2>Новости УК</h2><div id="newsBox"></div></div>
 </section>
 
-<!-- ══════════ ЗАДОЛЖЕННОСТИ ══════════ -->
 <section id="debts">
   <div class="sec-head reveal"><span class="sec-num">01</span><h2 style="margin:0">Реестр задолженностей</h2></div>
   <div class="card reveal">
@@ -798,7 +779,6 @@ footer{margin-top:30px;border-radius:20px;overflow:hidden;background:linear-grad
   </div>
 </section>
 
-<!-- ══════════ РЕГИСТРАЦИЯ ══════════ -->
 <section id="reg">
   <div class="sec-head reveal"><span class="sec-num">01</span><h2 style="margin:0">Регистрация и идентификация собственника</h2></div>
   <div class="card reveal">
@@ -829,7 +809,6 @@ footer{margin-top:30px;border-radius:20px;overflow:hidden;background:linear-grad
   </div>
 </section>
 
-<!-- ══════════ ПУЛЬТ ТКО ══════════ -->
 <section id="console" class="dark">
   <div class="band blue reveal">
     <div class="band-in">
@@ -941,7 +920,7 @@ footer{margin-top:30px;border-radius:20px;overflow:hidden;background:linear-grad
 <script>
 "use strict";
 /* ═══════ КОНСТАНТЫ ═══════ */
-const КОМПАНИЯ={name:'ОБЩЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ "ЭКСПЛУАТАЦИОННАЯ КОМПАНИЯ "ЕВРОПЕЙСКАЯ ДОЛИНА-2"',short:'ООО «ЭК «ЕД-2»',settlement:'КП «Европейская долина 2»',office_address:'108825, г. Москва, вн. тер. г. муниципальный округ Краснопахорский, пер. 4-й Дунайский, д. 21 (КПП КП «Европейская долина 2»)',region_prefix:'108825, г. Москва, вн. тер. г. муниципальный округ Краснопахорский',inn:'7751167800',kpp:'770501001',ogrn:'1197746494483',account:'40702810938000335019',bank:'ПАО Сбербанк',corr:'30101810400000000225',bik:'044525225',email_jurist:'ed2.jurist@ya.ru',email_buh:'ed2.buh@gmail.com',email_direct:'ed2.direct@gmail.com',director:'Аникеев Дмитрий Александрович',egrul_ref:'выписке из ЕГРЮЛ № ЮЭ9965-26-56986964 от 01.04.2026',hours:'Пн–Чт 10:00–18:00, Пт 10:00–17:00 (Сб–Вс и праздники — выходные). Приём бухгалтера: Вт, Чт 10:00–18:00',phones:{'Общий':'+7 (901) 586-83-11','Дежурный / УК':'+7 (925) 228-91-38','Управляющий':'+7 (965) 294-40-00','Гл. инженер':'+7 (901) 189-15-24','КПП (охрана)':'+7 (985) 547-33-00','Бухгалтерия':'+7 (905) 749-09-99'}};
+const КОМПАНИЯ={name:'ОБЩЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ "ЭКСПЛУАТАЦИОННАЯ КОМПАНИЯ "ЕВРОПЕЙСКАЯ ДОЛИНА-2"',short:'ООО «ЭК «ЕД-2»',settlement:'КП «Европейская долина 2»',legal_address:'115172, г. Москва, вн. тер. г. муниципальный округ Таганский, ул. Большие Каменщики, д. 21/8, подв. пом. II, ком. 1Б',office_address:'108825, г. Москва, вн. тер. г. муниципальный округ Краснопахорский, пер. 4-й Дунайский, д. 21 (КПП КП «Европейская долина 2»)',region_prefix:'108825, г. Москва, вн. тер. г. муниципальный округ Краснопахорский',inn:'7751167800',kpp:'770501001',ogrn:'1197746494483',account:'40702810938000335019',bank:'ПАО Сбербанк',corr:'30101810400000000225',bik:'044525225',email_jurist:'ed2.jurist@ya.ru',email_buh:'ed2.buh@gmail.com',email_direct:'ed2.direct@gmail.com',director:'Аникеев Дмитрий Александрович',egrul_ref:'выписке из ЕГРЮЛ № ЮЭ9965-26-56986964 от 01.04.2026',hours:'Пн–Чт 10:00–18:00, Пт 10:00–17:00 (Сб–Вс и праздники — выходные). Приём бухгалтера: Вт, Чт 10:00–18:00',phones:{'Общий':'+7 (901) 586-83-11','Дежурный / УК':'+7 (925) 228-91-38','Управляющий':'+7 (965) 294-40-00','Гл. инженер':'+7 (901) 189-15-24','КПП (охрана)':'+7 (985) 547-33-00','Бухгалтерия':'+7 (905) 749-09-99'}};
 const ОПРОС_ТКО={id:'poll_tko',question:'Поддерживаете ли вы переход на прямые договоры с региональным оператором АО «Экотехпром» по вывозу ТКО?',options:['Да, поддерживаю переход на прямой договор с АО «Экотехпром»','Нет, оставляю оплату через ООО «ЭК «ЕД-2»'],created:'2026-11-15'};
 const ДА=ОПРОС_ТКО.options[0],НЕТ=ОПРОС_ТКО.options[1];
 const ТАРИФЫ=[
@@ -973,8 +952,9 @@ const ВИДЫ0=[
  {id:'v_mail',назв:'Письма и кабинет',сис:true,ф:'все',пер:'все',ист:'письмо',п:'',сорт:{поле:'дата',напр:-1}},
  {id:'v_yes',назв:'Только «Да»',сис:true,ф:'да',пер:'все',ист:'все',п:'',сорт:{поле:'участок',напр:1}},
  {id:'v_no',назв:'Только «Нет»',сис:true,ф:'нет',пер:'все',ист:'все',п:'',сорт:{поле:'участок',напр:1}}];
-const K={prof:'ed2_profile',meters:'ed2_meters',elec:'ed2_elec_meters',issues:'ed2_issues',pult:'ed2_tko_pult_v4',ids:'ed2_tko_msgids_v4',views:'ed2_tko_views_v4',cfg:'ed2_cfg'};
+const K={prof:'ed2_profile',meters:'ed2_meters',elec:'ed2_elec_meters',issues:'ed2_issues',pult:'ed2_tko_pult_v4',ids:'ed2_tko_msgids_v4',views:'ed2_tko_views_v4'};
 const ТЕСТ=['демо','симуляция'];
+const ОШИБКИ=[];
 
 /* ═══════ УТИЛИТЫ ═══════ */
 const $=id=>document.getElementById(id);
@@ -982,8 +962,9 @@ const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;'
 const ₽=n=>new Intl.NumberFormat('ru-RU',{maximumFractionDigits:0}).format(n)+' ₽';
 const ₽2=n=>new Intl.NumberFormat('ru-RU',{minimumFractionDigits:2,maximumFractionDigits:2}).format(n);
 const деньКлюч=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
-const load=(k,f)=>{try{return JSON.parse(localStorage.getItem(k))??f}catch(e){return f}};
+const load=(k,f)=>{try{const v=JSON.parse(localStorage.getItem(k));return v==null?f:v}catch(e){return f}};
 const save=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}};
+function safe(name,fn){try{return fn()}catch(e){ОШИБКИ.push(name);console.error('[ЕД-2] '+name,e);return null}}
 function скл(n,ф){const a=Math.abs(n)%100,b=a%10;if(a>10&&a<20)return ф[2];if(b>1&&b<5)return ф[1];if(b===1)return ф[0];return ф[2]}
 function normLot(s){s=String(s||'').toLowerCase();s=s.replace(/\{[^{}]*\}/g,'');s=s.replace(/\([^)]*\)/g,'');s=s.replace(/\s+\d*\s*оч\.?\s*$/,'');s=s.replace(/(\d)оч\.?$/,'$1');s=s.replace(/^уч\.?\s*№?\s*/,'');s=s.replace(/^[№#n]\s*/,'');return s.replace(/\\/g,'/').replace(/\s+/g,'').trim()}
 function lotVariants(raw){const s=normLot(raw);if(!s)return[];const out=[];s.split(',').forEach(p=>{p=p.trim();if(!p)return;if(/^\d+\/\d+-\d+\/\d+$/.test(p)){p.split('-').forEach(x=>out.push(x));return}const g=p.split('/');if(g.length===3&&g[0]&&g[1]&&g[2]){out.push(g[0]+'/'+g[1]);out.push(g[0]+'/'+g[2])}else out.push(p)});return out.filter((v,i)=>out.indexOf(v)===i)}
@@ -991,28 +972,31 @@ function lotMatch(a,b){const A=lotVariants(a),B=lotVariants(b);return A.some(x=>
 function pickByLot(o,lot){let r=[];Object.keys(o||{}).forEach(k=>{if(lotMatch(k,lot))r=r.concat(o[k])});return r}
 function findLotCard(lot){let r=null;(Д.lots||[]).forEach(c=>{if(!r&&c&&lotMatch(c.lot,lot))r=c});return r}
 const normCad=s=>String(s||'').replace(/\s+/g,'');
-const normAddr=s=>String(s||'').toLowerCase().replace(/[\s.,]/g,'');
 function естеств(a,b){const pa=String(a).split(/(\d+)/),pb=String(b).split(/(\d+)/);for(let i=0;i<Math.max(pa.length,pb.length);i++){const x=pa[i]||'',y=pb[i]||'';if(/^\d+$/.test(x)&&/^\d+$/.test(y)){const d=+x-+y;if(d)return d}else{const d=x.localeCompare(y,'ru');if(d)return d}}return 0}
-function toast(t,type,undo){const el=document.createElement('div');el.className='toast '+(type||'');el.innerHTML='<span>'+esc(t)+'</span>';if(undo){const b=document.createElement('button');b.className='act';b.textContent='Отменить';b.onclick=()=>{undo();el.remove()};el.appendChild(b)}$('toasts').appendChild(el);setTimeout(()=>{el.classList.add('out');setTimeout(()=>el.remove(),320)},6200)}
+function toast(t,type,undo){const box=$('toasts');if(!box)return;const el=document.createElement('div');el.className='toast '+(type||'');el.innerHTML='<span>'+esc(t)+'</span>';if(undo){const b=document.createElement('button');b.className='act';b.textContent='Отменить';b.onclick=()=>{undo();el.remove()};el.appendChild(b)}box.appendChild(el);setTimeout(()=>{el.classList.add('out');setTimeout(()=>el.remove(),320)},6200)}
 async function copy(text,msg){try{if(navigator.clipboard&&window.isSecureContext){await navigator.clipboard.writeText(text)}else{const ta=document.createElement('textarea');ta.value=text;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove()}toast(msg||'Скопировано')}catch(e){toast('Не удалось скопировать — выделите вручную','err')}}
-function showMsg(id,type,text){const e=$(id);e.className='msg '+type;e.textContent=text}
+function showMsg(id,type,text){const e=$(id);if(!e)return;e.className='msg '+type;e.textContent=text}
 function download(name,content,mime){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([content],{type:(mime||'application/json')+';charset=utf-8'}));a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),1800)}
+function voteFrom(raw){const s=String(raw||'').toLowerCase().trim();if(!s)return null;
+  if(s.includes('не поддерживаю')||s.startsWith('нет')||s.includes('оставляю')||s.includes('оставить')||s.includes('прежн'))return'нет';
+  if(s.startsWith('да')||s.includes('поддерживаю'))return'да';return null}
 
 /* ═══════ QR ═══════ */
 let qrP=null;
 function loadQR(){if(qrP)return qrP;qrP=new Promise(res=>{if(window.QRCode)return res(true);const s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js';s.onload=()=>res(!!window.QRCode);s.onerror=()=>res(false);document.head.appendChild(s);setTimeout(()=>res(!!window.QRCode),7000)});return qrP}
 function payString(sum,purpose){const c=Д.company;return['ST00012','Name=ООО ЭК ЕД-2','PersonalAcc='+c.account,'BankName='+c.bank,'BIC='+c.bik,'CorrespAcc='+c.corr,'PayeeINN='+c.inn,'KPP='+c.kpp,'Sum='+Math.round(sum*100),'Purpose='+purpose].join('|')}
-async function drawQR(box,str,size){const ok=await loadQR();box.className='qrbox';box.innerHTML='';if(!ok){box.innerHTML='<div class="qr-fallback">QR недоступен офлайн.<br>Оплатите по реквизитам.</div>';return false}try{new window.QRCode(box,{text:str,width:size||192,height:size||192,colorDark:'#0b2618',colorLight:'#ffffff',correctLevel:window.QRCode.CorrectLevel.M});return true}catch(e){box.innerHTML='<div class="qr-fallback">Не удалось построить QR.<br>Оплатите по реквизитам.</div>';return false}}
+async function drawQR(box,str,size){if(!box)return;const ok=await loadQR();box.className='qrbox';box.innerHTML='';if(!ok){box.innerHTML='<div class="qr-fallback">QR недоступен офлайн.<br>Оплатите по реквизитам.</div>';return}try{new window.QRCode(box,{text:str,width:size||192,height:size||192,colorDark:'#0b2618',colorLight:'#ffffff',correctLevel:window.QRCode.CorrectLevel.M})}catch(e){box.innerHTML='<div class="qr-fallback">Не удалось построить QR.<br>Оплатите по реквизитам.</div>'}}
 
 /* ═══════ ДАННЫЕ ═══════ */
 const Д={meta:{},company:КОМПАНИЯ,lots:[],tasks:{},docs:{},news:[],polls:[],debts:[],eng:{}};
 function getJSON(n,f){return fetch('data/'+n+'.json?t='+Date.now()).then(r=>r.ok?r.json():f).catch(()=>f)}
 function loadDebts(){return fetch('data/debts.csv?t='+Date.now()).then(r=>r.ok?r.text():Promise.reject()).then(txt=>{const rows=[];txt.split(/\r?\n/).forEach(l=>{l=l.trim();if(!l)return;const c=l.split(';');if(c.length<4)return;const lot=c[0].trim();if(/участок|лицевой|сумма/i.test(lot))return;const sum=parseFloat(c[3].replace(/\s/g,'').replace(',','.'));if(!isFinite(sum)||sum<=0)return;rows.push({lot,srv:c[1].trim(),per:c[2].trim(),sum,st:(c[4]||'Задолженность').trim()})});return rows}).catch(()=>[])}
 function normPolls(arr){const out=[];(arr||[]).forEach(p=>{if(!p||!p.question)return;const opts=(p.options||[]).map(o=>typeof o==='string'?{label:o,votes:0}:{label:o.label,votes:o.votes||0});out.push({id:p.id||'poll',question:p.question,options:opts,total:p.total||opts.reduce((a,b)=>a+b.votes,0)})});if(!out.some(p=>p.id===ОПРОС_ТКО.id))out.unshift({id:ОПРОС_ТКО.id,question:ОПРОС_ТКО.question,options:ОПРОС_ТКО.options.map(l=>({label:l,votes:0})),total:0});return out}
-async function loadAll(){const[meta,comp,lots,tasks,docs,news,polls,pollOne,debts,eng]=await Promise.all([getJSON('meta',{}),getJSON('company',null),getJSON('lots',[]),getJSON('tasks',{}),getJSON('docs',{}),getJSON('news',[]),getJSON('polls',null),getJSON('poll',null),loadDebts(),getJSON('engineer_meters',{})]);
-Д.meta=meta||{};Д.company=Object.assign({},КОМПАНИЯ,comp||{});Д.lots=Array.isArray(lots)?lots:[];Д.tasks=tasks||{};Д.docs=docs||{};Д.news=Array.isArray(news)?news:[];Д.polls=normPolls(polls||(pollOne?[pollOne]:[]));Д.debts=debts||[];Д.eng=eng||{};
-if(!Д.news.length)Д.news=[{date:new Date().toLocaleDateString('ru-RU'),title:'Передача показаний приборов учёта',text:'Показания передаются до 25 числа текущего месяца — это влияет на корректность квитанции.'}];
-renderAll()}
+async function loadAll(){
+  const[meta,comp,lots,tasks,docs,news,polls,pollOne,debts,eng]=await Promise.all([getJSON('meta',{}),getJSON('company',null),getJSON('lots',[]),getJSON('tasks',{}),getJSON('docs',{}),getJSON('news',[]),getJSON('polls',null),getJSON('poll',null),loadDebts(),getJSON('engineer_meters',{})]);
+  Д.meta=meta||{};Д.company=Object.assign({},КОМПАНИЯ,comp||{});Д.lots=Array.isArray(lots)?lots:[];Д.tasks=tasks||{};Д.docs=docs||{};Д.news=Array.isArray(news)?news:[];Д.polls=normPolls(polls||(pollOne?[pollOne]:[]));Д.debts=debts||[];Д.eng=eng||{};
+  if(!Д.news.length)Д.news=[{date:new Date().toLocaleDateString('ru-RU'),title:'Передача показаний приборов учёта',text:'Показания передаются до 25 числа текущего месяца — это влияет на корректность квитанции.'}];
+  renderAll()}
 
 /* ═══════ ПРОФИЛЬ ═══════ */
 const prof=()=>load(K.prof,null);
@@ -1034,11 +1018,11 @@ function saveProfile(){
   }else p.id_status='Ожидает проверки УК';
   save(K.prof,p);showMsg('regMsg','ok','Регистрация завершена. Статус: '+p.id_status+'. Данные других участков в этом браузере не отображаются.');
   $('payLot').value=p.lot;П.уч=p.lot;renderPay();renderAll();toast('Профиль сохранён · участок №'+p.lot)}
-function clearProfile(){[K.prof,K.meters,K.elec].forEach(k=>localStorage.removeItem(k));['rFio','rLot','rCad','rAddr','rTel','rMail','rMosNum','rMosDate'].forEach(i=>$(i).value='');$('rMos').value='';['rC1','rC2','rC3'].forEach(i=>$(i).checked=false);$('rMosBox').style.display='none';showMsg('regMsg','ok','Профиль и согласие удалены из браузера (отзыв согласия).');renderAll()}
+function clearProfile(){[K.prof,K.meters,K.elec].forEach(k=>localStorage.removeItem(k));['rFio','rLot','rCad','rAddr','rTel','rMail','rMosNum','rMosDate'].forEach(i=>{const e=$(i);if(e)e.value=''});$('rMos').value='';['rC1','rC2','rC3'].forEach(i=>$(i).checked=false);$('rMosBox').style.display='none';showMsg('regMsg','ok','Профиль и согласие удалены из браузера (отзыв согласия).');renderAll()}
 
 /* ═══════ РЕНДЕР: ОБЩЕЕ ═══════ */
 function renderCompany(){const c=Д.company;
-  $('hSet').firstChild.nodeValue=c.settlement.replace('КП «','').replace('»','');
+  $('hSet').textContent=c.settlement.replace('КП «','').replace('»','');
   $('hOrg').textContent=c.short+' · кабинет';
   $('heroTitle').textContent=c.settlement;
   let ph='';Object.keys(c.phones||{}).forEach(k=>{ph+='<div style="margin-bottom:3px">• <b>'+esc(k)+':</b> '+esc(c.phones[k])+'</div>'});
@@ -1053,7 +1037,7 @@ function renderCompany(){const c=Д.company;
   $('stLots').textContent=m.lots_total||Д.lots.length||529;$('tLots').textContent=m.lots_total||Д.lots.length||529;
   $('stDebt').textContent=m.debt_lots||Д.debts.length||'—';$('stDate').textContent=m.source_date||'—';
   const p=prof();
-  $('who').innerHTML=p?'<span class="dot"></span>Уч. №'+esc(p.lot)+' · '+esc(p.fio.split(' ')[0]):'<span class="dot warn"></span>Гость';
+  $('who').innerHTML=p?'<span class="dot"></span>Уч. №'+esc(p.lot)+' · '+esc(String(p.fio).split(' ')[0]):'<span class="dot warn"></span>Гость';
 }
 function renderTasks(){const p=prof(),box=$('tasks'),t=[];
   if(!p)t.push({cls:'urgent',tab:'reg',title:'Пройдите регистрацию и идентификацию',sub:'ФИО, участок, кадастр, адрес, e-mail, телефон, договор с АО «Мосэнергосбыт» и согласия (152-ФЗ)'});
@@ -1092,7 +1076,7 @@ function renderElec(){const p=prof(),card=$('elecCard');if(!p){card.style.displa
   const lot=normLot(p.lot),md=Д.eng[lot],saved=load(K.elec,{})[lot]||{};
   if(p.mos==='yes'){$('elecForm').style.display='block';$('elecInfo').style.display='none';
     $('eT1').value=saved.t1_cur||'';$('eT1p').value=saved.t1_prev||'';$('eT2').value=saved.t2_cur||'';$('eT2p').value=saved.t2_prev||'';
-    $('elecHint').innerHTML=md?'Ориентир от инженера за период <b>'+esc(md.period||'текущий')+'</b>: <b>'+md.electricity+' кВт·ч</b> (общий счётчик). Используйте для проверки.':'Данные инженера за текущий период ещё не внесены — введите показания самостоятельно.';
+    $('elecHint').innerHTML=md?'Ориентир от инженера за период <b>'+esc(md.period||'текущий')+'</b>: <b>'+esc(md.electricity)+' кВт·ч</b> (общий счётчик). Используйте для проверки.':'Данные инженера за текущий период ещё не внесены — введите показания самостоятельно.';
   }else{$('elecForm').style.display='none';$('elecInfo').style.display='block';
     if(md){$('elecVal').textContent=md.electricity+' кВт·ч';$('elecVal').style.color='var(--s600)';$('elecSub').textContent='Внесено инженером за период '+(md.period||'текущий')+' (общий счётчик).'}
     else{$('elecVal').textContent='Нет данных';$('elecVal').style.color='var(--amber)';$('elecSub').textContent='Инженер ещё не внёс данные за этот период.'}}}
@@ -1131,6 +1115,7 @@ function renderDocs(){const el=$('docList'),docs=docsForLot();
   el.innerHTML=docs.map((d,i)=>'<div class="item"><b>'+esc(d.title)+'</b> '+(d.signed?'<span class="badge lime">Подтверждено</span>':'<span class="badge amber">Ожидает подписи</span>')+'<br><span style="color:var(--ink3);font-size:.78rem">№ '+esc(d.id)+' от '+esc(d.date)+'</span>'+(d.signed?'<div style="margin-top:6px;font-size:.8rem;color:var(--s600)">✓ '+esc(d.stamp)+'</div>':'<div style="margin-top:9px"><button class="btn sec sm" data-sign="'+i+'">Подтвердить подписание</button><div id="sg'+i+'" style="display:none;margin-top:9px"><div style="font-size:.8rem;color:var(--ink2)">Демо-код подтверждения: <b>1234</b></div><div style="display:flex;gap:8px;max-width:300px;margin-top:6px"><input id="sc'+i+'" maxlength="4" placeholder="Код"><button class="btn sm" data-confirm="'+i+'">OK</button></div></div></div>')+'</div>').join('')}
 function signConfirm(i){const docs=docsForLot(),p=prof();if(($('sc'+i).value||'').trim()!=='1234')return toast('Неверный код. В демо-режиме введите 1234.','err');
   const arr=load(signedKey(),[]);arr.push({id:docs[i].id,stamp:'Подтверждение направлено в УК ('+p.fio+', уч. №'+p.lot+', кадастр '+p.cad+') '+new Date().toLocaleString('ru-RU')});save(signedKey(),arr);renderDocs();renderTasks();toast('Подписание подтверждено')}
+function renderNews(){$('newsBox').innerHTML=(Д.news||[]).map(n=>'<div class="item"><b>'+esc(n.title)+'</b><br><span style="color:var(--ink3);font-size:.78rem">'+esc(n.date)+'</span><p style="margin-top:6px">'+esc(n.text)+'</p></div>').join('')||'<p style="color:var(--ink3);font-size:.88rem">Новостей пока нет.</p>'}
 
 /* ═══════ ГОЛОСОВАНИЕ ═══════ */
 function renderPolls(){const box=$('pollBox');
@@ -1147,9 +1132,9 @@ function vote(pi,oi){const p=prof();if(!p)return toast('Голосовать м�
   const rec={id:poll.id,lot:p.lot,cad:p.cad,choice:opt.label,date:new Date().toLocaleDateString('ru-RU')};
   save('ed2_'+poll.id,rec);
   if(poll.id===ОПРОС_ТКО.id){
-    const rows=load(K.pult,[]);
-    rows.unshift({id:'lk_'+Date.now().toString(36),участок:normLot(p.lot),голос:oi===0?'да':'нет',фио:p.fio,email:p.mail||'',дата:new Date().toISOString(),источник:'кабинет',messageId:''});
-    save(K.pult,rows);renderConsole()}
+    const r=rows();
+    r.unshift({id:'lk_'+Date.now().toString(36),участок:normLot(p.lot),голос:oi===0?'да':'нет',фио:p.fio,email:p.mail||'',дата:new Date().toISOString(),источник:'кабинет',messageId:''});
+    setRows(r);renderConsole()}
   renderPolls();renderTasks();toast('Голос учтён. Выгрузите пакет JSON для передачи в УК.')}
 
 /* ═══════ ЗАДОЛЖЕННОСТИ ═══════ */
@@ -1168,7 +1153,7 @@ function renderDebts(){const p=prof();
 
 /* ═══════ ПРОПУСКА: ТАРИФЫ И ОПЛАТА ═══════ */
 const П={кат:'v_light',ед:'сутки',кол:1,уч:''};
-const тариф=()=>ТАРИФЫ.find(t=>t.id===П.кат);
+const тариф=()=>ТАРИФЫ.find(t=>t.id===П.кат)||ТАРИФЫ[0];
 function пределы(){return тариф().гр==='въезд'?{мин:1,макс:20}:(П.ед==='месяц'?{мин:1,макс:12}:{мин:1,макс:60})}
 function ценаЕд(){const t=тариф();return(t.гр==='стоянка'&&П.ед==='месяц')?t.мес:t.цена}
 function итого(){return ценаЕд()*П.кол}
@@ -1184,12 +1169,13 @@ function animateChart(){document.querySelectorAll('#tarChart .cfill').forEach(el
 function highlightTar(){document.querySelectorAll('[data-chart]').forEach(e=>e.classList.toggle('on',e.dataset.chart===П.кат))}
 let payAnim=null,payPrev=0;
 function tween(from,to,fn){if(payAnim)cancelAnimationFrame(payAnim);const st=performance.now();const step=n=>{const p=Math.min(1,(n-st)/460),e=1-Math.pow(1-p,3);fn(Math.round(from+(to-from)*e));if(p<1)payAnim=requestAnimationFrame(step)};payAnim=requestAnimationFrame(step)}
-function renderPay(){const t=тариф(),lim=пределы();
-  П.кол=Math.min(лим.макс,Math.max(лим.мин,parseInt($('payQty').value,10)||1));
-  $('payQty').value=П.кол;$('payQty').min=лим.мин;$('payQty').max=лим.макс;
+function renderPay(){
+  const t=тариф(),lim=пределы();
+  П.кол=Math.min(lim.макс,Math.max(lim.мин,parseInt($('payQty').value,10)||1));
+  $('payQty').value=П.кол;$('payQty').min=lim.мин;$('payQty').max=lim.макс;
   $('unitBlock').hidden=t.гр!=='стоянка';
   $('qtyLabel').textContent=t.гр==='въезд'?'Количество въездов':(П.ед==='месяц'?'Количество месяцев':'Количество суток');
-  $('qtyHint').textContent=₽(ценаЕд())+' за '+(t.гр==='въезд'?'один въезд':(П.ед==='месяц'?'один месяц':'одни сутки'))+' · допустимо от '+лим.мин+' до '+лим.макс;
+  $('qtyHint').textContent=₽(ценаЕд())+' за '+(t.гр==='въезд'?'один въезд':(П.ед==='месяц'?'один месяц':'одни сутки'))+' · допустимо от '+lim.мин+' до '+lim.макс;
   const sum=итого();tween(payPrev,sum,v=>$('payTotal').textContent=₽(v));payPrev=sum;
   $('payDesc').textContent=t.назв+' · '+П.кол+' '+едСловом()+' · '+₽(ценаЕд())+' за единицу';
   $('rqSum').textContent=₽2(sum)+' ₽';
@@ -1214,7 +1200,7 @@ let сбои=new Set(),тянется=null;
 function seed(){const д=(n,h)=>{const t=new Date();t.setDate(t.getDate()-n);t.setHours(h,(n*13)%60,0,0);return t.toISOString()};
   const з=(у,г,ф,e,n,h)=>({id:'d_'+у.replace(/\//g,'-')+'_'+n,участок:у,голос:г,фио:ф,email:e,дата:д(n,h),источник:'демо',messageId:'<demo-'+у.replace(/\//g,'-')+'-'+n+'@forms.yandex.ru>'});
   return[з('115/1','да','Соколов Андрей Петрович','sokolov.ap@mail.ru',6,10),з('142/2','да','Мельникова Ольга Ивановна','melnikova.oi@yandex.ru',6,12),з('207/13','нет','Гусев Дмитрий Сергеевич','gusev.ds@gmail.com',5,9),з('23/1','да','Крылова Наталья Викторовна','krylova.nv@mail.ru',5,15),з('72/2','нет','Орлов Максим Игоревич','orlov.mi@yandex.ru',4,11),з('160/3','да','Белова Татьяна Сергеевна','belova.ts@mail.ru',4,17),з('37/38','да','Зайцев Павел Николаевич','zaycev.pn@gmail.com',3,10),з('204','нет','Комарова Елена Андреевна','komarova.ea@yandex.ru',3,14),з('217','да','Лебедев Игорь Олегович','lebedev.io@mail.ru',2,9),з('261','да','Никитина Анна Дмитриевна','nikitina.ad@gmail.com',2,16),з('9/2','да','Фомин Сергей Валерьевич','fomin.sv@yandex.ru',1,11),з('177/2','нет','Егорова Мария Павловна','egorova.mp@mail.ru',1,18),з('249/2','да','Виноградов Алексей Романович','vinogradov.ar@gmail.com',0,9),з('115/1','нет','Соколов Андрей Петрович','sokolov.ap@mail.ru',0,13)]}
-const rows=()=>load(K.pult,null)===null?seed():load(K.pult,[]);
+function rows(){const v=load(K.pult,null);return v===null?seed():v}
 function setRows(r){save(K.pult,r)}
 function пересчёт(){const r=rows(),m=new Map();[...r].sort((a,b)=>new Date(a.дата)-new Date(b.дата)).forEach(z=>m.set(z.участок,z));
   let да=0,нет=0;for(const z of m.values())z.голос==='да'?да++:нет++;
@@ -1234,15 +1220,15 @@ function cFilter(){const r=rows(),q=С.п.toLowerCase().trim(),now=new Date();
     if(С.ист!=='все'){if(С.ист==='письмо'){if(!['письмо','кабинет'].includes(z.источник))return false}else if(z.источник!==С.ист)return false}
     if(С.пер!=='все'){const t=new Date(z.дата);if(isNaN(t))return false;if(С.пер==='сегодня'){if(деньКлюч(t)!==деньКлюч(now))return false}else{const g=new Date();g.setDate(g.getDate()-Number(С.пер));if(t<g)return false}}
     if(q&&!((z.участок+' '+z.фио+' '+z.email).toLowerCase().includes(q)))return false;return true});
-  const{поле,напр}=С.сорт;
+  const поле=С.сорт.поле,напр=С.сорт.напр;
   l.sort((a,b)=>{let d=0;if(поле==='участок')d=естеств(a.участок,b.участок);else if(поле==='дата')d=new Date(a.дата)-new Date(b.дата);else d=String(a[поле]||'').localeCompare(String(b[поле]||''),'ru');return d*напр});
   return l}
 function renderTable(flash){const l=cFilter(),р=пересчёт();
   $('cEmpty').hidden=l.length>0;
   $('cBody').innerHTML=l.map(z=>{const sel=С.выб.has(z.id),d=new Date(z.дата),ds=isNaN(d)?'—':d.toLocaleString('ru-RU',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'});
-    const act=р.map.get(z.участок)&&р.map.get(z.участок).id===z.id;
+    const cur=р.map.get(z.участок),act=cur&&cur.id===z.id;
     const b=z.голос==='да'?'<span class="badge lime">🟢 Да, за договор</span>':'<span class="badge red">🔴 Нет, через УК</span>';
-    return'<tr class="'+(sel?'sel ':'')+(z.id===flash?'flash':'')+'" data-id="'+esc(z.id)+'"><td onclick="event.stopPropagation()"><input type="checkbox" class="cb rowcb" data-id="'+esc(z.id)+'" '+(sel?'checked':'')+' aria-label="Выбрать"></td><td class="lotc">№ '+esc(z.участок)+'<span class="mk'+(act?' act':'')+'">'+(act?'итог':'заменён')+'</span></td><td>'+b+'</td><td>'+esc(z.фио||'—')+'</td><td style="font-family:var(--m);font-size:.73rem;color:var(--od2)">'+esc(z.email||'—')+'</td><td style="font-family:var(--m);font-size:.73rem;white-space:nowrap">'+ds+'</td><td class="src '+esc(z.источник||'вручную')+'">'+esc(z.источник||'вручную')+'</td></tr>'}).join('');
+    return'<tr class="'+(sel?'sel ':'')+(z.id===flash?'flash':'')+'" data-id="'+esc(z.id)+'"><td onclick="event.stopPropagation()"><input type="checkbox" class="cb rowcb" data-id="'+esc(z.id)+'" '+(sel?'checked':'')+' aria-label="Выбрать"></td><td class="lotc">№ '+esc(z.участок)+'<span class="mk'+(act?' act':'')+'">'+(act?'итог':'заменён')+'</span></td><td>'+b+'</td><td>'+esc(z.фио||'—')+'</td><td style="font-family:var(--m);font-size:.73rem;color:var(--od2)">'+esc(z.email||'—')+'</td><td style="font-family:var(--m);font-size:.73rem;white-space:nowrap">'+ds+'</td><td class="src">'+esc(z.источник||'вручную')+'</td></tr>'}).join('');
   $('chkAll').checked=l.length>0&&l.every(z=>С.выб.has(z.id));
   $('bulkN').textContent=С.выб.size;$('bulk').classList.toggle('on',С.выб.size>0)}
 function renderViews(){const v=load(K.views,ВИДЫ0);
@@ -1254,11 +1240,10 @@ function applyView(id){const v=load(K.views,ВИДЫ0).find(x=>x.id===id);if(!v)
   syncArrows();renderViews();renderTable()}
 function dropActiveView(){const v=load(K.views,ВИДЫ0).find(x=>x.id===С.вид);
   if(v&&(v.ф!==С.ф||v.пер!==С.пер||v.ист!==С.ист||v.п!==С.п||v.сорт.поле!==С.сорт.поле||v.сорт.напр!==С.сорт.напр)){С.вид=null;renderViews()}}
-function syncArrows(){document.querySelectorAll('#console thead th[data-sort]').forEach(th=>{const a=th.dataset.sort===С.сорт.поле;th.querySelector('.ar').textContent=a?(С.сорт.напр===1?'↑':'↓'):'↕'})}
+function syncArrows(){document.querySelectorAll('#console thead th[data-sort]').forEach(th=>{const a=th.dataset.sort===С.сорт.поле;const s=th.querySelector('.ar');if(s)s.textContent=a?(С.сорт.напр===1?'↑':'↓'):'↕'})}
 function renderChecks(){$('checks').innerHTML=ЧЕКИ.map(c=>{const bad=сбои.has(c.id);
   return'<div class="ck'+(bad?' bad':'')+'"><div class="ck-h"><div class="ck-s">'+(bad?'✕':'✓')+'</div><b>'+esc(c.т)+'</b><label class="sw" title="Симулировать сбой"><input type="checkbox" data-check="'+c.id+'" '+(bad?'checked':'')+' aria-label="Сбой: '+esc(c.т)+'"><span class="track"></span></label></div><div class="ck-v">'+esc(bad?c.б:c.н)+'</div><div class="ck-c">'+esc(bad?'Риск: '+c.п:'Настроено корректно для приёма голосов')+'</div><div class="ck-f">'+(bad?'режим сбоя':'норма')+'</div></div>'}).join('')}
-function renderConsole(){renderTally();renderTable();renderViews();renderChecks()}
-/* карточка */
+function renderConsole(){safe('табло',renderTally);safe('журнал',renderTable);safe('виды',renderViews);safe('чек-лист',renderChecks)}
 function openDrawer(id){С.ред=id||null;const z=id?rows().find(x=>x.id===id):null;if(id&&!z)return;
   $('drTitle').textContent=z?'Участок №'+z.участок:'Новый голос (вручную)';
   $('dLot').value=z?z.участок:'';$('dVote').value=z?z.голос:'да';$('dFio').value=z?z.фио:'';$('dMail').value=z?(z.email||''):'';
@@ -1283,27 +1268,25 @@ function rmDemo(){const r=rows(),ц=r.filter(z=>z.источник==='демо')
   С.откат=[];r.forEach((z,i)=>{if(z.источник==='демо')С.откат.push({i,z})});
   setRows(r.filter(z=>z.источник!=='демо'));save(K.ids,load(K.ids,[]).filter(m=>!/^<demo-/.test(m)));С.выб.clear();renderConsole();toast('Демо-записи убрано: '+ц.length,'',undo)}
 function undo(){if(!С.откат||!С.откат.length)return;const r=rows();
-  [...С.откат].sort((a,b)=>a.i-b.i).forEach(({i,z})=>{if(!r.some(x=>x.id===z.id))r.splice(Math.min(i,r.length),0,z)});
+  [...С.откат].sort((a,b)=>a.i-b.i).forEach(o=>{if(!r.some(x=>x.id===o.z.id))r.splice(Math.min(o.i,r.length),0,o.z)});
   С.откат=null;setRows(r);renderConsole();toast('Удаление отменено')}
-/* симулятор письма */
 const ПРИМЕРЫ={да:'УЧАСТОК: 21\nГОЛОС: Да, поддерживаю переход на прямой договор с АО «Экотехпром»\nФИО: Петров Алексей Сергеевич\nEMAIL: petrov21@yandex.ru',нет:'УЧАСТОК: 114/2\nГОЛОС: Нет, оставляю оплату через ООО «ЭК «ЕД-2»\nФИО: Смирнова Елена Викторовна\nEMAIL: smirnova@mail.ru',отрицание:'УЧАСТОК: 72/2\nГОЛОС: Не поддерживаю переход на прямой договор\nФИО: Орлов Максим Игоревич\nEMAIL: orlov.mi@yandex.ru',фигурные:'УЧАСТОК: {№ участка} 88\nГОЛОС: {Поддерживаете ли вы...} Да, поддерживаю переход на прямой договор с АО «Экотехпром»\nФИО: {ФИО} Козлов Дмитрий Андреевич\nEMAIL: {Email} kozlov88@gmail.com',ошибка:'УЧАСТОК: \nГОЛОС: воздержался\nФИО: А\nEMAIL: test'};
 const newId=()=>'<form-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,6)+'@yandex>';
 function parseMail(t){const f={участок:'',голосRaw:'',голос:null,фио:'',email:''};
   String(t||'').split(/\r?\n/).forEach(l=>{const m=l.match(/^\s*(УЧАСТОК|ГОЛОС|ФИО|EMAIL|E-MAIL)\s*:\s*(.+)$/i);if(!m)return;
     const k=m[1].toUpperCase(),v=m[2].replace(/\{[^{}]*\}/g,'').trim();
-    if(k==='УЧАСТОК')f.участок=normLot(v);else if(k==='ГОЛОС'){f.голосRaw=v;const s=v.toLowerCase();
-      f.голос=(s.includes('не поддерживаю')||s.startsWith('нет')||s.includes('оставляю')||s.includes('оставить')||s.includes('прежн'))?'нет':((s.startsWith('да')||s.includes('поддерживаю'))?'да':null)}
+    if(k==='УЧАСТОК')f.участок=normLot(v);else if(k==='ГОЛОС'){f.голосRaw=v;f.голос=voteFrom(v)}
     else if(k==='ФИО')f.фио=v;else f.email=v.toLowerCase()});
   const e=[];if(!f.участок)e.push('не указан № участка');if(!f.голос)e.push('не распознан выбор Да/Нет');if(!f.фио||f.фио.length<3)e.push('не заполнено ФИО');
   return Object.assign(f,{ok:e.length===0,err:e})}
-function logLine(t,c){const d=document.createElement('div');d.innerHTML='<span class="t">['+new Date().toLocaleTimeString('ru-RU')+']</span> <span class="'+(c||'')+'">'+esc(t)+'</span>';$('log').appendChild(d);$('log').scrollTop=$('log').scrollHeight}
+function logLine(t,c){const box=$('log');if(!box)return;const d=document.createElement('div');d.innerHTML='<span class="t">['+new Date().toLocaleTimeString('ru-RU')+']</span> <span class="'+(c||'')+'">'+esc(t)+'</span>';box.appendChild(d);box.scrollTop=box.scrollHeight}
 function renderParse(){const t=$('mailText').value,f=parseMail(t),mid=$('msgId').value.trim(),dup=$('dedupId').checked&&mid&&load(K.ids,[]).includes(mid);
   const okMail=/^[^\s@]+@[^\s@]+\.[a-zA-Zа-яА-Я]{2,}$/.test(f.email);
   const items=[['Участок',f.участок?'№ '+f.участок:'не найден',!!f.участок,false,f.участок?'нормализован как norm_lot()':'поле обязательно'],
     ['Голос',f.голос?(f.голос==='да'?'ДА — прямой договор':'НЕТ — через УК'):(f.голосRaw||'не распознан'),!!f.голос,false,f.голос?'формулировка распознана':'вариант вне бюллетеня'],
     ['ФИО',f.фио||'не найдено',f.фио.length>=3,false,f.фио.length>=3?'':'минимум 3 символа'],
     ['E-mail',f.email||'не указан',!f.email||okMail,!f.email,f.email?(okMail?'адрес корректен':'адрес некорректен'):'необязательное поле']];
-  $('parsed').innerHTML=items.map(([m,v,ok,warn,p])=>{const c=!ok?'err':(warn?'warn':'ok');return'<div class="parsed '+c+'"><div class="pi">'+(!ok?'✕':(warn?'!':'✓'))+'</div><div><div class="pl">'+m+'</div><div class="pv">'+esc(v)+'</div><div class="pp">'+esc(p)+'</div></div></div>'}).join('');
+  $('parsed').innerHTML=items.map(a=>{const m=a[0],v=a[1],ok=a[2],warn=a[3],p=a[4];const c=!ok?'err':(warn?'warn':'ok');return'<div class="parsed '+c+'"><div class="pi">'+(!ok?'✕':(warn?'!':'✓'))+'</div><div><div class="pl">'+m+'</div><div class="pv">'+esc(v)+'</div><div class="pp">'+esc(p)+'</div></div></div>'}).join('');
   const vd=$('mailVerdict'),b=$('acceptMail');
   if(!t.trim()){vd.className='verdict ok';vd.textContent='Вставьте текст письма слева — разбор появится здесь.';b.disabled=true}
   else if(dup){vd.className='verdict dup';vd.textContent='⚠ Message-ID уже обработан — письмо будет пропущено.';b.disabled=true}
@@ -1317,7 +1300,6 @@ function acceptMail(){const f=parseMail($('mailText').value),mid=$('msgId').valu
   r.unshift(z);setRows(r);const ids=load(K.ids,[]);if(!ids.includes(z.messageId))ids.push(z.messageId);save(K.ids,ids);
   renderConsole();renderTable(z.id);logLine('принят (тест): уч. №'+z.участок+' → '+(z.голос==='да'?'ДА':'НЕТ')+' · '+z.фио,'g');logLine('уникальных голосов: '+пересчёт().уник,'g');
   toast('Голос уч. №'+z.участок+' принят (симуляция)');$('msgId').value=newId();renderParse()}
-/* экспорт/импорт */
 function battleRows(){return $('incTest').checked?rows():rows().filter(z=>!ТЕСТ.includes(z.источник))}
 function expPkg(){const l=battleRows();if(!l.length)return toast('Нет записей для выгрузки (демо/симуляция исключены)','err');
   const m=new Map();[...l].sort((a,b)=>new Date(a.дата)-new Date(b.дата)).forEach(z=>m.set(z.участок,z));
@@ -1339,12 +1321,11 @@ function impCsv(file){const rd=new FileReader();
   rd.onload=e=>{const lines=String(e.target.result).replace(/^\uFEFF/,'').split(/\r?\n/).filter(l=>l.trim());
     if(lines.length<2)return toast('Файл пуст или без строк данных','err');
     const d=lines[0].includes(';')?';':',',head=csvSplit(lines[0],d).map(s=>s.trim().toLowerCase());
-    const idx=(...n)=>{for(const x of n){const k=head.findIndex(h=>h.includes(x));if(k>=0)return k}return -1};
+    const idx=function(){for(let i=0;i<arguments.length;i++){const k=head.findIndex(h=>h.includes(arguments[i]));if(k>=0)return k}return -1};
     const iU=idx('участок','plot','lot'),iV=idx('голос','vote','choice'),iF=idx('фио','фамилия','fio'),iE=idx('email','почта'),iD=idx('дата','date'),iS=idx('источник','source');
     if(iU<0||iV<0)return toast('Не найдены колонки «Участок» и «Голос»','err');
     const r=rows(),keys=new Set(r.map(z=>z.участок+'|'+z.голос+'|'+z.дата));let add=0,skip=0;
-    lines.slice(1).forEach(line=>{const p=csvSplit(line,d),u=normLot(p[iU]),raw=String(p[iV]||'').toLowerCase().trim();
-      const v=(raw.includes('не поддерживаю')||raw.startsWith('нет')||raw.includes('оставляю')||raw.includes('оставить')||raw.includes('прежн'))?'нет':((raw.startsWith('да')||raw.includes('поддерживаю'))?'да':null);
+    lines.slice(1).forEach(line=>{const p=csvSplit(line,d),u=normLot(p[iU]),v=voteFrom(p[iV]);
       if(!u||!v){skip++;return}
       const dt=(iD>=0?dateFrom(p[iD]):null)||new Date().toISOString(),k=u+'|'+v+'|'+dt;
       if(keys.has(k)){skip++;return}keys.add(k);
@@ -1361,37 +1342,41 @@ function exportJSON(){const d=payload();if(!d)return toast('Сначала за�
   download('ed2_uch_'+normLot(d.owner_profile.lot).replace(/\//g,'-')+'_'+Date.now()+'.json',JSON.stringify(d,null,2));toast('Пакет JSON выгружен — отправьте на ed2.jurist@ya.ru')}
 
 /* ═══════ НАВИГАЦИЯ ═══════ */
-const MOB={home:['📤 Пакет',()=>exportJSON()],meters:['💧 Показания',()=>go('meters')],passes:['₽ Оплата',()=>$('payCat').scrollIntoView({behavior:'smooth',block:'center'})],issues:['✉️ Заявка',()=>$('iTitle').focus()],docs:['🗳️ Голосовать',()=>$('pollBox').scrollIntoView({behavior:'smooth',block:'center'})],debts:['💳 QR',()=>$('debtPay').scrollIntoView({behavior:'smooth',block:'center'})],reg:['💾 Сохранить',()=>saveProfile()],console:['⬇ Пакеты',()=>expPkg()]};
-const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}}),{threshold:.05});
+const MOB={home:['📤 Пакет',()=>exportJSON()],meters:['💧 Показания',()=>{const e=$('mCur');if(e)e.focus()}],passes:['₽ Оплата',()=>$('payCat').scrollIntoView({behavior:'smooth',block:'center'})],issues:['✉️ Заявка',()=>$('iTitle').focus()],docs:['🗳️ Голосовать',()=>$('pollBox').scrollIntoView({behavior:'smooth',block:'center'})],debts:['💳 QR',()=>$('debtBlock').scrollIntoView({behavior:'smooth',block:'center'})],reg:['💾 Сохранить',()=>saveProfile()],console:['⬇ Пакеты',()=>expPkg()]};
+const io=('IntersectionObserver'in window)?new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}}),{threshold:.05}):null;
 function go(tab){const sec=$(tab);if(!sec)return;
   document.querySelectorAll('main > section').forEach(s=>s.classList.toggle('on',s.id===tab));
   document.querySelectorAll('.nb').forEach(b=>b.classList.toggle('on',b.dataset.go===tab));
-  sec.querySelectorAll('.reveal').forEach((el,i)=>{if(i<8)setTimeout(()=>el.classList.add('in'),i*55);else io.observe(el)});
+  const list=sec.querySelectorAll('.reveal');
+  list.forEach((el,i)=>{if(i<8)setTimeout(()=>el.classList.add('in'),i*55);else if(io)io.observe(el);else el.classList.add('in')});
+  setTimeout(()=>list.forEach(el=>el.classList.add('in')),1200);
   const m=MOB[tab];if(m){$('mobAct').textContent=m[0];$('mobAct').onclick=m[1]}
   if(tab==='passes')setTimeout(animateChart,260);
   window.scrollTo({top:0,behavior:'smooth'})}
-function renderAll(){renderCompany();renderTasks();renderReadings();renderElec();renderIssues();renderDocs();renderPolls();renderDebts();renderConsole();
-  const p=prof();if(p){$('rFio').value=p.fio;$('rLot').value=p.lot;$('rCad').value=p.cad||'';$('rAddr').value=p.addr||'';$('rTel').value=p.tel;$('rMail').value=p.mail||'';$('rMos').value=p.mos||'';$('rMosNum').value=p.mos_num||'';$('rMosDate').value=p.mos_date||'';$('rMosBox').style.display=p.mos==='yes'?'block':'none';$('rC1').checked=!!p.c1;$('rC2').checked=!!p.c2;$('rC3').checked=!!p.c3;
-    if(!П.уч){П.уч=p.lot;$('payLot').value=p.lot}}
-  renderPay()}
+function renderAll(){
+  safe('реквизиты',renderCompany);safe('задачи',renderTasks);safe('вода',renderReadings);safe('электро',renderElec);
+  safe('обращения',renderIssues);safe('документы',renderDocs);safe('новости',renderNews);safe('опросы',renderPolls);
+  safe('долги',renderDebts);safe('пульт',renderConsole);
+  const p=prof();
+  if(p){$('rFio').value=p.fio||'';$('rLot').value=p.lot||'';$('rCad').value=p.cad||'';$('rAddr').value=p.addr||'';$('rTel').value=p.tel||'';$('rMail').value=p.mail||'';$('rMos').value=p.mos||'';$('rMosNum').value=p.mos_num||'';$('rMosDate').value=p.mos_date||'';$('rMosBox').style.display=p.mos==='yes'?'block':'none';$('rC1').checked=!!p.c1;$('rC2').checked=!!p.c2;$('rC3').checked=!!p.c3;
+    if(!П.уч){П.уч=normLot(p.lot);$('payLot').value=П.уч}}
+  safe('оплата',renderPay)}
 
 /* ═══════ ИНИЦИАЛИЗАЦИЯ ═══════ */
-document.addEventListener('DOMContentLoaded',()=>{
+function boot(){
+  /* 1. данные пульта */
   if(load(K.pult,null)===null)setRows(seed());
   if(load(K.views,null)===null)save(K.views,ВИДЫ0);
-  renderTariffs();$('mDate').valueAsDate=new Date();$('msgId').value=newId();renderParse();syncArrows();
-  renderAll();loadAll();
-  const tick=()=>$('clock').textContent=new Date().toLocaleTimeString('ru-RU');tick();setInterval(tick,1000);
-  go('home');
 
+  /* 2. НАВИГАЦИЯ И СОБЫТИЯ — ДО рендеров, чтобы интерфейс работал всегда */
   document.addEventListener('click',e=>{
     const g=e.target.closest('[data-go]');if(g){e.preventDefault();go(g.dataset.go);return}
     const t=e.target.closest('[data-tar]');if(t){selectTar(t.dataset.tar,true);return}
     const ch=e.target.closest('[data-chart]');if(ch){selectTar(ch.dataset.chart,true);return}
-    const v=e.target.closest('[data-vote]');if(v){const[a,b]=v.dataset.vote.split('_');vote(+a,+b);return}
-    const sg=e.target.closest('[data-sign]');if(sg){$('sg'+sg.dataset.sign).style.display='block';return}
+    const v=e.target.closest('[data-vote]');if(v){const ab=v.dataset.vote.split('_');vote(+ab[0],+ab[1]);return}
+    const sg=e.target.closest('[data-sign]');if(sg){const b=$('sg'+sg.dataset.sign);if(b)b.style.display='block';return}
     const cf=e.target.closest('[data-confirm]');if(cf){signConfirm(+cf.dataset.confirm);return}
-    const dv=e.target.closest('[data-delview]');if(dv){e.stopPropagation();const arr=load(K.views,ВИДЫ0).filter(x=>x.id!==dv.dataset.delview);save(K.views,arr);if(С.вид===dv.dataset.delview)С.вид=null;renderViews();toast('Вид удалён');return}
+    const dv=e.target.closest('[data-delview]');if(dv){e.stopPropagation();save(K.views,load(K.views,ВИДЫ0).filter(x=>x.id!==dv.dataset.delview));if(С.вид===dv.dataset.delview)С.вид=null;renderViews();toast('Вид удалён');return}
     const vw=e.target.closest('[data-view]');if(vw){applyView(vw.dataset.view);return}
     const qb=e.target.closest('.qb');if(qb){const q=qb.closest('.q'),a=q.querySelector('.ans'),open=q.classList.contains('open');
       document.querySelectorAll('.q.open').forEach(x=>{x.classList.remove('open');x.querySelector('.ans').style.maxHeight=null;x.querySelector('.qb').setAttribute('aria-expanded','false')});
@@ -1404,75 +1389,88 @@ document.addEventListener('DOMContentLoaded',()=>{
     const ch=e.target.closest&&e.target.closest('[data-chart]');if(ch&&(e.key==='Enter'||e.key===' ')){e.preventDefault();selectTar(ch.dataset.chart,true)}
     if(e.ctrlKey&&e.key==='Enter'){if(document.activeElement===$('mailText')&&!$('acceptMail').disabled){e.preventDefault();acceptMail()}else if($('drawer').classList.contains('on')){e.preventDefault();saveDrawer()}}
   });
-
-  /* главная */
-  $('btnExport').onclick=exportJSON;
-  $('btnCopy').onclick=()=>{const d=payload();if(!d)return toast('Сначала заполните профиль собственника','err');copy(JSON.stringify(d,null,2),'Пакет скопирован в буфер обмена')};
-  /* счётчики */
-  $('btnMeter').onclick=addReading;$('btnCsv').onclick=exportCSV;$('btnLetter').onclick=genLetter;$('btnElec').onclick=saveElec;
-  $('ePhoto').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{$('ePreview').src=ev.target.result;$('ePreview').style.display='block'};r.readAsDataURL(f)};
-  /* обращения */
-  $('btnIssue').onclick=addIssue;
-  /* регистрация */
-  $('btnSave').onclick=saveProfile;$('btnClear').onclick=clearProfile;
-  $('rMos').onchange=function(){$('rMosBox').style.display=this.value==='yes'?'block':'none';renderElec()};
-  $('rLot').onchange=function(){const c=findLotCard(this.value);if(c){if(c.cadastre)$('rCad').value=c.cadastre;if(c.addr_short)$('rAddr').value=c.addr_short}};
-  /* пропуска */
-  $('copyPhone').onclick=()=>copy('+7 (985) 547-3300','Номер охраны скопирован');
-  $('copyMemo').onclick=()=>copy('ЗАЯВКА НА ПРОПУСК — КП «Европейская долина 2»\nОхрана КПП: +7 (985) 547-3300 (звонок обязателен до приезда автомобиля)\n\n1. ФИО гостя: ______________________________\n2. Номер авто: _____________________________\n3. Дата визита: ____________________________\n\nГрузовой транспорт и спецтехника — въезд и стоянка платные (приказ № 11/01):\n• въезд до 3,5 т — 250 ₽; свыше 3,5 т — 600 ₽; спецтехника — 950 ₽\n• стоянка до 3,5 т — 950 ₽/сут или 25 000 ₽/мес\n• стоянка свыше 3,5 т — 1 400 ₽/сут или 37 000 ₽/мес\nДоставка и экстренные службы — бесплатно.','Памятка скопирована');
-  const il=$('illus'),cap=$('illusCap');const toggleIl=()=>{const o=il.classList.toggle('open');cap.innerHTML=o?'✅ Шлагбаум открыт — <b>решение принимает охрана</b> после звонка и проверки данных':'👆 Нажмите на схему — <b>шлагбаум поднимает охрана</b> после вашего звонка'};
-  il.onclick=toggleIl;il.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();toggleIl()}};
-  $('payCat').onchange=e=>selectTar(e.target.value,false);
-  document.querySelectorAll('.unit').forEach(b=>b.onclick=()=>{document.querySelectorAll('.unit').forEach(x=>x.classList.remove('on'));b.classList.add('on');П.ед=b.dataset.unit;П.кол=1;$('payQty').value=1;renderPay()});
-  $('qMinus').onclick=()=>{$('payQty').value=П.кол-1;renderPay()};
-  $('qPlus').onclick=()=>{$('payQty').value=П.кол+1;renderPay()};
-  $('payQty').oninput=renderPay;
-  $('payLot').oninput=e=>{П.уч=normLot(e.target.value);renderPay()};
-  $('copyReq').onclick=()=>{const t=тариф();copy('Получатель: ООО «ЭК «ЕД-2»\nИНН '+Д.company.inn+' / КПП '+Д.company.kpp+'\nР/с '+Д.company.account+'\nБанк: '+Д.company.bank+'\nБИК '+Д.company.bik+'\nК/с '+Д.company.corr+'\nСумма: '+₽2(итого())+' ₽\nНазначение: Оплата '+t.назв.toLowerCase()+' × '+П.кол+' '+едСловом()+' по приказу № 11/01'+(П.уч?', уч. №'+П.уч:''),'Реквизиты и сумма скопированы')};
-  $('copyStr').onclick=()=>copy($('payStr').textContent,'Строка платежа скопирована');
-  $('printPay').onclick=()=>window.print();
-  $('resetPay').onclick=()=>{selectTar('v_light',false);toast('Расчёт сброшен')};
-  /* задолженности */
-  $('copyDebtReq').onclick=()=>copy('Получатель: ООО «ЭК «ЕД-2»\nИНН '+Д.company.inn+' / КПП '+Д.company.kpp+'\nР/с '+Д.company.account+'\nБанк: '+Д.company.bank+'\nБИК '+Д.company.bik+'\nК/с '+Д.company.corr+'\nСумма: '+₽2(debtSum)+' ₽\nНазначение: Оплата задолженности за участок №'+debtLot,'Реквизиты и сумма скопированы');
-  /* пульт */
-  $('cSearch').oninput=e=>{С.п=e.target.value;dropActiveView();renderTable()};
-  document.querySelectorAll('#cVote .sg').forEach(b=>b.onclick=()=>{document.querySelectorAll('#cVote .sg').forEach(x=>x.classList.remove('on'));b.classList.add('on');С.ф=b.dataset.f;dropActiveView();renderTable()});
-  $('cPeriod').onchange=e=>{С.пер=e.target.value;dropActiveView();renderTable()};
-  $('cSrc').onchange=e=>{С.ист=e.target.value;dropActiveView();renderTable()};
-  document.querySelectorAll('#console thead th[data-sort]').forEach(th=>th.onclick=()=>{const p=th.dataset.sort;С.сорт=С.сорт.поле===p?{поле:p,напр:-С.сорт.напр}:{поле:p,напр:1};dropActiveView();syncArrows();renderTable()});
-  $('cBody').addEventListener('change',e=>{if(!e.target.classList.contains('rowcb'))return;const id=e.target.dataset.id;e.target.checked?С.выб.add(id):С.выб.delete(id);renderTable()});
-  $('chkAll').onchange=e=>{cFilter().forEach(z=>e.target.checked?С.выб.add(z.id):С.выб.delete(z.id));renderTable()};
-  $('bulkDel').onclick=bulkDel;
-  $('bulkInv').onclick=()=>{cFilter().forEach(z=>С.выб.has(z.id)?С.выб.delete(z.id):С.выб.add(z.id));renderTable()};
-  $('bulkClr').onclick=()=>{С.выб.clear();$('chkAll').checked=false;renderTable()};
-  $('addVote').onclick=()=>openDrawer(null);
-  $('drX').onclick=closeDrawer;$('scrim').onclick=closeDrawer;$('drSave').onclick=saveDrawer;$('drDel').onclick=()=>delRow(С.ред);
-  $('viewAdd').onclick=()=>{const n=prompt('Название вида:','Мой вид '+(load(K.views,ВИДЫ0).filter(v=>!v.сис).length+1));if(!n||!n.trim())return;
+  const on=(id,ev,fn)=>{const e=$(id);if(e)e.addEventListener(ev,fn)};
+  on('btnExport','click',exportJSON);
+  on('btnCopy','click',()=>{const d=payload();if(!d)return toast('Сначала заполните профиль собственника','err');copy(JSON.stringify(d,null,2),'Пакет скопирован в буфер обмена')});
+  on('btnMeter','click',addReading);on('btnCsv','click',exportCSV);on('btnLetter','click',genLetter);on('btnElec','click',saveElec);
+  on('ePhoto','change',e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{$('ePreview').src=ev.target.result;$('ePreview').style.display='block'};r.readAsDataURL(f)});
+  on('btnIssue','click',addIssue);
+  on('btnSave','click',saveProfile);on('btnClear','click',clearProfile);
+  on('rMos','change',function(){$('rMosBox').style.display=this.value==='yes'?'block':'none';renderElec()});
+  on('rLot','change',function(){const c=findLotCard(this.value);if(c){if(c.cadastre)$('rCad').value=c.cadastre;if(c.addr_short)$('rAddr').value=c.addr_short}});
+  on('copyPhone','click',()=>copy('+7 (985) 547-3300','Номер охраны скопирован'));
+  on('copyMemo','click',()=>copy('ЗАЯВКА НА ПРОПУСК — КП «Европейская долина 2»\nОхрана КПП: +7 (985) 547-3300 (звонок обязателен до приезда автомобиля)\n\n1. ФИО гостя: ______________________________\n2. Номер авто: _____________________________\n3. Дата визита: ____________________________\n\nГрузовой транспорт и спецтехника — въезд и стоянка платные (приказ № 11/01):\n• въезд до 3,5 т — 250 ₽; свыше 3,5 т — 600 ₽; спецтехника — 950 ₽\n• стоянка до 3,5 т — 950 ₽/сут или 25 000 ₽/мес\n• стоянка свыше 3,5 т — 1 400 ₽/сут или 37 000 ₽/мес\nДоставка и экстренные службы — бесплатно.','Памятка скопирована'));
+  const il=$('illus'),cap=$('illusCap');
+  const toggleIl=()=>{const o=il.classList.toggle('open');cap.innerHTML=o?'✅ Шлагбаум открыт — <b>решение принимает охрана</b> после звонка и проверки данных':'👆 Нажмите на схему — <b>шлагбаум поднимает охрана</b> после вашего звонка'};
+  on('illus','click',toggleIl);on('illus','keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();toggleIl()}});
+  on('payCat','change',e=>selectTar(e.target.value,false));
+  document.querySelectorAll('.unit').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('.unit').forEach(x=>x.classList.remove('on'));b.classList.add('on');П.ед=b.dataset.unit;П.кол=1;$('payQty').value=1;renderPay()}));
+  on('qMinus','click',()=>{$('payQty').value=П.кол-1;renderPay()});
+  on('qPlus','click',()=>{$('payQty').value=П.кол+1;renderPay()});
+  on('payQty','input',renderPay);
+  on('payLot','input',e=>{П.уч=normLot(e.target.value);renderPay()});
+  on('copyReq','click',()=>{const t=тариф();copy('Получатель: ООО «ЭК «ЕД-2»\nИНН '+Д.company.inn+' / КПП '+Д.company.kpp+'\nР/с '+Д.company.account+'\nБанк: '+Д.company.bank+'\nБИК '+Д.company.bik+'\nК/с '+Д.company.corr+'\nСумма: '+₽2(итого())+' ₽\nНазначение: Оплата '+t.назв.toLowerCase()+' × '+П.кол+' '+едСловом()+' по приказу № 11/01'+(П.уч?', уч. №'+П.уч:''),'Реквизиты и сумма скопированы')});
+  on('copyStr','click',()=>copy($('payStr').textContent,'Строка платежа скопирована'));
+  on('printPay','click',()=>window.print());
+  on('resetPay','click',()=>{selectTar('v_light',false);toast('Расчёт сброшен')});
+  on('copyDebtReq','click',()=>copy('Получатель: ООО «ЭК «ЕД-2»\nИНН '+Д.company.inn+' / КПП '+Д.company.kpp+'\nР/с '+Д.company.account+'\nБанк: '+Д.company.bank+'\nБИК '+Д.company.bik+'\nК/с '+Д.company.corr+'\nСумма: '+₽2(debtSum)+' ₽\nНазначение: Оплата задолженности за участок №'+debtLot,'Реквизиты и сумма скопированы'));
+  on('cSearch','input',e=>{С.п=e.target.value;dropActiveView();renderTable()});
+  document.querySelectorAll('#cVote .sg').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('#cVote .sg').forEach(x=>x.classList.remove('on'));b.classList.add('on');С.ф=b.dataset.f;dropActiveView();renderTable()}));
+  on('cPeriod','change',e=>{С.пер=e.target.value;dropActiveView();renderTable()});
+  on('cSrc','change',e=>{С.ист=e.target.value;dropActiveView();renderTable()});
+  document.querySelectorAll('#console thead th[data-sort]').forEach(th=>th.addEventListener('click',()=>{const p=th.dataset.sort;С.сорт=С.сорт.поле===p?{поле:p,напр:-С.сорт.напр}:{поле:p,напр:1};dropActiveView();syncArrows();renderTable()}));
+  on('cBody','change',e=>{if(!e.target.classList.contains('rowcb'))return;const id=e.target.dataset.id;e.target.checked?С.выб.add(id):С.выб.delete(id);renderTable()});
+  on('chkAll','change',e=>{cFilter().forEach(z=>e.target.checked?С.выб.add(z.id):С.выб.delete(z.id));renderTable()});
+  on('bulkDel','click',bulkDel);
+  on('bulkInv','click',()=>{cFilter().forEach(z=>С.выб.has(z.id)?С.выб.delete(z.id):С.выб.add(z.id));renderTable()});
+  on('bulkClr','click',()=>{С.выб.clear();$('chkAll').checked=false;renderTable()});
+  on('addVote','click',()=>openDrawer(null));
+  on('drX','click',closeDrawer);on('scrim','click',closeDrawer);on('drSave','click',saveDrawer);on('drDel','click',()=>delRow(С.ред));
+  on('viewAdd','click',()=>{const n=prompt('Название вида:','Мой вид '+(load(K.views,ВИДЫ0).filter(v=>!v.сис).length+1));if(!n||!n.trim())return;
     const v={id:'u_'+Date.now().toString(36),назв:n.trim().slice(0,26),сис:false,ф:С.ф,пер:С.пер,ист:С.ист,п:С.п,сорт:{поле:С.сорт.поле,напр:С.сорт.напр}};
-    const arr=load(K.views,ВИДЫ0);arr.push(v);save(K.views,arr);С.вид=v.id;renderViews();toast('Вид «'+v.назв+'» сохранён')};
+    const arr=load(K.views,ВИДЫ0);arr.push(v);save(K.views,arr);С.вид=v.id;renderViews();toast('Вид «'+v.назв+'» сохранён')});
   const vl=$('viewsList');
-  vl.addEventListener('dragstart',e=>{const c=e.target.closest('.view');if(!c)return;тянется=c.dataset.view;c.classList.add('drag');if(e.dataTransfer){e.dataTransfer.effectAllowed='move';try{e.dataTransfer.setData('text/plain',тянется)}catch(x){}}});
-  vl.addEventListener('dragover',e=>{const c=e.target.closest('.view');if(!c||!тянется)return;e.preventDefault();document.querySelectorAll('.view.target').forEach(x=>x.classList.remove('target'));if(c.dataset.view!==тянется)c.classList.add('target')});
-  vl.addEventListener('drop',e=>{const c=e.target.closest('.view');if(!c||!тянется)return;e.preventDefault();
-    const arr=load(K.views,ВИДЫ0),a=arr.findIndex(v=>v.id===тянется),b=arr.findIndex(v=>v.id===c.dataset.view);
-    if(a>=0&&b>=0&&a!==b){const[m]=arr.splice(a,1);arr.splice(b,0,m);save(K.views,arr);renderViews()}
-    тянется=null;document.querySelectorAll('.view.target').forEach(x=>x.classList.remove('target'))});
-  vl.addEventListener('dragend',()=>{тянется=null;document.querySelectorAll('.view').forEach(x=>x.classList.remove('drag','target'))});
-  document.querySelectorAll('.sample').forEach(b=>b.onclick=()=>{$('mailText').value=ПРИМЕРЫ[b.dataset.s];$('msgId').value=newId();renderParse();logLine('вставлен пример: '+b.textContent.trim())});
-  $('mailText').oninput=renderParse;$('msgId').oninput=renderParse;$('dedupId').onchange=renderParse;
-  $('acceptMail').onclick=acceptMail;
-  $('clearMail').onclick=()=>{$('mailText').value='';$('msgId').value=newId();renderParse()};
-  $('checks').addEventListener('change',e=>{const id=e.target.dataset.check;if(!id)return;e.target.checked?сбои.add(id):сбои.delete(id);renderChecks()});
-  $('expPkg').onclick=expPkg;$('expCsv').onclick=expCsv;$('expPoll').onclick=expPoll;
-  $('impBtn').onclick=()=>$('impFile').click();
-  $('impFile').onchange=e=>{if(e.target.files[0])impCsv(e.target.files[0]);e.target.value=''};
-  $('incTest').onchange=e=>toast(e.target.checked?'Тестовые записи войдут в выгрузку':'Тестовые записи исключены из выгрузки');
-  $('rmDemo').onclick=rmDemo;
+  if(vl){
+    vl.addEventListener('dragstart',e=>{const c=e.target.closest('.view');if(!c)return;тянется=c.dataset.view;c.classList.add('drag');if(e.dataTransfer){e.dataTransfer.effectAllowed='move';try{e.dataTransfer.setData('text/plain',тянется)}catch(x){}}});
+    vl.addEventListener('dragover',e=>{const c=e.target.closest('.view');if(!c||!тянется)return;e.preventDefault();document.querySelectorAll('.view.target').forEach(x=>x.classList.remove('target'));if(c.dataset.view!==тянется)c.classList.add('target')});
+    vl.addEventListener('drop',e=>{const c=e.target.closest('.view');if(!c||!тянется)return;e.preventDefault();
+      const arr=load(K.views,ВИДЫ0),a=arr.findIndex(v=>v.id===тянется),b=arr.findIndex(v=>v.id===c.dataset.view);
+      if(a>=0&&b>=0&&a!==b){const m=arr.splice(a,1)[0];arr.splice(b,0,m);save(K.views,arr);renderViews()}
+      тянется=null;document.querySelectorAll('.view.target').forEach(x=>x.classList.remove('target'))});
+    vl.addEventListener('dragend',()=>{тянется=null;document.querySelectorAll('.view').forEach(x=>x.classList.remove('drag','target'))});
+  }
+  document.querySelectorAll('.sample').forEach(b=>b.addEventListener('click',()=>{$('mailText').value=ПРИМЕРЫ[b.dataset.s];$('msgId').value=newId();renderParse();logLine('вставлен пример: '+b.textContent.trim())}));
+  on('mailText','input',renderParse);on('msgId','input',renderParse);on('dedupId','change',renderParse);
+  on('acceptMail','click',acceptMail);
+  on('clearMail','click',()=>{$('mailText').value='';$('msgId').value=newId();renderParse()});
+  on('checks','change',e=>{const id=e.target.dataset.check;if(!id)return;e.target.checked?сбои.add(id):сбои.delete(id);renderChecks()});
+  on('expPkg','click',expPkg);on('expCsv','click',expCsv);on('expPoll','click',expPoll);
+  on('impBtn','click',()=>$('impFile').click());
+  on('impFile','change',e=>{if(e.target.files[0])impCsv(e.target.files[0]);e.target.value=''});
+  on('incTest','change',e=>toast(e.target.checked?'Тестовые записи войдут в выгрузку':'Тестовые записи исключены из выгрузки'));
+  on('rmDemo','click',rmDemo);
 
+  /* 3. стартовый экран */
+  go('home');
+  const tick=()=>{const e=$('clock');if(e)e.textContent=new Date().toLocaleTimeString('ru-RU')};tick();setInterval(tick,1000);
+
+  /* 4. рендеры (изолированы) */
+  safe('тарифы',renderTariffs);
+  const md=$('mDate');if(md)md.valueAsDate=new Date();
+  const mi=$('msgId');if(mi)mi.value=newId();
+  safe('разбор',renderParse);safe('стрелки',syncArrows);
+  renderAll();
+  loadAll().catch(e=>{ОШИБКИ.push('загрузка данных');console.error(e)});
+
+  /* 5. параллакс */
   let raf=null;window.addEventListener('scroll',()=>{if(raf)return;raf=requestAnimationFrame(()=>{const y=window.scrollY;
-    document.querySelector('.orb.a').style.transform='translateY('+(y*.04)+'px)';
-    document.querySelector('.orb.b').style.transform='translateY('+(-y*.03)+'px)';raf=null})},{passive:true});
-});
+    const a=document.querySelector('.orb.a'),b=document.querySelector('.orb.b');
+    if(a)a.style.transform='translateY('+(y*.04)+'px)';if(b)b.style.transform='translateY('+(-y*.03)+'px)';raf=null})},{passive:true});
+
+  if(ОШИБКИ.length)toast('Модули с ошибкой: '+ОШИБКИ.join(', ')+'. Подробности в консоли (F12).','err');
+}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
+window.addEventListener('error',e=>{console.error('[ЕД-2] runtime',e.error||e.message)});
 </script>
 </body>
 </html>
