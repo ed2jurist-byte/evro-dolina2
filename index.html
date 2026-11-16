@@ -22,7 +22,7 @@ h2{font-size:1.15rem;color:var(--gd);margin-bottom:10px;display:flex;justify-con
 h3{font-size:1rem;margin:14px 0 8px}
 label{display:block;font-size:.83rem;color:var(--muted);margin:10px 0 4px}
 input,select,textarea{width:100%;padding:10px;border:1px solid #ccc;border-radius:8px;font-size:.94rem;font-family:inherit}
-input[readonly]{background:#f0f4f0;color:#33691e}
+input[readonly], input:disabled{background:#f0f4f0;color:#666}
 textarea{min-height:80px;resize:vertical}
 .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
@@ -51,11 +51,7 @@ tr.mine{background:var(--gl)}
 pre{background:#f0f4f0;padding:12px;border-radius:8px;font-size:.84rem;white-space:pre-wrap;margin-top:10px;display:none}
 footer{text-align:center;font-size:.8rem;color:var(--muted);padding:22px 10px}
 .qr-block{text-align:center;margin-top:16px;padding:16px;background:#f9fbf9;border-radius:8px}
-.qr-block img,.qr-block canvas{margin:0 auto}
-.photo-preview{max-width:100%;max-height:200px;margin-top:8px;border-radius:8px;border:1px solid #ddd}
-.elec-block{background:#e8f5e9;padding:14px;border-radius:8px;margin-top:12px;border-left:4px solid var(--green)}
-.elec-value{font-size:1.1rem;font-weight:600;color:var(--amber);margin-top:4px}
-.elec-value.filled{color:var(--gd)}
+.qr-block img{max-width:200px;height:auto;margin:0 auto;border:1px solid #ddd;border-radius:8px}
 </style>
 </head>
 <body>
@@ -76,16 +72,6 @@ footer{text-align:center;font-size:.8rem;color:var(--muted);padding:22px 10px}
 
 <main>
 <section id="home" class="active">
-  <!-- ОБРАЩЕНИЕ ПО ТКО -->
-  <div class="card" style="border-left: 4px solid var(--red);">
-    <h2>🚨 Важно: Ситуация с вывозом ТКО</h2>
-    <p style="font-size:.9rem; margin-bottom:12px; color:var(--muted);">
-      В посёлке сложилась критическая ситуация с вывозом мусора. ООО «ЭК «ЕД-2» выступает за переход на прямые договоры собственников с региональным оператором АО «Экотехпром». 
-      Просим каждого собственника <b>проголосовать</b> в разделе «Документы» и актуализировать наличие прямого договора в разделе «Регистрация».
-    </p>
-    <button class="btn outline" data-go="docs" style="margin:0">Перейти к голосованию по ТКО</button>
-  </div>
-
   <div class="card">
     <h2><span>Центр задач</span><span id="user_badge" style="font-size:.82rem;font-weight:400;color:var(--muted)">Гость</span></h2>
     <div id="tasks"></div>
@@ -97,8 +83,21 @@ footer{text-align:center;font-size:.8rem;color:var(--muted);padding:22px 10px}
     </div>
     <div class="note" id="freshness">Данные загружаются…</div>
   </div>
+
+  <div class="card" style="border-left: 4px solid var(--amber);">
+    <h2>⚠️ Важно</h2>
+    <div id="important-notices">
+      <p style="color: var(--muted); font-style: italic;">Объявлений пока нет.</p>
+    </div>
+  </div>
+
   <div class="card"><h2>Контакты и режим работы</h2><div id="contacts" style="font-size:.88rem"></div></div>
-  <div class="card"><h2>Реквизиты ООО «ЭК «ЕД-2»</h2><div id="requisites" style="font-size:.87rem"></div></div>
+  
+  <div class="card">
+    <h2>Реквизиты ООО «ЭК «ЕД-2»</h2>
+    <div id="requisites" style="font-size:.87rem"></div>
+  </div>
+
   <div class="card">
     <h2>Передача данных в УК</h2>
     <p style="font-size:.86rem;color:var(--muted)">Кабинет работает без сервера: сведения хранятся в вашем браузере. Выгрузите пакет и направьте его в УК для обработки.</p>
@@ -107,7 +106,6 @@ footer{text-align:center;font-size:.8rem;color:var(--muted);padding:22px 10px}
   </div>
 </section>
 
-<!-- ОБЪЕДИНЁННЫЙ РАЗДЕЛ СЧЁТЧИКОВ: ВОДА + ЭЛЕКТРИЧЕСТВО -->
 <section id="meters">
   <div class="card">
     <h2>💧 Показания счётчиков воды</h2>
@@ -116,7 +114,6 @@ footer{text-align:center;font-size:.8rem;color:var(--muted);padding:22px 10px}
       <div><label>Тип счётчика *</label>
         <select id="m_type">
           <option>ХВС (холодная вода)</option>
-          <option>Водоотведение</option>
         </select>
       </div>
       <div><label>Дата снятия *</label><input id="m_date" type="date"></div>
@@ -126,182 +123,131 @@ footer{text-align:center;font-size:.8rem;color:var(--muted);padding:22px 10px}
       <div><label>Предыдущее показание</label><input id="m_prev" type="number" step="0.01" min="0"></div>
     </div>
     <label>Заводской номер / примечание</label><input id="m_note">
-    <button class="btn" id="btn_meter">Сохранить показание</button>
+    <label style="margin-top:10px">Прикрепить фото счётчика</label>
+    <input id="m_photo" type="file" accept="image/*">
+    <button class="btn" id="btn_meter" style="margin-top:12px">Сохранить показание</button>
     <div class="msg" id="m_msg"></div>
   </div>
 
-  <div class="card"><h2>📜 История показаний воды</h2><div id="m_list"></div>
+  <div class="card">
+    <h2>📜 История показаний воды</h2>
+    <div id="m_list"></div>
     <button class="btn gray" id="btn_csv">Выгрузить CSV</button>
     <button class="btn gray" id="btn_letter">Письмо в бухгалтерию</button>
-    <pre id="m_letter"></pre></div>
+    <pre id="m_letter"></pre>
+  </div>
 
-  <!-- БЛОК ЭЛЕКТРОЭНЕРГИИ: ДВУХТАРИФНЫЙ УЧЁТ -->
-  <div class="card" id="elec_card" style="display:none">
-    <h2>⚡ Показания электросчётчика (Т1 / Т2)</h2>
-    <div class="elec-block">
-      <p style="font-size:.87rem;color:var(--gd);margin-bottom:10px">
-        <b>Показания электросчётчиков передаются инженером ООО «ЭК «ЕД-2».</b><br>
-        <b>Внимание:</b> раздел предназначен для собственников, имеющих прямые договоры с АО «Мосэнергосбыт».
-      </p>
-      <div class="note" id="elec_period_info">Период: Текущий месяц. Данные от инженера УК ожидаются.</div>
+  <div class="card" id="elec_meter_block">
+    <h2>⚡ Показания электросчётчика</h2>
+    <div class="note warn">
+      Только для собственников, у которых заключен прямой договор с АО «Мосэнергосбыт». 
+      Подраздел заполняется Главным инженером ООО «ЭК «ЕД-2».
     </div>
-
-    <!-- СОСТОЯНИЕ 1: есть прямой договор → форма ввода Т1 и Т2 + фото -->
-    <div id="elec_form_block" style="display:none">
-      <div class="note" id="elec_eng_hint" style="margin-bottom:12px"></div>
-      
-      <div style="background:#f9fbf9; padding:12px; border-radius:8px; margin-bottom:12px">
-        <h3 style="margin-top:0; font-size:.95rem; color:var(--amber)">Тариф Т1 (День)</h3>
-        <div class="row">
-          <div><label>Текущее Т1 *</label><input id="m_elec_t1_cur" type="number" step="0.01" min="0"></div>
-          <div><label>Предыдущее Т1</label><input id="m_elec_t1_prev" type="number" step="0.01" min="0"></div>
-        </div>
+    <label style="margin-top:12px; display:flex; align-items:center; gap:8px; cursor:pointer;">
+      <input type="checkbox" id="engineer_mode_toggle"> 
+      <span>Режим Главного инженера (разрешить редактирование)</span>
+    </label>
+    
+    <div id="elec_inputs" style="opacity: 0.5; pointer-events: none; margin-top: 16px; transition: opacity 0.3s;">
+      <div class="row">
+        <div><label>Дата снятия показаний *</label><input id="e_date" type="date"></div>
       </div>
-
-      <div style="background:#f0f4f8; padding:12px; border-radius:8px; margin-bottom:12px">
-        <h3 style="margin-top:0; font-size:.95rem; color:#1565c0">Тариф Т2 (Ночь)</h3>
-        <div class="row">
-          <div><label>Текущее Т2 *</label><input id="m_elec_t2_cur" type="number" step="0.01" min="0"></div>
-          <div><label>Предыдущее Т2</label><input id="m_elec_t2_prev" type="number" step="0.01" min="0"></div>
-        </div>
+      <h3 style="color:var(--amber); margin-top:16px;">Тариф Т1 (День)</h3>
+      <div class="row">
+        <div><label>Текущее показание Т1 *</label><input id="e_t1_cur" type="number" step="0.01" min="0"></div>
+        <div><label>Предыдущее показание Т1</label><input id="e_t1_prev" type="number" step="0.01" min="0"></div>
       </div>
-
-      <label>Фото электросчётчика (необязательно)</label>
-      <input id="m_elec_photo" type="file" accept="image/*" capture="environment">
-      <img id="m_elec_photo_preview" class="photo-preview" style="display:none">
-      <button class="btn" id="btn_save_elec" style="margin-top:12px">Сохранить показания электроэнергии</button>
-      <div class="msg" id="m_elec_msg"></div>
-    </div>
-
-    <!-- СОСТОЯНИЕ 2: нет прямого договора → заглушка + подсказка -->
-    <div id="elec_info_block" style="display:none">
-      <div class="item">
-        <label style="margin-top:0">Показания по общему счётчику (кВт·ч)</label>
-        <div id="elec_value" class="elec-value">Нет данных</div>
-        <div id="elec_value_sub" style="font-size:.82rem;color:var(--muted)">Инженер ещё не внёс данные за этот период.</div>
+      <h3 style="color:#1565c0; margin-top:16px;">Тариф Т2 (Ночь)</h3>
+      <div class="row">
+        <div><label>Текущее показание Т2 *</label><input id="e_t2_cur" type="number" step="0.01" min="0"></div>
+        <div><label>Предыдущее показание Т2</label><input id="e_t2_prev" type="number" step="0.01" min="0"></div>
       </div>
-      <div class="note">
-        <b>Прямой договор с АО «Мосэнергосбыт».</b><br>
-        Показания электроэнергии по вашему участку предоставляет инженер ООО «ЭК «ЕД-2» на основании общего счётчика. Если вы заключили прямой договор — обновите данные в разделе «Регистрация», чтобы вводить показания самостоятельно.
-      </div>
+      <button class="btn" id="btn_save_elec" style="margin-top:16px">Сохранить показания электросчётчика</button>
+      <div class="msg" id="e_msg"></div>
     </div>
   </div>
 </section>
 
 <section id="passes">
-  <div class="card" style="border-left:4px solid var(--green)">
-    <h2>🚧 Пропуска на КПП — порядок оформления</h2>
-    <p style="font-size:.88rem;color:var(--muted);margin-bottom:10px">
-      Въезд гостей, грузового транспорта и спецтехники на территорию КП «Европейская долина 2» оформляется
-      <b>только по предварительному звонку</b> на пост охраны — до момента приезда автомобиля.
-      Онлайн-заявки через кабинет не принимаются.
-    </p>
-    <div class="note" style="margin-bottom:14px">
-      <b>Единый номер охраны КПП:</b> <a href="tel:+79855473300" style="color:var(--gd);font-weight:700">+7 (985) 547-33-00</a><br>
-      <b>Адрес КПП:</b> пер. 4-й Дунайский, д. 21 (вход со стороны леса).<br>
-      <b>Режим работы поста:</b> круглосуточно.
+  <div class="card">
+    <h2>Заказ пропуска на КПП</h2>
+    <div class="row">
+      <div><label>Тип *</label><select id="p_type">
+        <option>Разовый (на дату)</option><option>Временный (до 7 дней)</option><option>Постоянный</option></select></div>
+      <div><label>Дата въезда *</label><input id="p_date" type="date"></div>
     </div>
-
-    <h3>📋 Что обязательно назвать охране при звонке</h3>
-    <p style="font-size:.88rem;margin:6px 0 10px">Три пункта — минимум, без которого пропуск не оформят:</p>
-    <ol style="padding-left:22px;font-size:.88rem;line-height:1.7">
-      <li><b>ФИО гостя</b> полностью (как в документе).</li>
-      <li><b>Госномер автомобиля</b> полностью, включая регион (для спецтехники — идентификатор машины).</li>
-      <li><b>Дата визита</b> — конкретный день въезда. Если техника остаётся на несколько суток — сообщить сразу.</li>
-    </ol>
-    <p style="font-size:.82rem;color:var(--muted);margin-top:8px">
-      Охрана может дополнительно уточнить марку авто, ориентировочное время въезда и номер вашего участка — это нормальная процедура сверки.
-    </p>
+    <div class="row">
+      <div><label>Госномер *</label><input id="p_plate" placeholder="А123АА799"></div>
+      <div><label>Марка / ФИО посетителя *</label><input id="p_guest"></div>
+    </div>
+    <button class="btn" id="btn_pass">Оформить пропуск</button>
+    <div class="msg" id="p_msg"></div>
+    <div class="note warn">Пропуск действует после подтверждения охраной КПП. Заявку необходимо передать в УК.</div>
   </div>
 
   <div class="card">
-    <h2>💰 Тарифы для грузового транспорта и спецтехники</h2>
-    <p style="font-size:.86rem;color:var(--muted);margin-bottom:10px">
-      Въезд и стоянка грузового автотранспорта и спецтехники — платные (приказ № 11/01).
-      Гостевой легковой транспорт по звонку охране оформляется <b>без оплаты</b>.
-    </p>
-    <table>
-      <thead>
-        <tr><th>Категория</th><th>Разовый въезд</th><th>Стоянка, сутки</th><th>Стоянка, месяц</th></tr>
-      </thead>
-      <tbody>
-        <tr><td>Въезд до 3,5 т</td><td>250 ₽</td><td>—</td><td>—</td></tr>
-        <tr><td>Въезд свыше 3,5 т</td><td>600 ₽</td><td>—</td><td>—</td></tr>
-        <tr><td>Спецтехника</td><td>950 ₽</td><td>—</td><td>—</td></tr>
-        <tr><td>Стоянка до 3,5 т</td><td>—</td><td>950 ₽</td><td>25 000 ₽</td></tr>
-        <tr><td>Стоянка свыше 3,5 т</td><td>—</td><td>1 400 ₽</td><td>37 000 ₽</td></tr>
-      </tbody>
-    </table>
-    <p style="font-size:.82rem;color:var(--muted);margin-top:8px">
-      Месячный абонемент выгоден начиная с 27 суток стоянки.
-    </p>
-
-    <div class="note" style="margin-top:14px;border-left-color:var(--green)">
-      <b>Не оплачивается:</b> автотранспорт служб доставки (Яндекс, Озон, Лемана Про и аналогичные) и экстренных служб
-      (скорая помощь, пожарная охрана, аварийные службы) — въезд для них бесплатный по звонку охране.
-    </div>
+    <h2>Мои пропуска</h2>
+    <div id="p_list"></div>
+    <button class="btn gray" id="btn_guard">Сводка для охраны КПП</button>
+    <pre id="p_txt"></pre>
   </div>
 
   <div class="card">
-    <h2>🧭 Порядок оформления пропуска (4 шага)</h2>
-    <ol style="padding-left:22px;font-size:.88rem;line-height:1.8">
-      <li><b>Позвонить охране</b> на +7 (985) 547-33-00 заблаговременно — до того, как автомобиль подъедет к шлагбауму.</li>
-      <li><b>Продиктовать данные:</b> ФИО гостя, номер авто, дата визита. Для техники — категорию (до 3,5 т / свыше 3,5 т / спецтехника).</li>
-      <li><b>Оплатить въезд/стоянку</b> (если грузовой транспорт или спецтехника) по реквизитам ниже и сообщить об оплате охране.</li>
-      <li><b>Получить подтверждение на КПП</b> — охрана фиксирует заявку и открывает шлагбаум при въезде.</li>
-    </ol>
-  </div>
-
-  <div class="card">
-    <h2>💳 Реквизиты для оплаты въезда и стоянки</h2>
-    <div style="font-size:.87rem;line-height:1.7">
-      <b>Получатель:</b> ООО «ЭК «ЕД-2»<br>
-      <b>ИНН / КПП:</b> 7751167800 / 770501001<br>
-      <b>Расчётный счёт:</b> 40702810938000335019<br>
-      <b>Банк:</b> ПАО Сбербанк<br>
-      <b>БИК:</b> 044525225 &nbsp;·&nbsp; <b>К/с:</b> 30101810400000000225<br>
-      <b>Назначение платежа:</b> «Оплата въезда/стоянки по приказу № 11/01, участок № ___»
+    <h2>Оплата и контакты</h2>
+    <div class="qr-block">
+      <p style="font-size:.9rem; margin-bottom:10px; font-weight:600;">QR-код для оплаты</p>
+      <img src="payment_qr.png" alt="QR-код для оплаты">
+      <p style="font-size:.8rem; color:var(--muted); margin-top:8px;">Отсканируйте код для быстрой оплаты через банковское приложение</p>
     </div>
-    <div class="note warn" style="margin-top:12px">
-      Оплата не заменяет звонок. После платежа обязательно позвоните охране, назовите ФИО, номер авто, дату визита
-      и сообщите, что въезд оплачен. Пропуск подтверждает пост охраны.
+    <div class="item" style="margin-top:16px">
+      <p style="margin-bottom:8px"><b>Куда обращаться по вопросам начислений?</b><br>
+      <span style="color:var(--muted)">В бухгалтерию: +7 (905) 749-09-99, ed2.buh@gmail.com</span></p>
+      <p style="margin-top:12px; margin-bottom:0"><b>Куда обращаться по спорным ситуациям на КПП?</b><br>
+      <span style="color:var(--muted)">К Управляющему ООО «ЭК «ЕД-2»: +7 (965) 294-40-00</span></p>
     </div>
-  </div>
-
-  <div class="card">
-    <h2>❓ Частые вопросы</h2>
-    <p style="font-size:.87rem;line-height:1.7">
-      <b>Нужно ли звонить, если гость уже у шлагбаума?</b> — Да, звонок обязателен в любом случае.
-      До подтверждения охраны шлагбаум не откроется.<br><br>
-      <b>Можно ли оформить пропуск через сайт или мессенджер?</b> — Нет.
-      Единственный способ — телефонный звонок охране. Так исключаются поддельные заявки и ошибки в номерах.<br><br>
-      <b>Гостевой легковой автомобиль — платно?</b> — Нет. Прейскурант приказа № 11/01 распространяется только
-      на грузовой автотранспорт и спецтехнику.<br><br>
-      <b>Куда обращаться по вопросам начислений?</b> — В бухгалтерию: +7 (905) 749-09-99, ed2.buh@gmail.com.
-      По спорным ситуациям на КПП — к дежурному УК: +7 (925) 228-91-38 или юристу: ed2.jurist@ya.ru.
-    </p>
   </div>
 </section>
 
-<!-- ЗАДОЛЖЕННОСТИ (только для зарегистрированных) + QR -->
+<section id="issues">
+  <div class="card">
+    <h2>Заявка / обращение в УК</h2>
+    <div class="row">
+      <div><label>Категория *</label><select id="i_cat">
+        <option>Дороги и чистка снега</option><option>Уличное освещение</option>
+        <option>Водоснабжение / канализация</option><option>Электроснабжение</option>
+        <option>Благоустройство и мусор</option><option>Охрана / КПП</option>
+        <option>Бухгалтерия и начисления</option><option>Прочее</option></select></div>
+      <div><label>Приоритет</label><select id="i_prio">
+        <option>Обычный</option><option>Срочный (аварийная ситуация)</option></select></div>
+    </div>
+    <label>Кратко о проблеме *</label><input id="i_title">
+    <label>Подробное описание *</label><textarea id="i_text" placeholder="Место, время, обстоятельства"></textarea>
+    <button class="btn" id="btn_issue">Отправить заявку</button>
+    <div class="msg" id="i_msg"></div>
+    <div class="note">Обращения с юридическими требованиями автоматически выделяются для юротдела.</div>
+  </div>
+  <div class="card"><h2>Журнал обращений</h2><div id="i_list"></div></div>
+</section>
+
+<section id="docs">
+  <div class="card">
+    <h2>Документы по вашему участку</h2>
+    <div class="note warn"><b>Демонстрационный режим подписания.</b> Юридически значимое подписание — в офисе УК либо через оператора ЭДО. Статус «Подписано» появится после подтверждения УК.</div>
+    <div id="doc_list"></div>
+  </div>
+  <div class="card"><h2>Новости УК</h2><div id="news"></div></div>
+</section>
+
 <section id="debts">
   <div class="card">
     <h2>Реестр задолженностей</h2>
-    <div class="note warn"><b>152-ФЗ:</b> публикуются только номера участков. ФИО, телефоны, e-mail и иные персональные данные не размещаются.</div>
+    <div class="note warn"><b>152-ФЗ:</b> публикуются только данные вашего участка. ФИО, телефоны, e-mail и иные персональные данные не размещаются.</div>
     <div id="debts_auth_block"></div>
     <div class="note" id="debts_date"></div>
     <div id="debts_table_block" style="display:none">
-      <table><thead><tr><th>Участок</th><th>Услуга</th><th>Период</th><th>Сумма, ₽</th><th>Статус</th></tr></thead>
-        <tbody id="d_body"><tr><td colspan="5" style="text-align:center;color:#666">Загрузка…</td></tr></tbody></table>
-      <div class="note">Если участка нет в списке — задолженность не зафиксирована. Сверка начислений: бухгалтерия УК.</div>
-      <div id="payment_qr_block" style="display:none">
-        <h3 style="margin-top:16px;color:var(--gd)">💳 Оплата задолженности</h3>
-        <div class="qr-block">
-          <p style="font-size:.85rem;color:var(--muted);margin-bottom:10px">Отсканируйте QR-код для оплаты через банковское приложение (СБП, Сбербанк Онлайн и др.)</p>
-          <div id="payment-qr"></div>
-          <p style="font-size:.78rem;color:var(--muted);margin-top:8px">Получатель: ООО «ЭК «ЕД-2» · ИНН 7751167800 · КПП 770501001</p>
-        </div>
-      </div>
+      <table><thead><tr><th>Услуга</th><th>Период</th><th>Сумма, ₽</th><th>Статус</th></tr></thead>
+        <tbody id="d_body"><tr><td colspan="4" style="text-align:center;color:#666">Загрузка…</td></tr></tbody></table>
+      <div class="note">Если списка нет — задолженность не зафиксирована. Сверка начислений: бухгалтерия УК.</div>
     </div>
   </div>
 </section>
@@ -337,14 +283,14 @@ footer{text-align:center;font-size:.8rem;color:var(--muted);padding:22px 10px}
         </select>
       </div>
       <div id="r_mosenergo_details" style="display:none">
-        <label>Номер договора с АО «Мосэнергосбыт»</label>
+        <label>Номер договора с Мосэнергосбыт</label>
         <input id="r_mosenergo_num" placeholder="например, 77-12345/2024">
         <label style="margin-top:8px">Дата заключения</label>
         <input id="r_mosenergo_date" type="date">
       </div>
     </div>
     <div class="note" style="margin-top:8px">
-      <b>Зачем это нужно:</b> собственники с прямым договором с АО «Мосэнергосбыт» вводят показания самостоятельно. Собственники без прямого договора получают данные от инженера ООО «ЭК «ЕД-2».
+      <b>Зачем это нужно:</b> собственники без прямого договора с Мосэнергосбыт получают показания общего счётчика от инженера УК. После подтверждения наличия прямого договора в вашем личном кабинете появится возможность прикрепить скан и передавать показания напрямую в Мосэнергосбыт.
     </div>
 
     <div class="chk">
@@ -424,31 +370,30 @@ function saveProfile(){
          c1:$("r_c1").checked,c2:$("r_c2").checked,c3:$("r_c3").checked,
          reg_date:new Date().toISOString()};
   if(!p.fio||!p.lot||!p.cad||!p.addr||!p.tel||!p.mail||!p.mosenergo)
-    return show("reg_msg","err","Заполните все обязательные поля: ФИО, участок, кадастровый номер, адрес участка, телефон, e-mail и наличие договора с АО «Мосэнергосбыт».");
+    return show("reg_msg","err","Заполните все обязательные поля.");
   if(p.fio.split(/\s+/).length<2)
-    return show("reg_msg","err","Укажите фамилию, имя и отчество полностью (без сокращений и инициалов).");
+    return show("reg_msg","err","Укажите фамилию, имя и отчество полностью.");
   if(!/^\d{2}:\d{2}:\d{6,7}:\d+$/.test(normCad(p.cad)))
     return show("reg_msg","err","Кадастровый номер указан неверно. Формат: 77:22:0020229:1072.");
   if(!/\d/.test(p.addr)||p.addr.length<4)
-    return show("reg_msg","err","Укажите адрес участка: переулок/улица и номер дома, например «пер. 1-й Моравский, 2/2».");
+    return show("reg_msg","err","Укажите адрес участка.");
   if(!/^[^\s@]+@[^\s@]+\.[a-zA-Zа-яА-Я]{2,}$/.test(p.mail))
     return show("reg_msg","err","Укажите действующий адрес электронной почты.");
   if(p.tel.replace(/\D/g,"").length<10)
-    return show("reg_msg","err","Укажите действующий номер телефона (не менее 10 цифр).");
+    return show("reg_msg","err","Укажите действующий номер телефона.");
   if(!p.c1||!p.c2||!p.c3)
-    return show("reg_msg","err","Необходимо подтвердить все три отметки: согласие 152-ФЗ, политику и достоверность сведений.");
+    return show("reg_msg","err","Необходимо подтвердить все три отметки.");
 
   p.cad=normCad(p.cad);
   p.addr_full=(p.addr_base?p.addr_base+", ":"")+p.addr;
 
   if((D.lots||[]).length){
     var card=findLotCard(p.lot);
-    if(!card) return show("reg_msg","err","Участок №"+p.lot+" не найден в реестре собственников. Проверьте номер участка или обратитесь в УК: ed2.jurist@ya.ru.");
+    if(!card) return show("reg_msg","err","Участок №"+p.lot+" не найден в реестре.");
     if(card.cadastre&&normCad(card.cadastre)!==p.cad)
-      return show("reg_msg","err","Кадастровый номер не соответствует участку №"+card.lot+" по реестру. Проверьте выписку ЕГРН на ваш участок.");
-    if(card.addr_short&&normAddr(card.addr_short)!==""&&normAddr(card.addr_short)!==normAddr(p.addr)){
-      console.log("Адрес в реестре отличается для уч. "+card.lot+": «"+card.addr_short+"» vs «"+p.addr+"»");
-    }
+      return show("reg_msg","err","Кадастровый номер не соответствует участку №"+card.lot+".");
+    if(card.addr_short&&normAddr(card.addr_short)!==normAddr(p.addr))
+      return show("reg_msg","err","Адрес участка не совпадает с реестром.");
     p.id_status="Идентифицирован по реестру";
     p.lot=card.lot;
   }else{
@@ -456,22 +401,23 @@ function saveProfile(){
   }
 
   localStorage.setItem("ed2_profile",JSON.stringify(p));
-  show("reg_msg","ok","Регистрация завершена. Статус: "+p.id_status+". Данные других участков в этом браузере не отображаются.");
+  show("reg_msg","ok","Регистрация завершена. Статус: "+p.id_status+".");
   renderAll();
 }
 function clearProfile(){
   localStorage.removeItem("ed2_profile");
-  localStorage.removeItem("ed2_meters_lk");
+  localStorage.removeItem("ed2_meters");
   localStorage.removeItem("ed2_elec_meters");
   ["r_fio","r_lot","r_cad","r_addr","r_tel","r_mail","r_mosenergo_num","r_mosenergo_date"].forEach(function(i){$(i).value="";});
   $("r_mosenergo").value="";
   $("r_c1").checked=false;$("r_c2").checked=false;$("r_c3").checked=false;
   $("r_mosenergo_details").style.display="none";
-  show("reg_msg","ok","Профиль и согласие удалены из браузера (отзыв согласия).");renderAll();
+  show("reg_msg","ok","Профиль и согласие удалены из браузера.");
+  renderAll();
 }
 
 /* ---------- данные от локального агента ---------- */
-var D={meta:{},company:{},lots:[],tasks:{},docs:{},news:[],poll:null,debts:[],engineer_meters:{}};
+var D={meta:{},company:{},lots:[],tasks:{},docs:{},news:[],debts:[]};
 function getJSON(name,fb){
   return fetch("data/"+name+".json?t="+Date.now())
     .then(function(r){return r.ok?r.json():fb;}).catch(function(){return fb;});
@@ -496,10 +442,9 @@ function loadDebts(){
 function loadAll(){
   Promise.all([getJSON("meta",{}),getJSON("company",{}),getJSON("lots",[]),
                getJSON("tasks",{}),getJSON("docs",{}),getJSON("news",[]),
-               getJSON("poll",null),loadDebts(),
-               getJSON("engineer_meters",{})])
+               loadDebts()])
   .then(function(r){
-    D.meta=r[0];D.company=r[1];D.lots=r[2];D.tasks=r[3];D.docs=r[4];D.news=r[5];D.poll=r[6];D.debts=r[7];D.engineer_meters=r[8]||{};
+    D.meta=r[0];D.company=r[1];D.lots=r[2];D.tasks=r[3];D.docs=r[4];D.news=r[5];D.debts=r[6];
     renderAll();
   });
 }
@@ -516,14 +461,17 @@ function renderCompany(){
     "• <b>Юротдел:</b> "+esc(c.email_jurist||"")+"<br>"+
     "• <b>Бухгалтерия:</b> "+esc(c.email_buh||"")+"<br>"+
     "• <b>Общий:</b> "+esc(c.email_direct||"")+"</div></div>";
-  $("requisites").innerHTML="<b>"+esc(c.name||"")+"</b><br>"+
+    
+  $("requisites").innerHTML=
+    "<b>Наименование:</b> "+esc(c.name||"")+"<br>"+
     "<b>Юридический адрес:</b> "+esc(c.legal_address||"")+"<br>"+
     "<b>Фактический адрес:</b> "+esc(c.office_address||"")+"<br>"+
     "<b>ИНН:</b> "+esc(c.inn||"")+" | <b>КПП:</b> "+esc(c.kpp||"")+" | <b>ОГРН:</b> "+esc(c.ogrn||"")+"<br>"+
     "<b>Р/с:</b> "+esc(c.account||"")+" в "+esc(c.bank||"")+"<br>"+
     "<b>К/с:</b> "+esc(c.corr||"")+" | <b>БИК:</b> "+esc(c.bik||"")+"<br>"+
-    "<b>Генеральный директор:</b> "+esc(c.director||"")+
-    "<div class='note'>Реквизиты приведены в соответствии с "+esc(c.egrul_ref||"выпиской из ЕГРЮЛ")+".</div>";
+    "<b>Генеральный директор:</b> "+esc(c.director||"")+"<br>"+
+    "<div class='note' style='margin-top:8px'>Примечание: Реквизиты приведены в соответствии с выпиской из ЕГРЮЛ № ЮЭ9965-26-56986964 от 01.04.2026.</div>";
+    
   $("footer").textContent="© "+(c.short||"ООО «ЭК «ЕД-2»")+" · "+(c.settlement||"");
   var m=D.meta||{};
   $("freshness").innerHTML="Данные Инфокрафт по состоянию на <b>"+esc(m.source_date||"—")+
@@ -540,7 +488,7 @@ function renderTasks(){
   if(!p){
     $("user_badge").textContent="Не авторизован";
     t.push({cls:"urgent",tab:"reg",title:"Пройдите регистрацию и идентификацию",
-            sub:"ФИО, участок, кадастровый номер, адрес участка, e-mail, телефон, наличие договора с АО «Мосэнергосбыт» и согласия (152-ФЗ)"});
+            sub:"ФИО, участок, кадастровый номер, адрес участка, e-mail, телефон и согласия (152-ФЗ)"});
   }else{
     $("user_badge").innerHTML="Участок №"+esc(p.lot)+" · "+esc(p.fio)+
       " <span class='badge"+(p.id_status==="Идентифицирован по реестру"?"":" amber")+"'>"+esc(p.id_status||"")+"</span>";
@@ -577,21 +525,36 @@ function addReading(){
   var p=prof(); if(!p) return show("m_msg","err","Сначала пройдите регистрацию.");
   var cur=parseFloat($("m_cur").value), prev=$("m_prev").value===""?null:parseFloat($("m_prev").value);
   if(isNaN(cur)||cur<0) return show("m_msg","err","Введите корректное текущее показание.");
-  if(prev!==null&&cur<=prev) return show("m_msg","err","Текущее показание должно быть больше предыдущего ("+prev+").");
-  var all=loadArr("ed2_meters");
-  all.push({id:Date.now(),date:$("m_date").value,type:$("m_type").value,cur:cur,prev:prev,
-            note:$("m_note").value.trim(),lot:p.lot,cad:p.cad,fio:p.fio});
-  saveArr("ed2_meters",all);
-  $("m_cur").value="";$("m_prev").value="";$("m_note").value="";
-  show("m_msg","ok","Показание сохранено. Выгрузите CSV или пакет JSON для УК.");
-  renderReadings();renderTasks();
+  if(prev!==null&&cur<prev) return show("m_msg","err","Текущее показание меньше предыдущего.");
+  
+  var photoFile = $("m_photo").files[0];
+  var saveData = function(photoBase64) {
+    var all=loadArr("ed2_meters");
+    all.push({id:Date.now(),date:$("m_date").value,type:$("m_type").value,cur:cur,prev:prev,
+              note:$("m_note").value.trim(), photo: photoBase64 || null, lot:p.lot,cad:p.cad,fio:p.fio});
+    saveArr("ed2_meters",all);
+    $("m_cur").value="";$("m_prev").value="";$("m_note").value="";$("m_photo").value="";
+    show("m_msg","ok","Показание и фото сохранены. Выгрузите CSV или пакет JSON для УК.");
+    renderReadings();renderTasks();
+  };
+
+  if(photoFile){
+    if(photoFile.size > 2 * 1024 * 1024) return show("m_msg","err","Фото слишком большое (макс. 2 МБ).");
+    var reader = new FileReader();
+    reader.onload = function(e) { saveData(e.target.result); };
+    reader.readAsDataURL(photoFile);
+  } else {
+    saveData(null);
+  }
 }
 function renderReadings(){
   var r=readings(),el=$("m_list");
   if(!r.length){el.innerHTML="<p style='color:#666;font-size:.9rem'>Показаний пока нет.</p>";return;}
-  el.innerHTML="<table><thead><tr><th>Дата</th><th>Тип</th><th>Текущее</th><th>Пред.</th><th>Примечание</th></tr></thead><tbody>"+
-    r.slice().reverse().map(function(x){return "<tr><td>"+esc(x.date)+"</td><td>"+esc(x.type)+"</td><td><b>"+esc(x.cur)+
-      "</b></td><td>"+esc(x.prev==null?"—":x.prev)+"</td><td>"+esc(x.note||"—")+"</td></tr>";}).join("")+"</tbody></table>";
+  el.innerHTML="<table><thead><tr><th>Дата</th><th>Тип</th><th>Текущее</th><th>Пред.</th><th>Фото</th><th>Примечание</th></tr></thead><tbody>"+
+    r.slice().reverse().map(function(x){
+      var photoHtml = x.photo ? "<span style='color:var(--green);cursor:pointer' onclick='window.open(\""+x.photo+"\")'>📷 Просмотр</span>" : "—";
+      return "<tr><td>"+esc(x.date)+"</td><td>"+esc(x.type)+"</td><td><b>"+esc(x.cur)+"</b></td><td>"+esc(x.prev==null?"—":x.prev)+"</td><td>"+photoHtml+"</td><td>"+esc(x.note||"—")+"</td></tr>";
+    }).join("")+"</tbody></table>";
 }
 function exportCSV(){
   var r=readings(); if(!r.length) return alert("Нет данных для выгрузки.");
@@ -612,106 +575,34 @@ function genLetter(){
   var el=$("m_letter");el.style.display="block";el.textContent=t;
 }
 
-/* ---------- электросчётчик: ДВУХТАРИФНЫЙ УЧЁТ ---------- */
-function renderElecBlock(){
-  var p=prof();
-  var card=$("elec_card");
-  if(!p){card.style.display="none";return;}
-  card.style.display="block";
-
-  var lot=normLot(p.lot);
-  var engMeters=D.engineer_meters||{};
-  var meterData=engMeters[lot];
-  var formBlock=$("elec_form_block");
-  var infoBlock=$("elec_info_block");
-  var savedElec=JSON.parse(localStorage.getItem("ed2_elec_meters")||"{}");
-  var saved=savedElec[lot]||{};
-
-  if(p.mosenergo==="yes"){
-    /* Прямой договор → форма ввода Т1 и Т2 + фото */
-    formBlock.style.display="block";
-    infoBlock.style.display="none";
-    $("m_elec_t1_cur").value=saved.t1_cur||"";
-    $("m_elec_t1_prev").value=saved.t1_prev||"";
-    $("m_elec_t2_cur").value=saved.t2_cur||"";
-    $("m_elec_t2_prev").value=saved.t2_prev||"";
-    
-    var hint=$("elec_eng_hint");
-    if(meterData){
-      hint.innerHTML="Ориентир от инженера за период <b>"+esc(meterData.period||"текущий")+"</b>: <b>"+meterData.electricity+" кВт·ч</b> (по общему счётчику). Используйте как ориентир для проверки.";
-    }else{
-      hint.textContent="Данные инженера за текущий период ещё не внесены — введите показания самостоятельно.";
-    }
-  }else{
-    /* Нет прямого договора → заглушка + подсказка */
-    formBlock.style.display="none";
-    infoBlock.style.display="block";
-    $("elec_period_info").innerHTML="Период: <b>Текущий месяц</b>. Данные от инженера УК ожидаются.";
-    var valEl=$("elec_value"), subEl=$("elec_value_sub");
-    if(meterData){
-      valEl.textContent=meterData.electricity+" кВт·ч";
-      valEl.classList.add("filled");
-      subEl.textContent="Внесено инженером за период "+(meterData.period||"текущий")+" (общий счётчик).";
-    }else{
-      valEl.textContent="Нет данных";
-      valEl.classList.remove("filled");
-      subEl.textContent="Инженер ещё не внёс данные за этот период.";
-    }
+/* ---------- счётчики электроэнергии (Главный инженер) ---------- */
+$("engineer_mode_toggle").addEventListener("change", function() {
+  var block = $("elec_inputs");
+  if(this.checked) {
+    block.style.opacity = "1";
+    block.style.pointerEvents = "auto";
+  } else {
+    block.style.opacity = "0.5";
+    block.style.pointerEvents = "none";
   }
-}
+});
 
 function saveElecReading(){
-  var p=prof();
-  if(!p) return show("m_elec_msg","err","Сначала пройдите регистрацию.");
-  if(p.mosenergo!=="yes") return show("m_elec_msg","err","Раздел доступен только собственникам с прямым договором с АО «Мосэнергосбыт».");
-
-  var t1_cur = parseFloat($("m_elec_t1_cur").value);
-  var t1_prev = $("m_elec_t1_prev").value==="" ? null : parseFloat($("m_elec_t1_prev").value);
-  var t2_cur = parseFloat($("m_elec_t2_cur").value);
-  var t2_prev = $("m_elec_t2_prev").value==="" ? null : parseFloat($("m_elec_t2_prev").value);
-
-  if(isNaN(t1_cur) || isNaN(t2_cur)) return show("m_elec_msg","err","Введите корректные текущие показания для Т1 и Т2.");
-  if(t1_prev!==null && t1_cur<=t1_prev) return show("m_elec_msg","err","Текущее Т1 должно быть больше предыдущего Т1.");
-  if(t2_prev!==null && t2_cur<=t2_prev) return show("m_elec_msg","err","Текущее Т2 должно быть больше предыдущего Т2.");
-
-  var lot=normLot(p.lot);
-  var photoFile=$("m_elec_photo").files[0];
-  if(photoFile){
-    if(photoFile.size>5*1024*1024) return show("m_elec_msg","err","Фото слишком большое (макс. 5 МБ).");
-    var reader=new FileReader();
-    reader.onload=function(e){finishSaveElec(lot, t1_cur, t1_prev, t2_cur, t2_prev, e.target.result);};
-    reader.readAsDataURL(photoFile);
-  }else{
-    finishSaveElec(lot, t1_cur, t1_prev, t2_cur, t2_prev, null);
-  }
-}
-
-function finishSaveElec(lot, t1_cur, t1_prev, t2_cur, t2_prev, photoData){
-  var savedElec=JSON.parse(localStorage.getItem("ed2_elec_meters")||"{}");
-  savedElec[lot]={
-    t1_cur: t1_cur, t1_prev: t1_prev,
-    t2_cur: t2_cur, t2_prev: t2_prev,
-    date: new Date().toISOString(),
-    photo: photoData,
-    mosenergo_contract: "yes"
-  };
-  localStorage.setItem("ed2_elec_meters",JSON.stringify(savedElec));
+  var p=prof(); if(!p) return show("e_msg","err","Сначала пройдите регистрацию.");
+  var t1_cur = parseFloat($("e_t1_cur").value), t1_prev = $("e_t1_prev").value===""?null:parseFloat($("e_t1_prev").value);
+  var t2_cur = parseFloat($("e_t2_cur").value), t2_prev = $("e_t2_prev").value===""?null:parseFloat($("e_t2_prev").value);
   
-  $("m_elec_t1_cur").value=""; $("m_elec_t1_prev").value="";
-  $("m_elec_t2_cur").value=""; $("m_elec_t2_prev").value="";
-  $("m_elec_photo").value="";
-  $("m_elec_photo_preview").style.display="none";
-  
-  show("m_elec_msg","ok","Показания электроэнергии (Т1 и Т2) сохранены "+new Date().toLocaleString("ru-RU")+". Они будут переданы в УК при выгрузке пакета JSON.");
-  renderElecBlock();
-}
+  if(isNaN(t1_cur) || isNaN(t2_cur)) return show("e_msg","err","Введите корректные текущие показания для Т1 и Т2.");
+  if(t1_prev!==null && t1_cur<t1_prev) return show("e_msg","err","Текущее Т1 меньше предыдущего.");
+  if(t2_prev!==null && t2_cur<t2_prev) return show("e_msg","err","Текущее Т2 меньше предыдущего.");
 
-$("m_elec_photo").addEventListener("change",function(e){
-  var file=e.target.files[0]; if(!file) return;
-  var reader=new FileReader();
-  reader.onload=function(ev){$("m_elec_photo_preview").src=ev.target.result;$("m_elec_photo_preview").style.display="block";};
-  reader.readAsDataURL(file);
-});
+  var all = loadArr("ed2_elec_meters");
+  all.push({id:Date.now(), date:$("e_date").value, t1_cur:t1_cur, t1_prev:t1_prev, t2_cur:t2_cur, t2_prev:t2_prev, lot:p.lot, cad:p.cad, fio:p.fio});
+  saveArr("ed2_elec_meters", all);
+  
+  $("e_t1_cur").value=""; $("e_t1_prev").value=""; $("e_t2_cur").value=""; $("e_t2_prev").value="";
+  show("e_msg","ok","Показания электросчётчика сохранены.");
+}
 
 /* ---------- пропуска ---------- */
 function passes(){var l=myLot();return loadArr("ed2_passes").filter(function(r){return l&&lotMatch(r.lot,l);});}
@@ -738,14 +629,7 @@ function renderPasses(){
     return "<div class='item'><b>Пропуск "+esc(x.code)+"</b><span class='badge'>"+esc(x.type)+"</span>"+
       (act?"":"<span class='badge red'>Истёк</span>")+"<br>"+
       "<span style='color:#666;font-size:.82rem'>Действует по "+esc(x.until)+" · участок №"+esc(x.lot)+"</span><br>"+
-      "<b>Авто:</b> "+esc(x.plate)+" · <b>Посетитель:</b> "+esc(x.guest)+
-      "<div class='code' id='qr_"+esc(x.id)+"'>"+esc(x.code)+"</div></div>";}).join("");
-  if(typeof QRCode!=="undefined"){
-    list.forEach(function(x){
-      var box=$("qr_"+x.id); if(!box) return; box.textContent="";
-      new QRCode(box,{text:x.code,width:96,height:96});
-    });
-  }
+      "<b>Авто:</b> "+esc(x.plate)+" · <b>Посетитель:</b> "+esc(x.guest)+"</div>";}).join("");
 }
 function guardText(){
   var list=passes(),p=prof(); if(!p||!list.length) return alert("Нет пропусков.");
@@ -821,107 +705,58 @@ function signConfirm(i){
   saveArr(signedKey(),arr);renderDocs();renderTasks();
 }
 
-/* ---------- новости и опрос ---------- */
+/* ---------- новости ---------- */
 function renderNews(){
   $("news").innerHTML=(D.news||[]).map(function(n){
     return "<div class='item'><b>"+esc(n.title)+"</b><span class='badge'>Новости УК</span><br>"+
       "<span style='color:#666;font-size:.8rem'>"+esc(n.date)+"</span><p style='margin-top:6px'>"+esc(n.text).replace(/\n/g,"<br>")+"</p></div>";}).join("");
 }
-function renderPoll(){
-  var box=$("poll"),poll=D.poll;
-  if(!poll){box.innerHTML="<b>Опросов сейчас нет.</b>";return;}
-  var my=null;try{my=JSON.parse(localStorage.getItem("ed2_"+poll.id));}catch(e){}
-  var html="<b>🗳️ Опрос:</b> "+esc(poll.question)+"<br><span class='badge amber' style='margin-top:4px'>Голосование</span>";
-  if(my){html+="<p style='margin-top:6px;color:#1b5e20'>Ваш голос: «"+esc(my.choice)+"» ("+esc(my.date||"")+"). Он будет учтён при выгрузке пакета в УК.</p>";}
-  else{
-    html+="<div style='margin-top:8px'>"+poll.options.map(function(o,i){
-      return "<button class='btn outline' style='margin:4px 6px 0 0' data-vote='"+i+"'>"+esc(o.label)+"</button>";}).join("")+"</div>";
-  }
-  if(poll.total>0){
-    html+="<div style='margin-top:10px;font-size:.85rem'>Учтено голосов: <b>"+poll.total+"</b>"+
-      poll.options.map(function(o){var pc=poll.total?Math.round(100*o.votes/poll.total):0;
-      return "<div style='margin-top:6px'>"+esc(o.label)+": <b>"+o.votes+"</b> ("+pc+"%)<div class='bar' style='height:8px;background:#e0e0e0;border-radius:4px;overflow:hidden;margin-top:2px'><div style='height:100%;width:"+pc+"%;background:var(--green)'></div></div></div>";}).join("")+"</div>";
-  }
-  box.innerHTML=html;
-}
-function vote(i){
-  var p=prof(); if(!p) return alert("Голосовать могут зарегистрированные собственники.");
-  localStorage.setItem("ed2_"+D.poll.id,JSON.stringify({lot:p.lot,cad:p.cad,choice:D.poll.options[i].label,date:new Date().toLocaleDateString("ru-RU")}));
-  renderPoll();
-  alert("Ваш голос учтён локально. Для передачи в УК нажмите «Выгрузить пакет JSON» на главной странице и отправьте файл на ed2.jurist@ya.ru.");
-}
 
-/* ---------- задолженности (только для зарегистрированных) + QR ---------- */
+/* ---------- задолженности (строго индивидуальные) ---------- */
 function renderDebts(){
   var p=prof();
   var authBlock=$("debts_auth_block");
   var tableBlock=$("debts_table_block");
-  var qrBlock=$("payment_qr_block");
-
+  
   if(!p){
     authBlock.innerHTML="<div class='note warn'><b>Раздел доступен только зарегистрированным собственникам.</b><br>Пожалуйста, пройдите регистрацию и идентификацию в разделе «Регистрация», чтобы увидеть информацию о задолженности по вашему участку.</div>";
     tableBlock.style.display="none";
-    qrBlock.style.display="none";
     return;
   }
-  authBlock.innerHTML="<div class='note' style='border-left-color:var(--green)'><b>Участок №"+esc(p.lot)+"</b> · "+esc(p.fio)+" · Кадастр: "+esc(p.cad)+"</div>";
+  
+  authBlock.innerHTML="<div class='note' style='border-left-color:var(--green)'><b>Ваш участок №"+esc(p.lot)+"</b> · "+esc(p.fio)+" · Кадастр: "+esc(p.cad)+"</div>";
   tableBlock.style.display="block";
-
+  
   var b=$("d_body");
-  if(!D.debts.length){b.innerHTML="<tr><td colspan='5' style='text-align:center;color:#666'>Реестр ожидает выгрузки бухгалтерией.</td></tr>";qrBlock.style.display="none";return;}
+  if(!D.debts.length){b.innerHTML="<tr><td colspan='4' style='text-align:center;color:#666'>Реестр ожидает выгрузки бухгалтерией.</td></tr>";return;}
+  
   var mine=D.debts.filter(function(d){return lotMatch(d.lot,p.lot);});
   if(!mine.length){
-    b.innerHTML="<tr><td colspan='5' style='text-align:center;color:#666'>Задолженность по вашему участку не зафиксирована.</td></tr>";
-    qrBlock.style.display="none";
+    b.innerHTML="<tr><td colspan='4' style='text-align:center;color:#666'>Задолженность по вашему участку не зафиксирована.</td></tr>";
     return;
   }
+  
   b.innerHTML=mine.map(function(d){
-    return "<tr class='mine'><td><b>"+esc(d.lot)+"</b></td><td>"+esc(d.srv)+"</td><td>"+esc(d.per)+
+    return "<tr class='mine'><td>"+esc(d.srv)+"</td><td>"+esc(d.per)+
       "</td><td>"+fmt(d.sum)+"</td><td><span class='badge red'>"+esc(d.st)+"</span></td></tr>";}).join("");
-
-  var totalAmount=mine.reduce(function(a,x){return a+x.sum;},0);
-  generatePaymentQR(totalAmount,p.lot);
-  qrBlock.style.display="block";
-}
-function generatePaymentQR(amount,lot){
-  var qrContainer=$("payment-qr");
-  qrContainer.innerHTML="";
-  var sumKop=Math.round(amount*100);
-  var paymentString="ST00012|Name=ООО ЭК ЕД-2|PersonalAcc=40702810938000335019|BankName=ПАО Сбербанк|BIC=044525225|CorrespAcc=30101810400000000225|PayeeINN=7751167800|KPP=770501001|Sum="+sumKop+"|Purpose=Оплата задолженности за участок №"+lot;
-  if(typeof QRCode!=="undefined"){
-    new QRCode(qrContainer,{text:paymentString,width:220,height:220,colorDark:"#1b5e20",colorLight:"#ffffff",correctLevel:QRCode.CorrectLevel.M});
-  }else{
-    qrContainer.innerHTML="<p style='color:var(--muted);font-size:.85rem'>QR-код недоступен. Реквизиты для оплаты:</p><pre style='display:block;font-size:.75rem;word-break:break-all'>"+esc(paymentString)+"</pre>";
-  }
 }
 
 /* ---------- экспорт ---------- */
 function payload(){
   var p=prof();
   if(!p) return null;
-  var lot=normLot(p.lot);
-  var savedMeters=JSON.parse(localStorage.getItem("ed2_meters_lk")||"{}");
-  var savedElec=JSON.parse(localStorage.getItem("ed2_elec_meters")||"{}");
-  var mosenergo_block=null;
-  if(p.mosenergo==="yes") mosenergo_block={status:"direct_contract",number:p.mosenergo_num||"",date:p.mosenergo_date||""};
-  else if(p.mosenergo==="no") mosenergo_block={status:"no_direct_contract"};
   return {system:"KP_ED2_LK",exported_at:new Date().toISOString(),owner_profile:p,
-          meter_readings:readings(),
-          elec_meter_reading:savedElec[lot]||null,
-          kpp_passes:passes(),issues_and_requests:issues(),
-          documents_confirmed:loadArr(signedKey()),
-          uk_meters_declaration:savedMeters[lot]||null,
-          mosenergo_contract:mosenergo_block,
-          poll_votes:(function(){try{return JSON.parse(localStorage.getItem("ed2_"+(D.poll?D.poll.id:"poll_1")));}catch(e){return null;}})()};
+          meter_readings:readings(),kpp_passes:passes(),issues_and_requests:issues(),
+          documents_confirmed:loadArr(signedKey())};
 }
 function exportJSON(){
-  var d=payload(); if(!d.owner_profile) return alert("Сначала заполните профиль собственника.");
+  var d=payload(); if(!d) return alert("Сначала заполните профиль собственника.");
   var a=document.createElement("a");
   a.href=URL.createObjectURL(new Blob([JSON.stringify(d,null,2)],{type:"application/json"}));
   a.download="ed2_uch_"+normLot(d.owner_profile.lot).replace(/\//g,"-")+"_"+Date.now()+".json";a.click();
 }
 function copyJSON(){
-  var d=payload(); if(!d.owner_profile) return alert("Сначала заполните профиль собственника.");
+  var d=payload(); if(!d) return alert("Сначала заполните профиль собственника.");
   navigator.clipboard.writeText(JSON.stringify(d,null,2)).then(function(){alert("Пакет скопирован в буфер обмена.");});
 }
 
@@ -935,7 +770,7 @@ function go(tab){
 }
 function renderAll(){
   renderCompany();renderTasks();renderReadings();renderPasses();renderIssues();
-  renderDocs();renderNews();renderPoll();renderDebts();renderElecBlock();
+  renderDocs();renderNews();renderDebts();
   var p=prof();
   if(p){
     $("r_fio").value=p.fio;$("r_lot").value=p.lot;$("r_cad").value=p.cad||"";
@@ -948,24 +783,19 @@ function renderAll(){
   }
 }
 document.addEventListener("click",function(e){
-  var t=e.target.closest("[data-tab],[data-go],[data-sign],[data-confirm],[data-vote]");
+  var t=e.target.closest("[data-tab],[data-go],[data-sign],[data-confirm]");
   if(!t) return;
   if(t.dataset.tab) go(t.dataset.tab);
   else if(t.dataset.go) go(t.dataset.go);
   else if(t.dataset.sign!==undefined) signRequest(+t.dataset.sign);
   else if(t.dataset.confirm!==undefined) signConfirm(+t.dataset.confirm);
-  else if(t.dataset.vote!==undefined) vote(+t.dataset.vote);
 });
 $("btn_save").onclick=saveProfile; $("btn_clear").onclick=clearProfile;
 $("btn_meter").onclick=addReading; $("btn_csv").onclick=exportCSV; $("btn_letter").onclick=genLetter;
+$("btn_save_elec").onclick=saveElecReading;
 $("btn_pass").onclick=addPass; $("btn_guard").onclick=guardText;
 $("btn_issue").onclick=addIssue; $("btn_export").onclick=exportJSON; $("btn_copy").onclick=copyJSON;
-$("btn_save_elec").onclick=saveElecReading;
-$("r_mosenergo").addEventListener("change",function(){
-  $("r_mosenergo_details").style.display=this.value==="yes"?"block":"none";
-  renderElecBlock();
-});
-$("m_date").valueAsDate=new Date(); $("p_date").valueAsDate=new Date();
+$("m_date").valueAsDate=new Date(); $("p_date").valueAsDate=new Date(); $("e_date").valueAsDate=new Date();
 $("r_lot").addEventListener("change",function(){
   var c=findLotCard(this.value);
   if(c){ if(c.cadastre) $("r_cad").value=c.cadastre; if(c.addr_short) $("r_addr").value=c.addr_short; }
@@ -973,4 +803,4 @@ $("r_lot").addEventListener("change",function(){
 renderAll(); loadAll();
 </script>
 </body>
-</html>``` 
+</html>
