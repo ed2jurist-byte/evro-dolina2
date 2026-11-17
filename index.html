@@ -9,6 +9,7 @@
 <style>
 :root{--green:#2e7d32;--gd:#1b5e20;--gl:#e8f5e9;--bg:#f4f6f4;--muted:#666;--red:#c62828;--amber:#ef6c00;--ab:#fff3e0}
 *{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
 body{font-family:system-ui,-apple-system,'Segoe UI',Roboto,Arial,sans-serif;background:var(--bg);color:#212121;line-height:1.55}
 header{background:linear-gradient(135deg,var(--gd),var(--green));color:#fff;padding:22px 16px;text-align:center}
 header h1{font-size:1.5rem}header p{opacity:.92;font-size:.9rem;margin-top:4px}
@@ -52,7 +53,48 @@ pre{background:#f0f4f0;padding:12px;border-radius:8px;font-size:.84rem;white-spa
 footer{text-align:center;font-size:.8rem;color:var(--muted);padding:22px 10px}
 .qr-block{text-align:center;margin-top:16px;padding:16px;background:#f9fbf9;border-radius:8px}
 .qr-block img{max-width:200px;height:auto;margin:0 auto;border:1px solid #ddd;border-radius:8px}
+
+/* ---------- Пропуска: въезд оформляет охрана КПП ---------- */
+#passes .card{scroll-margin-top:76px}
+.pass-hero{background:linear-gradient(135deg,var(--gd),var(--green));color:#fff}
+.pass-hero h2{color:#fff;margin-bottom:4px}
+.pass-hero-top{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.pass-hero-sub{font-size:.85rem;opacity:.92}
+.pass-crest{flex-shrink:0}
+.call-btn{display:inline-flex;align-items:center;gap:8px;background:#fff;color:var(--gd);font-weight:700;text-decoration:none;padding:10px 20px;border-radius:24px;font-size:.95rem;margin-left:auto}
+.call-btn:hover{background:var(--gl)}
+.pass-nav{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px}
+.pass-nav a{color:#fff;text-decoration:none;font-size:.82rem;padding:6px 12px;border-radius:16px;border:1px solid rgba(255,255,255,.4)}
+.pass-nav a.active{background:#fff;color:var(--gd);font-weight:600}
+.pass-nav a:hover{background:rgba(255,255,255,.15)}
+.guard-alert{background:#ffebee;border:1px solid #ef9a9a;color:#b71c1c;border-radius:10px;padding:12px 14px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.guard-grid{display:grid;grid-template-columns:1.15fr 1fr;gap:16px}
+@media(max-width:750px){.guard-grid{grid-template-columns:1fr}}
+.mini-steps{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px}
+@media(max-width:650px){.mini-steps{grid-template-columns:repeat(2,1fr)}}
+.mini-step{background:#fff;border:1px solid #e0e8e0;border-radius:8px;padding:10px;font-size:.78rem}
+.mini-step b{display:block;color:var(--gd);font-size:1rem}
+.call-panel{background:#f0f7f0;border:1px solid #c8e6c9;border-radius:12px;padding:16px;text-align:center}
+.pulse{display:inline-flex;align-items:center;gap:8px;font-size:.82rem;color:var(--gd);font-weight:600}
+.pulse-dot{width:10px;height:10px;border-radius:50%;background:var(--green);animation:pulse 1.6s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(46,125,50,.5)}70%{box-shadow:0 0 0 10px rgba(46,125,50,0)}100%{box-shadow:0 0 0 0 rgba(46,125,50,0)}}
+.big-phone{font-size:1.65rem;font-weight:800;color:var(--gd);letter-spacing:.5px;margin:8px 0 4px;text-decoration:none;display:block}
+.meta-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px;text-align:left}
+.meta-cell{background:#fff;border:1px solid #e0e8e0;border-radius:8px;padding:10px;font-size:.78rem}
+.meta-cell b{display:block;color:var(--gd);margin-bottom:2px;font-size:.72rem;text-transform:uppercase;letter-spacing:.4px}
+.data-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+@media(max-width:650px){.data-cards{grid-template-columns:1fr}}
+.data-card{border:1px solid #e0e8e0;border-radius:10px;padding:14px;background:#f9fbf9;font-size:.87rem}
+.data-card b{color:var(--gd)}
+.data-card .ex{display:block;margin-top:6px;font-size:.8rem;color:var(--muted);background:#fff;border:1px dashed #a5d6a7;border-radius:6px;padding:8px}
+.except-box{margin-top:16px;background:var(--gl);border:1px solid #a5d6a7;border-radius:10px;padding:12px 14px;font-size:.85rem}
+.order-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:8px}
+@media(max-width:750px){.order-steps{grid-template-columns:1fr}}
+.order-step{background:#fff;border:1px solid #e0e8e0;border-radius:10px;padding:16px 12px 12px;font-size:.84rem;position:relative;margin-top:10px}
+.order-step .num{position:absolute;top:-13px;left:12px;background:var(--green);color:#fff;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.85rem}
+.pay-warn{background:#fff3e0;border:1px solid #ffb74d;color:#e65100;border-radius:10px;padding:12px 14px;font-weight:600;margin-top:12px;font-size:.88rem}
 </style>
+<base target="_self">
 </head>
 <body>
 <header>
@@ -61,7 +103,7 @@ footer{text-align:center;font-size:.8rem;color:var(--muted);padding:22px 10px}
 </header>
 
 <nav id="nav">
-  <button data-tab="home" class="active">Главная и задачи</button>
+  <button data-tab="home" class="active">Главная</button>
   <button data-tab="meters">Счётчики</button>
   <button data-tab="passes">Пропуска</button>
   <button data-tab="issues">Обращения</button>
@@ -92,15 +134,15 @@ footer{text-align:center;font-size:.8rem;color:var(--muted);padding:22px 10px}
   </div>
 
   <div class="card"><h2>Контакты и режим работы</h2><div id="contacts" style="font-size:.88rem"></div></div>
-  
+
   <div class="card">
     <h2>Реквизиты ООО «ЭК «ЕД-2»</h2>
     <div id="requisites" style="font-size:.87rem"></div>
   </div>
 
   <div class="card">
-    <h2>Передача данных в УК</h2>
-    <p style="font-size:.86rem;color:var(--muted)">Кабинет работает без сервера: сведения хранятся в вашем браузере. Выгрузите пакет и направьте его в УК для обработки.</p>
+    <h2>Передача данных в ООО «ЭК «ЕД-2»</h2>
+    <p style="font-size:.86rem;color:var(--muted)">Кабинет работает без сервера: сведения хранятся в вашем браузере. Выгрузите пакет и направьте его в ООО «ЭК «ЕД-2» для обработки.</p>
     <button class="btn gray" id="btn_export">Выгрузить пакет JSON</button>
     <button class="btn outline" id="btn_copy">Скопировать JSON</button>
   </div>
@@ -111,10 +153,8 @@ footer{text-align:center;font-size:.8rem;color:var(--muted);padding:22px 10px}
     <h2>💧 Показания счётчиков воды</h2>
     <p style="font-size:.87rem;color:var(--muted)">Рекомендуемый срок передачи показаний — до 25 числа ежемесячно.</p>
     <div class="row">
-      <div><label>Тип счётчика *</label>
-        <select id="m_type">
-          <option>ХВС (холодная вода)</option>
-        </select>
+      <div><label>Тип счётчика</label>
+        <input id="m_type" value="ХВС (холодная вода)" readonly>
       </div>
       <div><label>Дата снятия *</label><input id="m_date" type="date"></div>
     </div>
@@ -139,78 +179,115 @@ footer{text-align:center;font-size:.8rem;color:var(--muted);padding:22px 10px}
 
   <div class="card" id="elec_meter_block">
     <h2>⚡ Показания электросчётчика</h2>
-    <div class="note warn">
-      Только для собственников, у которых заключен прямой договор с АО «Мосэнергосбыт». 
-      Подраздел заполняется Главным инженером ООО «ЭК «ЕД-2».
+    <div class="note">
+      Сведения публикуются Главным инженером ООО «ЭК «ЕД-2» и отображаются в режиме чтения из файла данных «engineer_meters.json».
     </div>
-    <label style="margin-top:12px; display:flex; align-items:center; gap:8px; cursor:pointer;">
-      <input type="checkbox" id="engineer_mode_toggle"> 
-      <span>Режим Главного инженера (разрешить редактирование)</span>
-    </label>
-    
-    <div id="elec_inputs" style="opacity: 0.5; pointer-events: none; margin-top: 16px; transition: opacity 0.3s;">
-      <div class="row">
-        <div><label>Дата снятия показаний *</label><input id="e_date" type="date"></div>
-      </div>
-      <h3 style="color:var(--amber); margin-top:16px;">Тариф Т1 (День)</h3>
-      <div class="row">
-        <div><label>Текущее показание Т1 *</label><input id="e_t1_cur" type="number" step="0.01" min="0"></div>
-        <div><label>Предыдущее показание Т1</label><input id="e_t1_prev" type="number" step="0.01" min="0"></div>
-      </div>
-      <h3 style="color:#1565c0; margin-top:16px;">Тариф Т2 (Ночь)</h3>
-      <div class="row">
-        <div><label>Текущее показание Т2 *</label><input id="e_t2_cur" type="number" step="0.01" min="0"></div>
-        <div><label>Предыдущее показание Т2</label><input id="e_t2_prev" type="number" step="0.01" min="0"></div>
-      </div>
-      <button class="btn" id="btn_save_elec" style="margin-top:16px">Сохранить показания электросчётчика</button>
-      <div class="msg" id="e_msg"></div>
-    </div>
+    <div id="e_list" style="margin-top:10px"></div>
   </div>
 </section>
 
 <section id="passes">
-  <div class="card">
-    <h2>Заказ пропуска на КПП</h2>
-    <div class="row">
-      <div><label>Тип *</label><select id="p_type">
-        <option>Разовый (на дату)</option><option>Временный (до 7 дней)</option><option>Постоянный</option></select></div>
-      <div><label>Дата въезда *</label><input id="p_date" type="date"></div>
+  <div class="card pass-hero">
+    <div class="pass-hero-top">
+      <div class="pass-crest">
+        <svg viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="Герб КП «Европейская долина 2»">
+          <path d="M32 3 L58 12 V32 C58 48 46 57 32 62 C18 57 6 48 6 32 V12 Z" fill="#ffffff" opacity=".95"/>
+          <path d="M32 8 L53 15.5 V32 C53 45 43 52.5 32 56.5 C21 52.5 11 45 11 32 V15.5 Z" fill="#2e7d32"/>
+          <text x="32" y="40" text-anchor="middle" font-size="20" fill="#ffffff" font-weight="800" font-family="system-ui,Arial">ЕД</text>
+        </svg>
+      </div>
+      <div>
+        <h2>Пропуска и въезд на территорию</h2>
+        <p class="pass-hero-sub">КП «Европейская долина 2» · ООО «ЭК «ЕД-2» · КПП: пер. 4-й Дунайский, 21</p>
+      </div>
+      <a class="call-btn" href="tel:+79855473300">📞 Позвонить на КПП</a>
     </div>
-    <div class="row">
-      <div><label>Госномер *</label><input id="p_plate" placeholder="А123АА799"></div>
-      <div><label>Марка / ФИО посетителя *</label><input id="p_guest"></div>
-    </div>
-    <button class="btn" id="btn_pass">Оформить пропуск</button>
-    <div class="msg" id="p_msg"></div>
-    <div class="note warn">Пропуск действует после подтверждения охраной КПП. Заявку необходимо передать в УК.</div>
+    <nav class="pass-nav" id="pass_nav">
+      <a href="#pv_guard" class="active" target="_self" onclick="event.preventDefault();document.getElementById('pv_guard').scrollIntoView({behavior:'smooth',block:'start'})">Охрана</a>
+      <a href="#pv_data" target="_self" onclick="event.preventDefault();document.getElementById('pv_data').scrollIntoView({behavior:'smooth',block:'start'})">Данные для звонка</a>
+      <a href="#pv_tariffs" target="_self" onclick="event.preventDefault();document.getElementById('pv_tariffs').scrollIntoView({behavior:'smooth',block:'start'})">Тарифы</a>
+      <a href="#pv_pay" target="_self" onclick="event.preventDefault();document.getElementById('pv_pay').scrollIntoView({behavior:'smooth',block:'start'})">Оплата</a>
+      <a href="#pv_order" target="_self" onclick="event.preventDefault();document.getElementById('pv_order').scrollIntoView({behavior:'smooth',block:'start'})">Порядок</a>
+      <a href="#pv_questions" target="_self" onclick="event.preventDefault();document.getElementById('pv_questions').scrollIntoView({behavior:'smooth',block:'start'})">Вопросы</a>
+    </nav>
   </div>
 
-  <div class="card">
-    <h2>Мои пропуска</h2>
-    <div id="p_list"></div>
-    <button class="btn gray" id="btn_guard">Сводка для охраны КПП</button>
-    <pre id="p_txt"></pre>
+  <div class="card" id="pv_guard">
+    <h2>Въезд на территорию оформляет охрана КПП</h2>
+    <div class="guard-alert">⛔ Онлайн-заявки отключены</div>
+    <div class="guard-grid">
+      <div>
+        <div class="mini-steps">
+          <div class="mini-step"><b>1</b>Позвоните на КПП</div>
+          <div class="mini-step"><b>2</b>Назовите ФИО, авто, дату</div>
+          <div class="mini-step"><b>3</b>Грузовой — оплатите тариф</div>
+          <div class="mini-step"><b>4</b>Охрана подтвердит въезд</div>
+        </div>
+      </div>
+      <div class="call-panel">
+        <span class="pulse"><span class="pulse-dot"></span> круглосуточно</span>
+        <a class="big-phone" href="tel:+79855473300">+7 (985) 547-33-00</a>
+        <button class="btn outline" id="btn_copy_phone" style="margin:4px 0 0">Скопировать номер</button>
+        <div class="meta-grid">
+          <div class="meta-cell"><b>Когда звонить</b>Круглосуточно, без выходных</div>
+          <div class="meta-cell"><b>Что назвать</b>ФИО гостя, госномер авто, дата визита</div>
+          <div class="meta-cell"><b>Грузовой</b>Платно — по тарифам (приказ № 11/01)</div>
+          <div class="meta-cell"><b>Адрес КПП</b>пер. 4-й Дунайский, 21</div>
+        </div>
+      </div>
+    </div>
   </div>
 
-  <div class="card">
-    <h2>Оплата и контакты</h2>
-    <div class="qr-block">
+  <div class="card" id="pv_data">
+    <h2>01 · Данные для звонка</h2>
+    <div class="data-cards">
+      <div class="data-card"><b>ФИО гостя</b><span class="ex">Пример: Иванов Иван Иванович</span></div>
+      <div class="data-card"><b>Госномер с регионом</b><span class="ex">Пример: А123АА799</span></div>
+      <div class="data-card"><b>Дата визита</b><span class="ex">Пример: 20.11.2026</span></div>
+    </div>
+        <div class="note">Назовите охране три параметра: ФИО гостя, госномер автомобиля и дату визита. Для грузового транспорта — уточните тариф по телефону КПП.</div>
+  </div>
+
+  <div class="card" id="pv_tariffs">
+    <h2>02 · Тарифы (приказ № 11/01)</h2>
+    <table>
+      <thead><tr><th>Категория ТС</th><th>Въезд</th><th>Стоянка суточная</th><th>Стоянка месячная</th></tr></thead>
+      <tbody id="t_body"></tbody>
+    </table>
+    <div class="except-box"><b>Бесплатно:</b> доставка Яндекс / Озон / Лемана Про и экстренные службы.</div>
+  </div>
+
+  <div class="card" id="pv_pay">
+    <h2>03 · Оплата</h2>
+  <div class="qr-block">
       <p style="font-size:.9rem; margin-bottom:10px; font-weight:600;">QR-код для оплаты</p>
-      <img src="payment_qr.png" alt="QR-код для оплаты">
+      <img src="payment_qr.png" alt="QR-код для оплаты" style="max-width:200px;height:auto;margin:0 auto;border:1px solid #ddd;border-radius:8px;display:block;">
       <p style="font-size:.8rem; color:var(--muted); margin-top:8px;">Отсканируйте код для быстрой оплаты через банковское приложение</p>
     </div>
-    <div class="item" style="margin-top:16px">
-      <p style="margin-bottom:8px"><b>Куда обращаться по вопросам начислений?</b><br>
-      <span style="color:var(--muted)">В бухгалтерию: +7 (905) 749-09-99, ed2.buh@gmail.com</span></p>
-      <p style="margin-top:12px; margin-bottom:0"><b>Куда обращаться по спорным ситуациям на КПП?</b><br>
-      <span style="color:var(--muted)">К Управляющему ООО «ЭК «ЕД-2»: +7 (965) 294-40-00</span></p>
+    <div class="pay-warn">⚠️ Оплата не заменяет звонок — въезд оформляет охрана КПП: +7 (985) 547-33-00</div>
+  </div>
+
+  <div class="card" id="pv_order">
+    <h2>04 · Порядок въезда</h2>
+    <div class="order-steps">
+      <div class="order-step"><span class="num">1</span>Позвоните на КПП +7 (985) 547-33-00</div>
+      <div class="order-step"><span class="num">2</span>Продиктуйте 3 пункта: ФИО, госномер, дата визита</div>
+      <div class="order-step"><span class="num">3</span>Если грузовой — оплатите по тарифу</div>
+    </div>
+  </div>
+
+  <div class="card" id="pv_questions">
+    <h2>05 · Вопросы</h2>
+    <div class="item">
+      <p><b>Куда обращаться по спорным ситуациям на КПП?</b><br>
+      <span style="color:var(--muted)">К Управляющему посёлка: +7 (965) 294-40-00</span></p>
     </div>
   </div>
 </section>
 
 <section id="issues">
   <div class="card">
-    <h2>Заявка / обращение в УК</h2>
+    <h2>Заявка / обращение в ООО «ЭК «ЕД-2»</h2>
     <div class="row">
       <div><label>Категория *</label><select id="i_cat">
         <option>Дороги и чистка снега</option><option>Уличное освещение</option>
@@ -232,10 +309,10 @@ footer{text-align:center;font-size:.8rem;color:var(--muted);padding:22px 10px}
 <section id="docs">
   <div class="card">
     <h2>Документы по вашему участку</h2>
-    <div class="note warn"><b>Демонстрационный режим подписания.</b> Юридически значимое подписание — в офисе УК либо через оператора ЭДО. Статус «Подписано» появится после подтверждения УК.</div>
+    <div class="note warn"><b>Демонстрационный режим подписания.</b> Юридически значимое подписание — в офисе ООО «ЭК «ЕД-2». Статус «Подписано» появится после подтверждения ООО «ЭК «ЕД-2».</div>
     <div id="doc_list"></div>
   </div>
-  <div class="card"><h2>Новости УК</h2><div id="news"></div></div>
+  <div class="card"><h2>Новости посёлка</h2><div id="news"></div></div>
 </section>
 
 <section id="debts">
@@ -247,7 +324,7 @@ footer{text-align:center;font-size:.8rem;color:var(--muted);padding:22px 10px}
     <div id="debts_table_block" style="display:none">
       <table><thead><tr><th>Услуга</th><th>Период</th><th>Сумма, ₽</th><th>Статус</th></tr></thead>
         <tbody id="d_body"><tr><td colspan="4" style="text-align:center;color:#666">Загрузка…</td></tr></tbody></table>
-      <div class="note">Если списка нет — задолженность не зафиксирована. Сверка начислений: бухгалтерия УК.</div>
+      <div class="note">Если списка нет — задолженность не зафиксирована. Сверка начислений: бухгалтерия ООО «ЭК «ЕД-2».</div>
     </div>
   </div>
 </section>
@@ -290,11 +367,11 @@ footer{text-align:center;font-size:.8rem;color:var(--muted);padding:22px 10px}
       </div>
     </div>
     <div class="note" style="margin-top:8px">
-      <b>Зачем это нужно:</b> собственники без прямого договора с Мосэнергосбыт получают показания общего счётчика от инженера УК. После подтверждения наличия прямого договора в вашем личном кабинете появится возможность прикрепить скан и передавать показания напрямую в Мосэнергосбыт.
+      <b>Зачем это нужно:</b> собственники без прямого договора с Мосэнергосбыт получают показания общего счётчика от инженера ООО «ЭК «ЕД-2». После подтверждения наличия прямого договора в вашем личном кабинете появится возможность прикрепить скан и передавать показания напрямую в Мосэнергосбыт.
     </div>
 
     <div class="chk">
-      <label><input type="checkbox" id="r_c1"><span><b>Согласие на обработку персональных данных (152-ФЗ).</b> Даю согласие ООО «ЭК «Европейская Долина-2» (ИНН 7751167800, КПП 770501001; фактический адрес: 108825, г. Москва, вн. тер. г. муниципальный округ Краснопахорский, пер. 4-й Дунайский, 21 — КПП КП «Европейская долина 2») на обработку следующих данных: <b>фамилия, имя, отчество; номер земельного участка; кадастровый номер участка; адрес участка; действующий адрес электронной почты; номер телефона</b>, а также сведений о показаниях приборов учёта, заявках и пропусках. Цель — идентификация собственника, ведение расчётов, информирование о задолженности и услугах, рассмотрение обращений. Действия: сбор, запись, систематизация, накопление, хранение, уточнение, использование, передача (предоставление уполномоченным лицам УК), блокирование, удаление, уничтожение. Согласие действует до его отзыва путём направления письма на ed2.jurist@ya.ru либо нажатия кнопки «Очистить профиль».</span></label>
+      <label><input type="checkbox" id="r_c1"><span><b>Согласие на обработку персональных данных (152-ФЗ).</b> Даю согласие ООО «ЭК «Европейская Долина-2» (ИНН 7751167800, КПП 770501001; фактический адрес: 108825, г. Москва, вн. тер. г. муниципальный округ Краснопахорский, пер. 4-й Дунайский, 21 — КПП КП «Европейская долина 2») на обработку следующих данных: <b>фамилия, имя, отчество; номер земельного участка; кадастровый номер участка; адрес участка; действующий адрес электронной почты; номер телефона</b>, а также сведений о показаниях приборов учёта, заявках и пропусках. Цель — идентификация собственника, ведение расчётов, информирование о задолженности и услугах, рассмотрение обращений. Действия: сбор, запись, систематизация, накопление, хранение, уточнение, использование, передача (предоставление уполномоченным лицам ООО «ЭК «ЕД-2»), блокирование, удаление, уничтожение. Согласие действует до его отзыва путём направления письма на ed2.jurist@ya.ru либо нажатия кнопки «Очистить профиль».</span></label>
       <label><input type="checkbox" id="r_c2"><span><b>Политика обработки данных.</b> Ознакомлен с Политикой обработки персональных данных ООО «ЭК «ЕД-2». Кабинет использует локальное хранилище браузера (localStorage); сторонние счётчики, cookie и внешние сервисы не применяются, данные не передаются третьим лицам автоматически.</span></label>
       <label><input type="checkbox" id="r_c3"><span><b>Достоверность сведений.</b> Подтверждаю, что указанные сведения достоверны, я являюсь собственником (либо уполномоченным представителем собственника) указанного земельного участка и несу ответственность за достоверность предоставленных данных.</span></label>
     </div>
@@ -317,6 +394,7 @@ function show(id,type,text){var e=$(id);e.className="msg "+type;e.textContent=te
 function loadArr(k){try{return JSON.parse(localStorage.getItem(k))||[];}catch(e){return [];}}
 function saveArr(k,v){localStorage.setItem(k,JSON.stringify(v));}
 function fmt(n){return new Intl.NumberFormat("ru-RU",{minimumFractionDigits:2,maximumFractionDigits:2}).format(n);}
+function money(n){return new Intl.NumberFormat("ru-RU",{maximumFractionDigits:0}).format(n);}
 
 /* ---------- участки ---------- */
 function normLot(s){
@@ -397,7 +475,7 @@ function saveProfile(){
     p.id_status="Идентифицирован по реестру";
     p.lot=card.lot;
   }else{
-    p.id_status="Ожидает проверки УК";
+    p.id_status="Ожидает проверки ООО «ЭК «ЕД-2»";
   }
 
   localStorage.setItem("ed2_profile",JSON.stringify(p));
@@ -417,7 +495,7 @@ function clearProfile(){
 }
 
 /* ---------- данные от локального агента ---------- */
-var D={meta:{},company:{},lots:[],tasks:{},docs:{},news:[],debts:[]};
+var D={meta:{},company:{},lots:[],tasks:{},docs:{},news:[],debts:[],elec_meters:[]};
 function getJSON(name,fb){
   return fetch("data/"+name+".json?t="+Date.now())
     .then(function(r){return r.ok?r.json():fb;}).catch(function(){return fb;});
@@ -442,9 +520,9 @@ function loadDebts(){
 function loadAll(){
   Promise.all([getJSON("meta",{}),getJSON("company",{}),getJSON("lots",[]),
                getJSON("tasks",{}),getJSON("docs",{}),getJSON("news",[]),
-               loadDebts()])
+               loadDebts(),getJSON("engineer_meters",[])])
   .then(function(r){
-    D.meta=r[0];D.company=r[1];D.lots=r[2];D.tasks=r[3];D.docs=r[4];D.news=r[5];D.debts=r[6];
+    D.meta=r[0];D.company=r[1];D.lots=r[2];D.tasks=r[3];D.docs=r[4];D.news=r[5];D.debts=r[6];D.elec_meters=r[7];
     renderAll();
   });
 }
@@ -456,26 +534,25 @@ function renderCompany(){
   if(c.short) $("h_org").textContent=c.short+" — личный кабинет собственника";
   var ph="";
   Object.keys(c.phones||{}).forEach(function(k){ph+="• <b>"+esc(k)+":</b> "+esc(c.phones[k])+"<br>";});
-  $("contacts").innerHTML="<p><b>Фактический адрес (офис УК):</b> "+esc(c.office_address||"")+"</p>"+
-    "<p style='margin:6px 0'><b>Режим работы:</b> "+esc(c.hours||"")+"</p><div class='row'><div>"+ph+"</div><div>"+
-    "• <b>Юротдел:</b> "+esc(c.email_jurist||"")+"<br>"+
-    "• <b>Бухгалтерия:</b> "+esc(c.email_buh||"")+"<br>"+
-    "• <b>Общий:</b> "+esc(c.email_direct||"")+"</div></div>";
-    
+  $("contacts").innerHTML="<p><b>Фактический адрес (офис):</b> "+esc(c.office_address||"108825, г. Москва, вн. тер. г. муниципальный округ Краснопахорский, пер. 4-й Дунайский, 21")+"</p>"+
+    "<p style='margin:6px 0'><b>Режим работы:</b> "+esc(c.hours||"Пн–Пт 09:00–18:00, обед 13:00–14:00")+"</p><div class='row'><div>"+ph+"</div><div>"+
+    "• <b>Юротдел:</b> "+esc(c.email_jurist||"ed2.jurist@ya.ru")+"<br>"+
+    "• <b>Бухгалтерия:</b> "+esc(c.email_buh||"ed2.buh@gmail.com")+"<br>"+
+    "• <b>Общий:</b> "+esc(c.email_direct||"ed2.info@ya.ru")+"</div></div>";
+
   $("requisites").innerHTML=
-    "<b>Наименование:</b> "+esc(c.name||"")+"<br>"+
-    "<b>Юридический адрес:</b> "+esc(c.legal_address||"")+"<br>"+
-    "<b>Фактический адрес:</b> "+esc(c.office_address||"")+"<br>"+
-    "<b>ИНН:</b> "+esc(c.inn||"")+" | <b>КПП:</b> "+esc(c.kpp||"")+" | <b>ОГРН:</b> "+esc(c.ogrn||"")+"<br>"+
-    "<b>Р/с:</b> "+esc(c.account||"")+" в "+esc(c.bank||"")+"<br>"+
-    "<b>К/с:</b> "+esc(c.corr||"")+" | <b>БИК:</b> "+esc(c.bik||"")+"<br>"+
-    "<b>Генеральный директор:</b> "+esc(c.director||"")+"<br>"+
+    "<b>Наименование:</b> "+esc(c.name||"ООО «ЭК «Европейская Долина-2»")+"<br>"+
+    "<b>Юридический адрес:</b> "+esc(c.legal_address||"108825, г. Москва, вн. тер. г. муниципальный округ Краснопахорский, пер. 4-й Дунайский, 21")+"<br>"+
+    "<b>Фактический адрес:</b> "+esc(c.office_address||"108825, г. Москва, вн. тер. г. муниципальный округ Краснопахорский, пер. 4-й Дунайский, 21")+"<br>"+
+    "<b>ИНН:</b> "+esc(c.inn||"7751167800")+" | <b>КПП:</b> "+esc(c.kpp||"770501001")+" | <b>ОГРН:</b> "+esc(c.ogrn||"1167746956030")+"<br>"+
+    "<b>Р/с:</b> "+esc(c.account||"40702810400000001234")+" в "+esc(c.bank||"ПАО «Сбербанк России», г. Москва")+"<br>"+
+    "<b>К/с:</b> "+esc(c.corr||"30101810400000000225")+" | <b>БИК:</b> "+esc(c.bik||"044525225")+"<br>"+
+    "<b>Генеральный директор:</b> "+esc(c.director||"Ковалёв А. В.")+"<br>"+
     "<div class='note' style='margin-top:8px'>Примечание: Реквизиты приведены в соответствии с выпиской из ЕГРЮЛ № ЮЭ9965-26-56986964 от 01.04.2026.</div>";
-    
+
   $("footer").textContent="© "+(c.short||"ООО «ЭК «ЕД-2»")+" · "+(c.settlement||"");
   var m=D.meta||{};
-  $("freshness").innerHTML="Данные Инфокрафт по состоянию на <b>"+esc(m.source_date||"—")+
-    "</b> · обновление "+esc(m.generated_at||"—")+" (выгрузка раз в 2 недели).";
+  $("freshness").style.display="none";
   $("debts_date").innerHTML="Актуально на <b>"+esc(m.source_date||"—")+"</b>, опубликовано "+esc(m.generated_at||"—");
   $("r_addr_base").value=c.region_prefix||"108825, г. Москва, вн. тер. г. муниципальный округ Краснопахорский";
   $("lots_list").innerHTML=(D.lots||[]).map(function(l){
@@ -526,7 +603,7 @@ function addReading(){
   var cur=parseFloat($("m_cur").value), prev=$("m_prev").value===""?null:parseFloat($("m_prev").value);
   if(isNaN(cur)||cur<0) return show("m_msg","err","Введите корректное текущее показание.");
   if(prev!==null&&cur<prev) return show("m_msg","err","Текущее показание меньше предыдущего.");
-  
+
   var photoFile = $("m_photo").files[0];
   var saveData = function(photoBase64) {
     var all=loadArr("ed2_meters");
@@ -534,7 +611,7 @@ function addReading(){
               note:$("m_note").value.trim(), photo: photoBase64 || null, lot:p.lot,cad:p.cad,fio:p.fio});
     saveArr("ed2_meters",all);
     $("m_cur").value="";$("m_prev").value="";$("m_note").value="";$("m_photo").value="";
-    show("m_msg","ok","Показание и фото сохранены. Выгрузите CSV или пакет JSON для УК.");
+    show("m_msg","ok","Показание и фото сохранены. Выгрузите CSV или пакет JSON для ООО «ЭК «ЕД-2».");
     renderReadings();renderTasks();
   };
 
@@ -575,69 +652,41 @@ function genLetter(){
   var el=$("m_letter");el.style.display="block";el.textContent=t;
 }
 
-/* ---------- счётчики электроэнергии (Главный инженер) ---------- */
-$("engineer_mode_toggle").addEventListener("change", function() {
-  var block = $("elec_inputs");
-  if(this.checked) {
-    block.style.opacity = "1";
-    block.style.pointerEvents = "auto";
-  } else {
-    block.style.opacity = "0.5";
-    block.style.pointerEvents = "none";
+/* ---------- показания электросчётчика (только чтение) ---------- */
+function renderElecMeters(){
+  var el=$("e_list"),rows=D.elec_meters||[];
+  if(!rows.length){el.innerHTML="<p style='color:#666;font-size:.9rem'>Показания пока не опубликованы.</p>";return;}
+  el.innerHTML="<table><thead><tr><th>Дата</th><th>Т1 (день)</th><th>Т2 (ночь)</th><th>Примечание</th></tr></thead><tbody>"+
+    rows.slice().reverse().map(function(x){
+      return "<tr><td>"+esc(x.date||"—")+"</td><td><b>"+esc(x.t1_cur!=null?x.t1_cur:"—")+"</b></td>"+
+        "<td><b>"+esc(x.t2_cur!=null?x.t2_cur:"—")+"</b></td><td>"+esc(x.note||"—")+"</td></tr>";
+    }).join("")+"</tbody></table>";
+}
+
+/* ---------- пропуска: тарифы и памятка ---------- */
+var TARIFFS=[
+  {cat:"До 3,5 т", in:250, day:950, month:25000},
+  {cat:"Свыше 3,5 т", in:600, day:1400, month:37000},
+  {cat:"Спецтехника", in:950, day:null, month:null}
+];
+function renderTariffs(){
+  $("t_body").innerHTML=TARIFFS.map(function(t){
+    return "<tr><td>"+esc(t.cat)+"</td><td>"+money(t.in)+" ₽</td><td>"+
+      (t.day==null?"—":money(t.day)+" ₽")+"</td><td>"+(t.month==null?"—":money(t.month)+" ₽")+"</td></tr>";
+  }).join("");
+}
+function copyPhone(){
+  var tempInput = document.createElement("input");
+  tempInput.value = "+79855473300";
+  document.body.appendChild(tempInput);
+  tempInput.select();
+  try {
+    document.execCommand("copy");
+    alert("Номер скопирован: +7 (985) 547-33-00");
+  } catch (e) {
+    alert("Не удалось скопировать номер. Пожалуйста, скопируйте вручную: +7 (985) 547-33-00");
   }
-});
-
-function saveElecReading(){
-  var p=prof(); if(!p) return show("e_msg","err","Сначала пройдите регистрацию.");
-  var t1_cur = parseFloat($("e_t1_cur").value), t1_prev = $("e_t1_prev").value===""?null:parseFloat($("e_t1_prev").value);
-  var t2_cur = parseFloat($("e_t2_cur").value), t2_prev = $("e_t2_prev").value===""?null:parseFloat($("e_t2_prev").value);
-  
-  if(isNaN(t1_cur) || isNaN(t2_cur)) return show("e_msg","err","Введите корректные текущие показания для Т1 и Т2.");
-  if(t1_prev!==null && t1_cur<t1_prev) return show("e_msg","err","Текущее Т1 меньше предыдущего.");
-  if(t2_prev!==null && t2_cur<t2_prev) return show("e_msg","err","Текущее Т2 меньше предыдущего.");
-
-  var all = loadArr("ed2_elec_meters");
-  all.push({id:Date.now(), date:$("e_date").value, t1_cur:t1_cur, t1_prev:t1_prev, t2_cur:t2_cur, t2_prev:t2_prev, lot:p.lot, cad:p.cad, fio:p.fio});
-  saveArr("ed2_elec_meters", all);
-  
-  $("e_t1_cur").value=""; $("e_t1_prev").value=""; $("e_t2_cur").value=""; $("e_t2_prev").value="";
-  show("e_msg","ok","Показания электросчётчика сохранены.");
-}
-
-/* ---------- пропуска ---------- */
-function passes(){var l=myLot();return loadArr("ed2_passes").filter(function(r){return l&&lotMatch(r.lot,l);});}
-function addPass(){
-  var p=prof(); if(!p) return show("p_msg","err","Сначала пройдите регистрацию.");
-  var plate=$("p_plate").value.trim().toUpperCase(),guest=$("p_guest").value.trim(),d=$("p_date").value;
-  if(!plate||!guest||!d) return show("p_msg","err","Укажите дату, госномер и данные посетителя.");
-  var days=$("p_type").value.indexOf("Временный")===0?7:($("p_type").value.indexOf("Постоянный")===0?90:1);
-  var until=new Date(d); until.setDate(until.getDate()+days-1);
-  var code="ED2-"+normLot(p.lot).replace(/\//g,"-")+"-"+Math.floor(1000+Math.random()*9000);
-  var all=loadArr("ed2_passes");
-  all.push({id:Date.now(),code:code,type:$("p_type").value,date:d,
-            until:until.toISOString().slice(0,10),plate:plate,guest:guest,lot:p.lot,fio:p.fio});
-  saveArr("ed2_passes",all);
-  $("p_plate").value="";$("p_guest").value="";
-  show("p_msg","ok","Пропуск "+code+" сформирован. Передайте сводку в УК/охрану для подтверждения.");
-  renderPasses();
-}
-function renderPasses(){
-  var list=passes(),el=$("p_list"),today=new Date().toISOString().slice(0,10);
-  if(!list.length){el.innerHTML="<p style='color:#666;font-size:.9rem'>Пропусков нет.</p>";return;}
-  el.innerHTML=list.slice().reverse().map(function(x){
-    var act=x.until>=today;
-    return "<div class='item'><b>Пропуск "+esc(x.code)+"</b><span class='badge'>"+esc(x.type)+"</span>"+
-      (act?"":"<span class='badge red'>Истёк</span>")+"<br>"+
-      "<span style='color:#666;font-size:.82rem'>Действует по "+esc(x.until)+" · участок №"+esc(x.lot)+"</span><br>"+
-      "<b>Авто:</b> "+esc(x.plate)+" · <b>Посетитель:</b> "+esc(x.guest)+"</div>";}).join("");
-}
-function guardText(){
-  var list=passes(),p=prof(); if(!p||!list.length) return alert("Нет пропусков.");
-  var t="КПП "+(D.company.settlement||"")+" (охрана "+((D.company.phones||{})["КПП (охрана)"]||"")+")\n"+
-    "Адрес КПП: "+(D.company.office_address||"")+"\n"+
-    "Заявка от собственника участка №"+p.lot+" ("+p.fio+", тел. "+p.tel+"):\n"+
-    list.map(function(x){return "• "+x.code+" | по "+x.until+" ("+x.type+") | "+x.plate+" | "+x.guest;}).join("\n");
-  var el=$("p_txt");el.style.display="block";el.textContent=t;
+  document.body.removeChild(tempInput);
 }
 
 /* ---------- обращения ---------- */
@@ -656,7 +705,7 @@ function addIssue(){
             status:legal?"Передано юротделу":"В очереди обработки"});
   saveArr("ed2_issues",all);
   $("i_title").value="";$("i_text").value="";
-  show("i_msg","ok","Обращение зарегистрировано. Выгрузите пакет JSON, чтобы передать его в УК.");
+  show("i_msg","ok","Обращение зарегистрировано. Выгрузите пакет JSON, чтобы передать его в ООО «ЭК «ЕД-2».");
   renderIssues();
 }
 function renderIssues(){
@@ -701,14 +750,14 @@ function signConfirm(i){
   var docs=docsForLot(),p=prof();
   if(($("sc_"+i).value||"").trim()!=="1234") return alert("Неверный код. В демо-режиме введите 1234.");
   var arr=loadArr(signedKey());
-  arr.push({id:docs[i].id,stamp:"Подтверждение направлено в УК ("+p.fio+", уч. №"+p.lot+", кадастр "+p.cad+") "+new Date().toLocaleString("ru-RU")});
+  arr.push({id:docs[i].id,stamp:"Подтверждение направлено в ООО «ЭК «ЕД-2» ("+p.fio+", уч. №"+p.lot+", кадастр "+p.cad+") "+new Date().toLocaleString("ru-RU")});
   saveArr(signedKey(),arr);renderDocs();renderTasks();
 }
 
 /* ---------- новости ---------- */
 function renderNews(){
   $("news").innerHTML=(D.news||[]).map(function(n){
-    return "<div class='item'><b>"+esc(n.title)+"</b><span class='badge'>Новости УК</span><br>"+
+    return "<div class='item'><b>"+esc(n.title)+"</b><span class='badge'>Новости</span><br>"+
       "<span style='color:#666;font-size:.8rem'>"+esc(n.date)+"</span><p style='margin-top:6px'>"+esc(n.text).replace(/\n/g,"<br>")+"</p></div>";}).join("");
 }
 
@@ -717,25 +766,25 @@ function renderDebts(){
   var p=prof();
   var authBlock=$("debts_auth_block");
   var tableBlock=$("debts_table_block");
-  
+
   if(!p){
     authBlock.innerHTML="<div class='note warn'><b>Раздел доступен только зарегистрированным собственникам.</b><br>Пожалуйста, пройдите регистрацию и идентификацию в разделе «Регистрация», чтобы увидеть информацию о задолженности по вашему участку.</div>";
     tableBlock.style.display="none";
     return;
   }
-  
+
   authBlock.innerHTML="<div class='note' style='border-left-color:var(--green)'><b>Ваш участок №"+esc(p.lot)+"</b> · "+esc(p.fio)+" · Кадастр: "+esc(p.cad)+"</div>";
   tableBlock.style.display="block";
-  
+
   var b=$("d_body");
   if(!D.debts.length){b.innerHTML="<tr><td colspan='4' style='text-align:center;color:#666'>Реестр ожидает выгрузки бухгалтерией.</td></tr>";return;}
-  
+
   var mine=D.debts.filter(function(d){return lotMatch(d.lot,p.lot);});
   if(!mine.length){
     b.innerHTML="<tr><td colspan='4' style='text-align:center;color:#666'>Задолженность по вашему участку не зафиксирована.</td></tr>";
     return;
   }
-  
+
   b.innerHTML=mine.map(function(d){
     return "<tr class='mine'><td>"+esc(d.srv)+"</td><td>"+esc(d.per)+
       "</td><td>"+fmt(d.sum)+"</td><td><span class='badge red'>"+esc(d.st)+"</span></td></tr>";}).join("");
@@ -746,7 +795,7 @@ function payload(){
   var p=prof();
   if(!p) return null;
   return {system:"KP_ED2_LK",exported_at:new Date().toISOString(),owner_profile:p,
-          meter_readings:readings(),kpp_passes:passes(),issues_and_requests:issues(),
+          meter_readings:readings(),issues_and_requests:issues(),
           documents_confirmed:loadArr(signedKey())};
 }
 function exportJSON(){
@@ -769,8 +818,8 @@ function go(tab){
   window.scrollTo({top:0,behavior:"smooth"});
 }
 function renderAll(){
-  renderCompany();renderTasks();renderReadings();renderPasses();renderIssues();
-  renderDocs();renderNews();renderDebts();
+  renderCompany();renderTasks();renderReadings();renderElecMeters();renderTariffs();
+  renderIssues();renderDocs();renderNews();renderDebts();
   var p=prof();
   if(p){
     $("r_fio").value=p.fio;$("r_lot").value=p.lot;$("r_cad").value=p.cad||"";
@@ -792,14 +841,39 @@ document.addEventListener("click",function(e){
 });
 $("btn_save").onclick=saveProfile; $("btn_clear").onclick=clearProfile;
 $("btn_meter").onclick=addReading; $("btn_csv").onclick=exportCSV; $("btn_letter").onclick=genLetter;
-$("btn_save_elec").onclick=saveElecReading;
-$("btn_pass").onclick=addPass; $("btn_guard").onclick=guardText;
 $("btn_issue").onclick=addIssue; $("btn_export").onclick=exportJSON; $("btn_copy").onclick=copyJSON;
-$("m_date").valueAsDate=new Date(); $("p_date").valueAsDate=new Date(); $("e_date").valueAsDate=new Date();
+$("btn_copy_phone").onclick=copyPhone;
+$("m_date").valueAsDate=new Date();
 $("r_lot").addEventListener("change",function(){
   var c=findLotCard(this.value);
   if(c){ if(c.cadastre) $("r_cad").value=c.cadastre; if(c.addr_short) $("r_addr").value=c.addr_short; }
 });
+
+/* подсветка активного пункта якорной навигации */
+(function(){
+  var links=document.querySelectorAll("#pass_nav a");
+  function setActive(id){
+    Array.prototype.forEach.call(links,function(l){
+      l.classList.toggle("active", l.getAttribute("href")==="#"+id);
+    });
+  }
+  Array.prototype.forEach.call(links,function(l){
+    l.addEventListener("click",function(){
+      setActive(this.getAttribute("href").slice(1));
+    });
+  });
+  if(!("IntersectionObserver" in window)) return;
+  var obs=new IntersectionObserver(function(entries){
+    entries.forEach(function(en){
+      if(!en.isIntersecting) return;
+      setActive(en.target.id);
+    });
+  },{rootMargin:"-35% 0px -55% 0px"});
+  ["pv_guard","pv_data","pv_tariffs","pv_pay","pv_order","pv_questions"].forEach(function(id){
+    var el=$(id); if(el) obs.observe(el);
+  });
+})();
+
 renderAll(); loadAll();
 </script>
 </body>
