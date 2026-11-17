@@ -106,6 +106,9 @@ footer{text-align:center;font-size:.8rem;color:var(--muted);padding:22px 10px}
 <header>
   <h1 id="h_set">КП «Европейская долина 2»</h1>
   <p id="h_org">ООО «ЭК «ЕД-2» — личный кабинет собственника</p>
+  <div style="font-size: 0.85rem; opacity: 0.9; margin-top: 8px;">
+    <span id="header_time">--:--:--</span> | <span id="header_date">--.--.----</span>
+  </div>
 </header>
 
 <nav id="nav">
@@ -519,11 +522,27 @@ function loadDebts(){
     txt.split(/\r?\n/).forEach(function(line){
       line=line.trim(); if(!line) return;
       var c=line.split(";"); if(c.length<4) return;
-      var lot=c[0].trim();
-      if(/участок|лицевой|сумма/i.test(lot)) return;
+      var lotOrFio=c[0].trim();
+      if(/участок|лицевой|сумма/i.test(lotOrFio)) return;
+      
       var sum=parseFloat(c[3].replace(/\s/g,"").replace(",","."));
       if(!isFinite(sum)||sum<=0) return;
-            rows.push({lot:lot,srv:c[1].trim(),per:c[2].trim(),sum:sum,st:(c[4]||"Задолженность").trim(),qr:(c[5]||"").trim()});
+
+      // --- НОВАЯ ЛОГИКА: Если вместо участка указано ФИО, ищем участок в реестре ---
+      var finalLot = lotOrFio;
+      // Если это не похоже на номер участка (нет слэшей, букв "Э", "оч" и т.д.), считаем что это ФИО
+      if (!/^[0-9\/Эоч]+$/i.test(lotOrFio)) { 
+        var searchFio = lotOrFio.toLowerCase().replace(/[^а-яёa-z\s]/g, ''); // Очищаем от знаков
+        var matchedLot = (D.lots || []).find(function(l) {
+          var lFio = (l.fio || "").toLowerCase().replace(/[^а-яёa-z\s]/g, '');
+          return lFio.includes(searchFio) || searchFio.includes(lFio.split(' ')[0]);
+        });
+        if (matchedLot) {
+          finalLot = matchedLot.lot; // Подменяем ФИО на номер участка
+        }
+      }
+
+      rows.push({lot:finalLot, srv:c[1].trim(), per:c[2].trim(), sum:sum, st:(c[4]||"Задолженность").trim(), qr:(c[5]||"").trim()});
     });
     return rows;
   }).catch(function(){return [];});
@@ -668,14 +687,30 @@ function genLetter(){
 }
 
 /* ---------- показания электросчётчика (только чтение) ---------- */
+/* ---------- показания электросчётчика (только чтение) ---------- */
 function renderElecMeters(){
-  var el=$("e_list"),rows=D.elec_meters||[];
-  if(!rows.length){el.innerHTML="<p style='color:#666;font-size:.9rem'>Показания пока не опубликованы.</p>";return;}
-  el.innerHTML="<table><thead><tr><th>Дата</th><th>Т1 (день)</th><th>Т2 (ночь)</th><th>Примечание</th></tr></thead><tbody>"+
+  var el = $("e_list");
+  var p = prof();
+
+  if(!p){
+    el.innerHTML = "<p style='color:#666;font-size:.9rem'>Пройдите регистрацию, чтобы увидеть показания по вашему участку.</p>";
+    return;
+  }
+
+  var rows = (D.elec_meters || []).filter(function(x){
+    return p && lotMatch(x.lot, p.lot);
+  });
+
+  if(!rows.length){
+    el.innerHTML = "<p style='color:#666;font-size:.9rem'>Показания по участку №" + esc(p.lot) + " пока не опубликованы.</p>";
+    return;
+  }
+
+  el.innerHTML = "<table><thead><tr><th>Дата</th><th>Т1 (день)</th><th>Т2 (ночь)</th><th>Примечание</th></tr></thead><tbody>" +
     rows.slice().reverse().map(function(x){
-      return "<tr><td>"+esc(x.date||"—")+"</td><td><b>"+esc(x.t1_cur!=null?x.t1_cur:"—")+"</b></td>"+
-        "<td><b>"+esc(x.t2_cur!=null?x.t2_cur:"—")+"</b></td><td>"+esc(x.note||"—")+"</td></tr>";
-    }).join("")+"</tbody></table>";
+      return "<tr><td>" + esc(x.date || "—") + "</td><td><b>" + esc(x.t1_cur != null ? x.t1_cur : "—") + "</b></td>" +
+        "<td><b>" + esc(x.t2_cur != null ? x.t2_cur : "—") + "</b></td><td>" + esc(x.note || "—") + "</td></tr>";
+    }).join("") + "</tbody></table>";
 }
 
 /* ---------- пропуска: тарифы и памятка ---------- */
@@ -863,11 +898,30 @@ function renderAll(){
   renderIssues();renderDocs();renderNews();renderDebts();
   var p=prof();
   if(p){ 
+    // Восстановление основных полей профиля
+    if($("r_fio")) $("r_fio").value = p.fio || "";
+    if($("r_lot")) $("r_lot").value = p.lot || "";
+    if($("r_cad")) $("r_cad").value = p.cad || "";
+    if($("r_tel")) $("r_tel").value = p.tel || "";
+    if($("r_addr")) $("r_addr").value = p.addr || "";
+    if($("r_addr_base")) $("r_addr_base").value = p.addr_base || "";
+    if($("r_mail")) $("r_mail").value = p.mail || "";
+
+    // Восстановление данных договора Мосэнергосбыта
     $("r_mosenergo").value=p.mosenergo||"";
     $("r_mosenergo_num").value=p.mosenergo_num||"";
     $("r_mosenergo_date").value=p.mosenergo_date||"";
     $("r_mosenergo_details").style.display=(p.mosenergo==="yes")?"block":"none";
+    
+    // Восстановление чекбоксов
     $("r_c1").checked=!!p.c1;$("r_c2").checked=!!p.c2;$("r_c3").checked=!!p.c3;
+
+    // Показываем статус в форме регистрации
+    var msgBox = $("reg_msg");
+    if (msgBox) {
+      msgBox.className = "msg ok";
+      msgBox.textContent = "Вы вошли в кабинет. Статус: " + (p.id_status || "Идентифицирован по реестру");
+    }
   }
 }
 
@@ -927,6 +981,26 @@ $("r_lot").addEventListener("change",function(){
 })();
 
 renderAll(); loadAll();
+
+// --- ТАЙМЕР И УЧЕТ ВРЕМЕНИ ---
+function updateClock() {
+  var now = new Date();
+  var timeStr = now.toLocaleTimeString("ru-RU");
+  var dateStr = now.toLocaleDateString("ru-RU");
+  var tEl = $("header_time"), dEl = $("header_date");
+  if(tEl) tEl.textContent = timeStr;
+  if(dEl) dEl.textContent = dateStr;
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+// Фиксация времени входа при загрузке страницы
+var nowStr = new Date().toLocaleString("ru-RU");
+localStorage.setItem("ed2_session_start", nowStr);
+
+// Фиксация времени окончания при закрытии вкладки
+window.addEventListener("beforeunload", function() {
+  var endStr = new Date().toLocaleString("ru-RU");
+  localStorage.setItem("ed2_session_end", endStr);
+});
 </script>
-</body>
-</html>
