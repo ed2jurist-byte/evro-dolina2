@@ -177,11 +177,13 @@ footer{text-align:center;font-size:.8rem;color:var(--muted);padding:22px 10px}
     <pre id="m_letter"></pre>
   </div>
 
-  <div class="card" id="elec_meter_block">
+    <div class="card" id="elec_meter_block">
     <h2>⚡ Показания электросчётчика</h2>
     <div class="note">
-      Сведения публикуются Главным инженером ООО «ЭК «ЕД-2» и отображаются в режиме чтения из файла данных «engineer_meters.json».
+      Сведения публикуются Главным инженером ООО «ЭК «ЕД-2» для собственников, которые имеют прямые договора с АО «Мосэнергосбыт». Чтобы увидеть свои показания, убедитесь, что в разделе «Регистрация» вы указали наличие прямого договора, а также внесли его номер и дату.
     </div>
+    <div id="e_list" style="margin-top:10px"></div>
+  </div>
     <div id="e_list" style="margin-top:10px"></div>
   </div>
 </section>
@@ -350,7 +352,7 @@ footer{text-align:center;font-size:.8rem;color:var(--muted);padding:22px 10px}
 
     <label>Действующий e-mail *</label><input id="r_mail" type="email" placeholder="you@mail.ru">
 
-    <div class="row" style="margin-top:14px">
+        <div class="row" style="margin-top:14px; align-items: start;">
       <div>
         <label>Есть ли у вас прямой договор с АО «Мосэнергосбыт»? *</label>
         <select id="r_mosenergo" required>
@@ -359,6 +361,14 @@ footer{text-align:center;font-size:.8rem;color:var(--muted);padding:22px 10px}
           <option value="yes">Да, есть прямой договор</option>
         </select>
       </div>
+      <div id="r_mosenergo_details" style="display:none; background:#e8f5e9; border:1px solid #a5d6a7; border-radius:8px; padding:12px;">
+        <div style="font-size:0.82rem; color:var(--gd); font-weight:600; margin-bottom:8px;">Укажите данные прямого договора</div>
+        <label>Номер договора *</label>
+        <input id="r_mosenergo_num" placeholder="например, 77-12345/2024">
+        <label style="margin-top:8px">Дата заключения *</label>
+        <input id="r_mosenergo_date" type="date">
+      </div>
+    </div>
       <div id="r_mosenergo_details" style="display:none">
         <label>Номер договора с Мосэнергосбыт</label>
         <input id="r_mosenergo_num" placeholder="например, 77-12345/2024">
@@ -447,8 +457,12 @@ function saveProfile(){
          mosenergo_date:$("r_mosenergo_date").value,
          c1:$("r_c1").checked,c2:$("r_c2").checked,c3:$("r_c3").checked,
          reg_date:new Date().toISOString()};
-  if(!p.fio||!p.lot||!p.cad||!p.addr||!p.tel||!p.mail||!p.mosenergo)
+    if(!p.fio||!p.lot||!p.cad||!p.addr||!p.tel||!p.mail||!p.mosenergo)
     return show("reg_msg","err","Заполните все обязательные поля.");
+    
+  // Проверка полей договора, если выбран ответ "Да"
+  if(p.mosenergo === "yes" && (!p.mosenergo_num || !p.mosenergo_date))
+    return show("reg_msg","err","Пожалуйста, укажите номер и дату договора с Мосэнергосбытом.");
   if(p.fio.split(/\s+/).length<2)
     return show("reg_msg","err","Укажите фамилию, имя и отчество полностью.");
   if(!/^\d{2}:\d{2}:\d{6,7}:\d+$/.test(normCad(p.cad)))
@@ -838,9 +852,7 @@ function renderAll(){
   renderCompany();renderTasks();renderReadings();renderElecMeters();renderTariffs();
   renderIssues();renderDocs();renderNews();renderDebts();
   var p=prof();
-  if(p){
-    $("r_fio").value=p.fio;$("r_lot").value=p.lot;$("r_cad").value=p.cad||"";
-    $("r_addr").value=p.addr||"";$("r_tel").value=p.tel;$("r_mail").value=p.mail||"";
+  if(p){ 
     $("r_mosenergo").value=p.mosenergo||"";
     $("r_mosenergo_num").value=p.mosenergo_num||"";
     $("r_mosenergo_date").value=p.mosenergo_date||"";
@@ -848,9 +860,20 @@ function renderAll(){
     $("r_c1").checked=!!p.c1;$("r_c2").checked=!!p.c2;$("r_c3").checked=!!p.c3;
   }
 }
-document.addEventListener("click",function(e){
-  var t=e.target.closest("[data-tab],[data-go],[data-sign],[data-confirm]");
-  if(!t) return;
+
+// Показ/скрытие полей договора Мосэнергосбыта
+document.getElementById("r_mosenergo").addEventListener("change", function() {
+  var box = document.getElementById("r_mosenergo_details");
+  if (this.value === "yes") {
+    box.style.display = "block";
+  } else {
+    box.style.display = "none";
+    document.getElementById("r_mosenergo_num").value = "";
+    document.getElementById("r_mosenergo_date").value = "";
+  }
+});
+
+document.addEventListener("click", function(e) {
   if(t.dataset.tab) go(t.dataset.tab);
   else if(t.dataset.go) go(t.dataset.go);
   else if(t.dataset.sign!==undefined) signRequest(+t.dataset.sign);
