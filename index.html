@@ -756,9 +756,26 @@ function signConfirm(i){
 
 /* ---------- новости ---------- */
 function renderNews(){
+  // 1. Вывод во вкладку "Документы" (все новости)
   $("news").innerHTML=(D.news||[]).map(function(n){
     return "<div class='item'><b>"+esc(n.title)+"</b><span class='badge'>Новости</span><br>"+
       "<span style='color:#666;font-size:.8rem'>"+esc(n.date)+"</span><p style='margin-top:6px'>"+esc(n.text).replace(/\n/g,"<br>")+"</p></div>";}).join("");
+
+  // 2. Вывод в блок "⚠️ Важно" на Главной (только новости с important: true)
+  var importantBox = $("important-notices");
+  if(importantBox){
+    var impNews = (D.news||[]).filter(function(n){ return n.important === true; });
+    if(impNews.length > 0){
+      importantBox.innerHTML = impNews.map(function(n){
+        return "<div style='margin-bottom:10px; padding-bottom:10px; border-bottom:1px solid #ffe0b2;'>"+
+               "<b style='color:var(--amber);'>"+esc(n.title)+"</b><br>"+
+               "<span style='font-size:.8rem; color:#666;'>"+esc(n.date)+"</span>"+
+               "<p style='margin-top:4px; font-size:.9rem;'>"+esc(n.text).replace(/\n/g,"<br>")+"</p></div>";
+      }).join("");
+    } else {
+      importantBox.innerHTML = "<p style='color: var(--muted); font-style: italic;'>Объявлений пока нет.</p>";
+    }
+  }
 }
 
 /* ---------- задолженности (строго индивидуальные) ---------- */
