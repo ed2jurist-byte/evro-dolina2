@@ -549,8 +549,9 @@ function renderCompany(){
     "<p style='margin:6px 0'><b>Режим работы:</b> "+esc(c.hours||"Пн–Пт 09:00–18:00, обед 13:00–14:00")+"</p><div class='row'><div>"+ph+"</div><div>"+
     "• <b>Юротдел:</b> "+esc(c.email_jurist||"ed2.jurist@ya.ru")+"<br>"+
     "• <b>Бухгалтерия:</b> "+esc(c.email_buh||"ed2.buh@gmail.com")+"<br>"+
-    "• <b>Общий:</b> "+esc(c.email_direct||"ed2.info@ya.ru")+"</div></div>";
-
+    "• <b>Общий:</b> "+esc(c.email_direct||"ed2.info@ya.ru")+"<br>"+
+    "• <b>Мессенджер MAX:</b> <a href='https://max.ru/join/7lv4MjtNdRfwkgHaLz2qJeQTWLH2syWpjs18zaFMCCM' target='_blank' style='color:var(--green); text-decoration:underline;'>Присоединиться к каналу</a></div></div>";
+    
     $("requisites").innerHTML=
     "<b>Наименование:</b> "+esc(c.name||"ООО «ЭК «Европейская Долина-2»")+"<br>"+
     "<b>Юридический адрес:</b> "+esc(c.legal_address||"115172, Г.МОСКВА, ВН.ТЕР.Г. МУНИЦИПАЛЬНЫЙ ОКРУГ ТАГАНСКИЙ, УЛ БОЛЬШИЕ КАМЕНЩИКИ, Д. 21/8, ПОДВ. ПОМ.II, КОМ. 1Б")+"<br>"+
