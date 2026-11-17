@@ -177,13 +177,11 @@ footer{text-align:center;font-size:.8rem;color:var(--muted);padding:22px 10px}
     <pre id="m_letter"></pre>
   </div>
 
-    <div class="card" id="elec_meter_block">
+      <div class="card" id="elec_meter_block">
     <h2>⚡ Показания электросчётчика</h2>
     <div class="note">
       Сведения публикуются Главным инженером ООО «ЭК «ЕД-2» для собственников, которые имеют прямые договора с АО «Мосэнергосбыт». Чтобы увидеть свои показания, убедитесь, что в разделе «Регистрация» вы указали наличие прямого договора, а также внесли его номер и дату.
     </div>
-    <div id="e_list" style="margin-top:10px"></div>
-  </div>
     <div id="e_list" style="margin-top:10px"></div>
   </div>
 </section>
@@ -352,7 +350,7 @@ footer{text-align:center;font-size:.8rem;color:var(--muted);padding:22px 10px}
 
     <label>Действующий e-mail *</label><input id="r_mail" type="email" placeholder="you@mail.ru">
 
-        <div class="row" style="margin-top:14px; align-items: start;">
+            <div class="row" style="margin-top:14px; align-items: start;">
       <div>
         <label>Есть ли у вас прямой договор с АО «Мосэнергосбыт»? *</label>
         <select id="r_mosenergo" required>
@@ -366,13 +364,6 @@ footer{text-align:center;font-size:.8rem;color:var(--muted);padding:22px 10px}
         <label>Номер договора *</label>
         <input id="r_mosenergo_num" placeholder="например, 77-12345/2024">
         <label style="margin-top:8px">Дата заключения *</label>
-        <input id="r_mosenergo_date" type="date">
-      </div>
-    </div>
-      <div id="r_mosenergo_details" style="display:none">
-        <label>Номер договора с Мосэнергосбыт</label>
-        <input id="r_mosenergo_num" placeholder="например, 77-12345/2024">
-        <label style="margin-top:8px">Дата заключения</label>
         <input id="r_mosenergo_date" type="date">
       </div>
     </div>
@@ -526,7 +517,7 @@ function loadDebts(){
       if(/участок|лицевой|сумма/i.test(lot)) return;
       var sum=parseFloat(c[3].replace(/\s/g,"").replace(",","."));
       if(!isFinite(sum)||sum<=0) return;
-      rows.push({lot:lot,srv:c[1].trim(),per:c[2].trim(),sum:sum,st:(c[4]||"Задолженность").trim()});
+            rows.push({lot:lot,srv:c[1].trim(),per:c[2].trim(),sum:sum,st:(c[4]||"Задолженность").trim(),qr:(c[5]||"").trim()});
     });
     return rows;
   }).catch(function(){return [];});
@@ -818,9 +809,16 @@ function renderDebts(){
     return;
   }
 
-  b.innerHTML=mine.map(function(d){
+    b.innerHTML=mine.map(function(d){
+    var qrHtml = "";
+    if (d.qr) {
+       qrHtml = "<div style='margin-top:10px; padding:10px; background:#f9fbf9; border:1px solid #c8e6c9; border-radius:8px; display:inline-block; text-align:center;'>" +
+                "<div style='font-size:0.85rem; font-weight:600; color:var(--gd); margin-bottom:5px;'>Оплата 30% долга</div>" +
+                "<img src='"+esc(d.qr)+"' style='max-width:120px; border:1px solid #ddd; border-radius:6px; margin-bottom:5px;'>" +
+                "<div style='font-size:0.75rem; color:#666;'>Сканируйте в приложении банка</div></div>";
+    }
     return "<tr class='mine'><td>"+esc(d.srv)+"</td><td>"+esc(d.per)+
-      "</td><td>"+fmt(d.sum)+"</td><td><span class='badge red'>"+esc(d.st)+"</span></td></tr>";}).join("");
+      "</td><td>"+fmt(d.sum)+"</td><td><span class='badge red'>"+esc(d.st)+"</span>"+qrHtml+"</td></tr>";}).join("");
 }
 
 /* ---------- экспорт ---------- */
@@ -877,6 +875,7 @@ document.getElementById("r_mosenergo").addEventListener("change", function() {
 
 document.addEventListener("click", function(e) {  
   var t=e.target.closest("[data-tab],[data-go],[data-sign],[data-confirm]");
+  if(!t) return; // <--- ДОБАВИТЬ ЭТУ СТРОКУ
   if(t.dataset.tab) go(t.dataset.tab);
   else if(t.dataset.go) go(t.dataset.go);
   else if(t.dataset.sign!==undefined) signRequest(+t.dataset.sign);

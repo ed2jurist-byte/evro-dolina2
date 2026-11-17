@@ -6,3 +6,7 @@
 !payment_qr.png
 !data/
 !data/**
+!qr/
+!qr/**
+!docs/
+!docs/**
