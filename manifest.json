@@ -1,0 +1,17 @@
+{
+  "name": "Личный кабинет КП Европейская долина 2",
+  "short_name": "ЕД-2 Кабинет",
+  "description": "Личный кабинет собственника КП «Европейская долина 2»",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#f4f6f4",
+  "theme_color": "#1b5e20",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
