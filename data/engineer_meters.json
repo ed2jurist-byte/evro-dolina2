@@ -3463,5 +3463,16 @@
   "t3_cur": null,
   "t3_prev": null,
   "note": "Октябрь 2026"
+ },
+ {
+  "lot": "21",
+  "date": "2026-10-01",
+  "t1_cur": null,
+  "t1_prev": null,
+  "t2_cur": 326.0,
+  "t2_prev": 324.0,
+  "t3_cur": null,
+  "t3_prev": null,
+  "note": "Октябрь 2026"
  }
 ]
