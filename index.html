@@ -519,28 +519,15 @@ function loadDebts(){
     if(!r.ok) throw 0; return r.text();
   }).then(function(txt){
     var rows=[];
+    txt = txt.replace(/^\ufeff/, '');
     txt.split(/\r?\n/).forEach(function(line){
       line=line.trim(); if(!line) return;
       var c=line.split(";"); if(c.length<4) return;
-      var lotOrFio=c[0].trim();
+      var lotOrFio=c[0].trim().replace(/^\ufeff/,'');
       if(/участок|лицевой|сумма/i.test(lotOrFio)) return;
-      
       var sum=parseFloat(c[3].replace(/\s/g,"").replace(",","."));
       if(!isFinite(sum)||sum<=0) return;
-
-      var finalLot = lotOrFio;
-      if (!/^[0-9\/Эоч]+$/i.test(lotOrFio)) { 
-        var searchFio = lotOrFio.toLowerCase().replace(/[^а-яёa-z\s]/g, ''); 
-        var matchedLot = (D.lots || []).find(function(l) {
-          var lFio = (l.fio || "").toLowerCase().replace(/[^а-яёa-z\s]/g, '');
-          return lFio.includes(searchFio) || searchFio.includes(lFio.split(' ')[0]);
-        });
-        if (matchedLot) {
-          finalLot = matchedLot.lot; 
-        }
-      }
-
-      rows.push({lot:finalLot, srv:c[1].trim(), per:c[2].trim(), sum:sum, st:(c[4]||"Задолженность").trim(), qr:(c[5]||"").trim()});
+      rows.push({lot:lotOrFio, srv:c[1].trim(), per:c[2].trim(), sum:sum, st:(c[4]||"Задолженность").trim(), qr:(c[5]||"").trim()});
     });
     return rows;
   }).catch(function(){return [];});
