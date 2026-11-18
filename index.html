@@ -528,17 +528,15 @@ function loadDebts(){
       var sum=parseFloat(c[3].replace(/\s/g,"").replace(",","."));
       if(!isFinite(sum)||sum<=0) return;
 
-      // --- НОВАЯ ЛОГИКА: Если вместо участка указано ФИО, ищем участок в реестре ---
       var finalLot = lotOrFio;
-      // Если это не похоже на номер участка (нет слэшей, букв "Э", "оч" и т.д.), считаем что это ФИО
       if (!/^[0-9\/Эоч]+$/i.test(lotOrFio)) { 
-        var searchFio = lotOrFio.toLowerCase().replace(/[^а-яёa-z\s]/g, ''); // Очищаем от знаков
+        var searchFio = lotOrFio.toLowerCase().replace(/[^а-яёa-z\s]/g, ''); 
         var matchedLot = (D.lots || []).find(function(l) {
           var lFio = (l.fio || "").toLowerCase().replace(/[^а-яёa-z\s]/g, '');
           return lFio.includes(searchFio) || searchFio.includes(lFio.split(' ')[0]);
         });
         if (matchedLot) {
-          finalLot = matchedLot.lot; // Подменяем ФИО на номер участка
+          finalLot = matchedLot.lot; 
         }
       }
 
@@ -548,11 +546,34 @@ function loadDebts(){
   }).catch(function(){return [];});
 }
 function loadAll(){
-  Promise.all([getJSON("meta",{}),getJSON("company",{}),getJSON("lots",[]),
-               getJSON("tasks",{}),getJSON("docs",{}),getJSON("news",[]),
-               loadDebts(),getJSON("engineer_meters",[])])
-  .then(function(r){
-    D.meta=r[0];D.company=r[1];D.lots=r[2];D.tasks=r[3];D.docs=r[4];D.news=r[5];D.debts=r[6];D.elec_meters=r[7];
+  Promise.all([
+    getJSON("meta",{}),
+    getJSON("company",{}),
+    getJSON("lots",[]),
+    getJSON("tasks",{}),
+    getJSON("docs",{}),
+    getJSON("news",[]),
+    loadDebts(),
+    getJSON("engineer_meters",[])
+  ]).then(function(r){
+    D.meta=r[0]||{};
+    D.company=r[1]||{};
+    D.lots=r[2]||[];
+    D.tasks=r[3]||{};
+    D.docs=r[4]||{};
+    D.news=r[5]||[];
+    D.debts=r[6]||[];
+    D.elec_meters=r[7]||[];
+    
+    // ЗАЩИТА ОТ ОШИБОК ФОРМАТА
+    if(!Array.isArray(D.news)) D.news = [];
+    if(!Array.isArray(D.debts)) D.debts = [];
+    if(!Array.isArray(D.elec_meters)) D.elec_meters = [];
+    if(!Array.isArray(D.lots)) D.lots = [];
+
+    renderAll();
+  }).catch(function(err){
+    console.error("Критическая ошибка загрузки:", err);
     renderAll();
   });
 }
@@ -613,7 +634,7 @@ function renderTasks(){
       t.push({cls:x.priority==="danger"?"danger":"urgent",tab:x.tab,title:x.title,sub:x.sub});
     });
     var month=new Date().toISOString().slice(0,7);
-    if(!readings().some(function(r){return (r.date||"").indexOf(month)===0;}))
+    if(!readings().some(function(r){return (r.date||"").indexOf(month)===0;})) 
       t.push({cls:"urgent",tab:"meters",title:"Передайте показания за текущий месяц",sub:"Рекомендуемый срок — до 25 числа"});
     var unsigned=docsForLot().filter(function(d){return !d.signed;});
     if(unsigned.length)
@@ -687,7 +708,6 @@ function genLetter(){
 }
 
 /* ---------- показания электросчётчика (только чтение) ---------- */
-/* ---------- показания электросчётчика (только чтение) ---------- */
 function renderElecMeters(){
   var el = $("e_list");
   var p = prof();
@@ -697,8 +717,14 @@ function renderElecMeters(){
     return;
   }
 
-  var rows = (D.elec_meters || []).filter(function(x){
-    return p && lotMatch(x.lot, p.lot);
+  // ЗАЩИТА: если вдруг D.elec_meters не массив — превращаем в пустой массив
+  var elecData = D.elec_meters;
+  if (!Array.isArray(elecData)) {
+      elecData = [];
+  }
+
+  var rows = elecData.filter(function(x){
+    return x && lotMatch(x.lot, p.lot);
   });
 
   if(!rows.length){
@@ -706,11 +732,11 @@ function renderElecMeters(){
     return;
   }
 
-  el.innerHTML = "<table><thead><tr><th>Дата</th><th>Т1 (день)</th><th>Т2 (ночь)</th><th>Примечание</th></tr></thead><tbody>" +
+  el.innerHTML="<table><thead><tr><th>Дата</th><th>Т1 (день)</th><th>Т2 (ночь)</th><th>Примечание</th></tr></thead><tbody>"+
     rows.slice().reverse().map(function(x){
-      return "<tr><td>" + esc(x.date || "—") + "</td><td><b>" + esc(x.t1_cur != null ? x.t1_cur : "—") + "</b></td>" +
-        "<td><b>" + esc(x.t2_cur != null ? x.t2_cur : "—") + "</b></td><td>" + esc(x.note || "—") + "</td></tr>";
-    }).join("") + "</tbody></table>";
+      return "<tr><td>"+esc(x.date||"—")+"</td><td><b>"+esc(x.t1_cur!=null?x.t1_cur:"—")+"</b></td>"+
+        "<td><b>"+esc(x.t2_cur!=null?x.t2_cur:"—")+"</b></td><td>"+esc(x.note||"—")+"</td></tr>";
+    }).join("")+"</tbody></table>";
 }
 
 /* ---------- пропуска: тарифы и памятка ---------- */
@@ -809,14 +835,16 @@ function signConfirm(i){
 /* ---------- новости ---------- */
 function renderNews(){
   // 1. Вывод во вкладку "Документы" (все новости)
-  $("news").innerHTML=(D.news||[]).map(function(n){
+  var nws = D.news;
+  if(!Array.isArray(nws)) nws = [];
+  $("news").innerHTML=nws.map(function(n){
     return "<div class='item'><b>"+esc(n.title)+"</b><span class='badge'>Новости</span><br>"+
       "<span style='color:#666;font-size:.8rem'>"+esc(n.date)+"</span><p style='margin-top:6px'>"+esc(n.text).replace(/\n/g,"<br>")+"</p></div>";}).join("");
 
   // 2. Вывод в блок "⚠️ Важно" на Главной (только новости с important: true)
   var importantBox = $("important-notices");
   if(importantBox){
-    var impNews = (D.news||[]).filter(function(n){ return n.important === true; });
+    var impNews = nws.filter(function(n){ return n.important === true; });
     if(impNews.length > 0){
       importantBox.innerHTML = impNews.map(function(n){
         return "<div style='margin-bottom:10px; padding-bottom:10px; border-bottom:1px solid #ffe0b2;'>"+
@@ -846,7 +874,7 @@ function renderDebts(){
   tableBlock.style.display="block";
 
   var b=$("d_body");
-  if(!D.debts.length){b.innerHTML="<tr><td colspan='4' style='text-align:center;color:#666'>Реестр ожидает выгрузки бухгалтерией.</td></tr>";return;}
+  if(!D.debts || !Array.isArray(D.debts) || !D.debts.length){b.innerHTML="<tr><td colspan='4' style='text-align:center;color:#666'>Реестр ожидает выгрузки бухгалтерией.</td></tr>";return;}
 
   var mine=D.debts.filter(function(d){return lotMatch(d.lot,p.lot);});
   if(!mine.length){
@@ -894,34 +922,35 @@ function go(tab){
   window.scrollTo({top:0,behavior:"smooth"});
 }
 function renderAll(){
-  renderCompany();renderTasks();renderReadings();renderElecMeters();renderTariffs();
-  renderIssues();renderDocs();renderNews();renderDebts();
-  var p=prof();
+  // Каждый блок обернут в try...catch, чтобы ошибка в одном не ломала остальные
+  try { renderCompany(); } catch(e) { console.error("Ошибка в Компании:", e); }
+  try { renderTasks(); } catch(e) { console.error("Ошибка в Задачах:", e); }
+  try { renderReadings(); } catch(e) { console.error("Ошибка в Воде:", e); }
+  try { renderDebts(); } catch(e) { console.error("Ошибка в Долгах:", e); } 
+  try { renderTariffs(); } catch(e) { console.error("Ошибка в Тарифах:", e); }
+  try { renderIssues(); } catch(e) { console.error("Ошибка в Обращениях:", e); }
+  try { renderDocs(); } catch(e) { console.error("Ошибка в Документах:", e); }
+  try { renderNews(); } catch(e) { console.error("Ошибка в Новостях:", e); }
+  try { renderElecMeters(); } catch(e) { console.error("Ошибка в Счетчиках:", e); }
+
+  var p = prof();
   if(p){ 
-    // Восстановление основных полей профиля
-    if($("r_fio")) $("r_fio").value = p.fio || "";
-    if($("r_lot")) $("r_lot").value = p.lot || "";
-    if($("r_cad")) $("r_cad").value = p.cad || "";
-    if($("r_tel")) $("r_tel").value = p.tel || "";
-    if($("r_addr")) $("r_addr").value = p.addr || "";
-    if($("r_addr_base")) $("r_addr_base").value = p.addr_base || "";
-    if($("r_mail")) $("r_mail").value = p.mail || "";
+    try {
+      if($("r_fio")) $("r_fio").value = p.fio || "";
+      if($("r_lot")) $("r_lot").value = p.lot || "";
+      if($("r_cad")) $("r_cad").value = p.cad || "";
+      if($("r_tel")) $("r_tel").value = p.tel || "";
+      if($("r_addr")) $("r_addr").value = p.addr || "";
+      if($("r_addr_base")) $("r_addr_base").value = p.addr_base || "";
+      if($("r_mail")) $("r_mail").value = p.mail || "";
 
-    // Восстановление данных договора Мосэнергосбыта
-    $("r_mosenergo").value=p.mosenergo||"";
-    $("r_mosenergo_num").value=p.mosenergo_num||"";
-    $("r_mosenergo_date").value=p.mosenergo_date||"";
-    $("r_mosenergo_details").style.display=(p.mosenergo==="yes")?"block":"none";
-    
-    // Восстановление чекбоксов
-    $("r_c1").checked=!!p.c1;$("r_c2").checked=!!p.c2;$("r_c3").checked=!!p.c3;
-
-    // Показываем статус в форме регистрации
-    var msgBox = $("reg_msg");
-    if (msgBox) {
-      msgBox.className = "msg ok";
-      msgBox.textContent = "Вы вошли в кабинет. Статус: " + (p.id_status || "Идентифицирован по реестру");
-    }
+      $("r_mosenergo").value=p.mosenergo||"";
+      $("r_mosenergo_num").value=p.mosenergo_num||"";
+      $("r_mosenergo_date").value=p.mosenergo_date||"";
+      $("r_mosenergo_details").style.display=(p.mosenergo==="yes")?"block":"none";
+      
+      $("r_c1").checked=!!p.c1;$("r_c2").checked=!!p.c2;$("r_c3").checked=!!p.c3;
+    } catch(e) { console.error("Ошибка формы:", e); }
   }
 }
 
@@ -939,7 +968,7 @@ document.getElementById("r_mosenergo").addEventListener("change", function() {
 
 document.addEventListener("click", function(e) {  
   var t=e.target.closest("[data-tab],[data-go],[data-sign],[data-confirm]");
-  if(!t) return; // <--- ДОБАВИТЬ ЭТУ СТРОКУ
+  if(!t) return;
   if(t.dataset.tab) go(t.dataset.tab);
   else if(t.dataset.go) go(t.dataset.go);
   else if(t.dataset.sign!==undefined) signRequest(+t.dataset.sign);
@@ -1004,3 +1033,5 @@ window.addEventListener("beforeunload", function() {
   localStorage.setItem("ed2_session_end", endStr);
 });
 </script>
+</body>
+</html>
