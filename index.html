@@ -162,32 +162,14 @@ footer{text-align:center;font-size:.8rem;color:var(--muted);padding:22px 10px}
     <h2>💧 Показания счётчиков воды</h2>
     <p style="font-size:.87rem;color:var(--muted)">Рекомендуемый срок передачи показаний — до 25 числа ежемесячно.</p>
     
-    <!-- Блок со ссылкой на Яндекс.Форму для передачи показаний -->
-    <div class="note" style="background: #fff3e0; border-left-color: var(--amber); margin-bottom: 16px; padding: 12px;">
-      <b style="color: #e65100;">Удобнее через форму?</b><br>
-      Вы можете передать показания ХВС через нашу официальную форму. Это займет 1 минуту.
-      <br>
-      <a href="https://forms.yandex.ru/u/6afe02459029026f2ec3f73f" target="_blank" class="btn" style="margin-top: 8px; display: inline-block; padding: 10px 18px; text-decoration: none; background-color: #ef6c00; color: white; border-radius: 8px; font-weight: 600;">
-        📝 Передать показания через форму
+    <!-- Блок со ссылкой на Яндекс.Форму -->
+    <div class="note" style="background: #fff3e0; border-left-color: var(--amber); margin-bottom: 16px; padding: 16px; text-align: center;">
+      <b style="color: #e65100; font-size: 1.05rem;">Передача показаний</b><br>
+      <p style="margin: 8px 0; font-size: 0.9rem;">Для передачи показаний счётчиков ХВС, пожалуйста, воспользуйтесь официальной формой.</p>
+      <a href="https://forms.yandex.ru/u/6afe02459029026f2ec3f73f" target="_blank" class="btn" style="display: inline-block; padding: 12px 24px; text-decoration: none; background-color: #ef6c00; color: white; border-radius: 8px; font-weight: 600; font-size: 1rem;">
+        📝 Открыть форму передачи показаний
       </a>
     </div>
-
-    <div class="row">
-      <div><label>Тип счётчика</label>
-        <input id="m_type" value="ХВС (холодная вода)" readonly>
-      </div>
-      <div><label>Дата снятия *</label><input id="m_date" type="date"></div>
-    </div>
-    <div class="row">
-    <div><label>Текущее показание *</label><input id="m_cur" type="number" step="0.01" min="0"></div>
-    <div><label>Предыдущее показание</label><input id="m_prev" type="number" step="0.01" min="0"></div>
-    <div><label>Итого за период</label><input id="m_diff" type="text" readonly style="background:#f0f4f8;font-weight:bold;color:#1b5e20"></div>
-    </div>
-    <label>Заводской номер / примечание</label><input id="m_note">
-    <label style="margin-top:10px">Прикрепить фото счётчика</label>
-    <input id="m_photo" type="file" accept="image/*">
-    <button class="btn" id="btn_meter" style="margin-top:12px">Сохранить показание</button>
-    <div class="msg" id="m_msg"></div>
   </div>
 
   <div class="card">
@@ -1037,7 +1019,9 @@ document.addEventListener("click", function(e) {
   else if(t.dataset.confirm!==undefined) signConfirm(+t.dataset.confirm);
 });
 $("btn_save").onclick=saveProfile; $("btn_clear").onclick=clearProfile;
-$("btn_meter").onclick=addReading; $("btn_csv").onclick=exportCSV; $("btn_letter").onclick=genLetter;
+// $("btn_meter").onclick=addReading; // Форма передачи удалена, используем Яндекс.Форму
+$("btn_csv").onclick=exportCSV; 
+$("btn_letter").onclick=genLetter;
 $("btn_issue").onclick=addIssue; $("btn_export").onclick=exportJSON; $("btn_copy").onclick=copyJSON;
 $("btn_copy_phone").onclick=copyPhone;
 $("m_date").valueAsDate=new Date();
