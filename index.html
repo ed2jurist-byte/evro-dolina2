@@ -689,11 +689,10 @@ function calcWaterDiff(){
   }
 }
 
-document.addEventListener("DOMContentLoaded", function(){
-  var curInput = $("m_cur");
-  var prevInput = $("m_prev");
-  if(curInput) curInput.addEventListener("input", calcWaterDiff);
-  if(prevInput) prevInput.addEventListener("input", calcWaterDiff);
+document.addEventListener("input", function(e){
+  if(e.target.id === "m_cur" || e.target.id === "m_prev"){
+    calcWaterDiff();
+  }
 });
 
 function calcWaterDiff(){
