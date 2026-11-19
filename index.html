@@ -696,6 +696,33 @@ function calcWaterDiff(){
   }
 }
 
+document.addEventListener("DOMContentLoaded", function(){
+  var curInput = $("m_cur");
+  var prevInput = $("m_prev");
+  if(curInput) curInput.addEventListener("input", calcWaterDiff);
+  if(prevInput) prevInput.addEventListener("input", calcWaterDiff);
+});
+
+function calcWaterDiff(){
+  var cur = parseFloat($("m_cur").value);
+  var prev = $("m_prev").value === "" ? null : parseFloat($("m_prev").value);
+  var diffEl = $("m_diff");
+  if(!diffEl) return;
+  if(isNaN(cur) || cur < 0){ diffEl.value = ""; return; }
+  if(prev === null || isNaN(prev)){ diffEl.value = ""; return; }
+  var diff = cur - prev;
+  if(diff < 0){
+    diffEl.value = "⚠ Текущее < предыдущего";
+    diffEl.style.color = "#d9534f";
+  } else if(diff === 0){
+    diffEl.value = "0 (расхода нет)";
+    diffEl.style.color = "#f0ad4e";
+  } else {
+    diffEl.value = diff.toFixed(2);
+    diffEl.style.color = "#1b5e20";
+  }
+}
+
 $("m_cur").addEventListener("input", calcWaterDiff);
 $("m_prev").addEventListener("input", calcWaterDiff);
 function renderReadings(){
