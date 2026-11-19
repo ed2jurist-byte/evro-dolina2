@@ -291,19 +291,8 @@ footer{text-align:center;font-size:.8rem;color:var(--muted);padding:22px 10px}
 <section id="issues">
   <div class="card">
     <h2>Заявка / обращение в ООО «ЭК «ЕД-2»</h2>
-    <div class="row">
-      <div><label>Категория *</label><select id="i_cat">
-        <option>Дороги и чистка снега</option><option>Уличное освещение</option>
-        <option>Водоснабжение / канализация</option><option>Электроснабжение</option>
-        <option>Благоустройство и мусор</option><option>Охрана / КПП</option>
-        <option>Бухгалтерия и начисления</option><option>Прочее</option></select></div>
-      <div><label>Приоритет</label><select id="i_prio">
-        <option>Обычный</option><option>Срочный (аварийная ситуация)</option></select></div>
-    </div>
-    <label>Кратко о проблеме *</label><input id="i_title">
-    <label>Подробное описание *</label><textarea id="i_text" placeholder="Место, время, обстоятельства"></textarea>
-    <button class="btn" id="btn_issue">Отправить заявку</button>
-    <div class="msg" id="i_msg"></div>
+    <p style="font-size:.88rem;color:var(--muted)">Приём обращений ведётся через официальную форму Яндекс Формы «Обращения собственников ЕД2». Нажмите кнопку, заполните поля и отправьте — заявка поступит в УК автоматически.</p>
+    <a class="btn" href="https://forms.yandex.ru/u/6aff10e0b9e5ca834449b9b3" target="_blank" rel="noopener">📝 Перейти к форме обращения</a>
     <div class="note">Обращения с юридическими требованиями автоматически выделяются для юротдела.</div>
   </div>
   <div class="card"><h2>Журнал обращений</h2><div id="i_list"></div></div>
@@ -312,10 +301,14 @@ footer{text-align:center;font-size:.8rem;color:var(--muted);padding:22px 10px}
 <section id="docs">
   <div class="card">
     <h2>Документы по вашему участку</h2>
-    <div class="note warn"><b>Демонстрационный режим подписания.</b> Юридически значимое подписание — в офисе ООО «ЭК «ЕД-2». Статус «Подписано» появится после подтверждения ООО «ЭК «ЕД-2».</div>
+    <div class="note warn"><b>Подписание через Яндекс Форму.</b> Нажмите «Подписать через Яндекс Форму», заполните форму «Подтверждение подписания документов – ЕД2» (ФИО, участок, кадастр, № и дата документа, код подтверждения, файл PDF). Статус «Подписано» появится после подтверждения ООО «ЭК «ЕД-2».</div>
     <div id="doc_list"></div>
+    <div id="doc_unauth_block" style="display:none; margin-top:14px; text-align:center;">
+      <p style="font-size:.9rem; color:var(--muted); margin-bottom:10px;">Для просмотра документов по вашему участку пройдите регистрацию.</p>
+      <a class="btn" href="https://forms.yandex.ru/u/6aff18eb28697b4ecb544905" target="_blank" rel="noopener" style="text-decoration:none">📄 Подписать через Яндекс Форму</a>
+    </div>
   </div>
-  <div class="card"><h2>Новости посёлка</h2><div id="news"></div></div>
+  <div class="card"><h2>Новости и опрос</h2><div id="news"></div><div id="poll" class="item"></div></div>
 </section>
 
 <section id="debts">
@@ -815,23 +808,7 @@ function copyPhone(){
 
 /* ---------- обращения ---------- */
 function issues(){var l=myLot();return loadArr("ed2_issues").filter(function(r){return l&&lotMatch(r.lot,l);});}
-function addIssue(){
-  var p=prof(); if(!p) return show("i_msg","err","Сначала пройдите регистрацию.");
-  var title=$("i_title").value.trim(),text=$("i_text").value.trim();
-  if((title+" "+text).length<10) return show("i_msg","err","Опишите проблему подробнее (минимум 10 символов).");
-  if(/(дурак|идиот|говн|мраз)/i.test(title+" "+text))
-    return show("i_msg","err","Пожалуйста, сформулируйте обращение без оскорблений.");
-  var legal=/суд|прокуратур|жалоб|иск|претенз/i.test(title+" "+text);
-  var all=loadArr("ed2_issues");
-  all.push({id:"REQ-"+Math.floor(10000+Math.random()*90000),date:new Date().toLocaleDateString("ru-RU"),
-            cat:$("i_cat").value,prio:$("i_prio").value,title:title,text:text,
-            lot:p.lot,cad:p.cad,fio:p.fio,legal_risk:legal,
-            status:legal?"Передано юротделу":"В очереди обработки"});
-  saveArr("ed2_issues",all);
-  $("i_title").value="";$("i_text").value="";
-  show("i_msg","ok","Обращение зарегистрировано. Выгрузите пакет JSON, чтобы передать его в ООО «ЭК «ЕД-2».");
-  renderIssues();
-}
+
 function renderIssues(){
   var l=issues(),el=$("i_list");
   if(!l.length){el.innerHTML="<p style='color:#666;font-size:.9rem'>Обращений пока нет.</p>";return;}
@@ -855,29 +832,21 @@ function docsForLot(){
 }
 function renderDocs(){
   var el=$("doc_list"),docs=docsForLot();
-  if(!prof()){el.innerHTML="<p style='color:#666;font-size:.9rem'>Пройдите регистрацию, чтобы увидеть документы по участку.</p>";return;}
+  var unauthBlock=$("doc_unauth_block");
+  if(!prof()){
+    el.innerHTML="<p style='color:#666;font-size:.9rem'>Пройдите регистрацию, чтобы увидеть документы по участку.</p>";
+    if(unauthBlock) unauthBlock.style.display="block";
+    return;
+  }
+  if(unauthBlock) unauthBlock.style.display="none";
   if(!docs.length){el.innerHTML="<p style='color:#666;font-size:.9rem'>Документов по вашему участку нет.</p>";return;}
   el.innerHTML=docs.map(function(d,i){
     return "<div class='item'><b>"+esc(d.title)+"</b>"+
       (d.signed?"<span class='badge'>Подтверждено</span>":"<span class='badge amber'>Ожидает подписи</span>")+"<br>"+
       "<span style='color:#666;font-size:.8rem'>№ "+esc(d.id)+" от "+esc(d.date)+"</span>"+
-            (d.status === "Подписано" || d.signed ? 
-        ("<div style='margin-top:6px;font-size:.82rem;color:#1b5e20'>✓ "+(d.stamp || "Подтверждено")+"</div>" +
-         (d.url ? "<div style='margin-top:8px'><a href='"+esc(d.url)+"' target='_blank' class='btn outline' style='display:inline-block;margin:0;padding:8px 14px;text-decoration:none;'>📄 Скачать документ</a></div>" : "")) :
-       "<div style='margin-top:8px'><button class='btn outline' style='margin:0' data-sign='"+i+"'>Подтвердить подписание</button>"+
-       "<div id='sg_"+i+"' style='display:none;margin-top:8px'>"+
-       "<div style='font-size:.83rem;color:#666'>Демо-код подтверждения: <b>1234</b></div>"+
-       "<div style='display:flex;gap:8px;max-width:320px;margin-top:6px'>"+
-       "<input id='sc_"+i+"' maxlength='4' placeholder='Код'><button class='btn' style='margin:0' data-confirm='"+i+"'>OK</button></div></div></div>")+
+      (d.signed?"<div style='margin-top:6px;font-size:.82rem;color:#1b5e20'>✓ "+esc(d.stamp)+"</div>":
+       "<div style='margin-top:8px'><a class='btn outline' style='margin:0' href='https://forms.yandex.ru/u/6aff18eb28697b4ecb544905' target='_blank' rel='noopener'>Подписать через Яндекс Форму</a></div>")+
       "</div>";}).join("");
-}
-function signRequest(i){var b=$("sg_"+i);if(b)b.style.display="block";}
-function signConfirm(i){
-  var docs=docsForLot(),p=prof();
-  if(($("sc_"+i).value||"").trim()!=="1234") return alert("Неверный код. В демо-режиме введите 1234.");
-  var arr=loadArr(signedKey());
-  arr.push({id:docs[i].id,stamp:"Подтверждение направлено в ООО «ЭК «ЕД-2» ("+p.fio+", уч. №"+p.lot+", кадастр "+p.cad+") "+new Date().toLocaleString("ru-RU")});
-  saveArr(signedKey(),arr);renderDocs();renderTasks();
 }
 
 /* ---------- новости ---------- */
@@ -1014,19 +983,19 @@ document.getElementById("r_mosenergo").addEventListener("change", function() {
   }
 });
 
-document.addEventListener("click", function(e) {  
-  var t=e.target.closest("[data-tab],[data-go],[data-sign],[data-confirm]");
+document.addEventListener("click",function(e){
+  var t=e.target.closest("[data-tab],[data-go],[data-vote]");
   if(!t) return;
   if(t.dataset.tab) go(t.dataset.tab);
   else if(t.dataset.go) go(t.dataset.go);
-  else if(t.dataset.sign!==undefined) signRequest(+t.dataset.sign);
-  else if(t.dataset.confirm!==undefined) signConfirm(+t.dataset.confirm);
+  else if(t.dataset.vote!==undefined) vote(+t.dataset.vote);
 });
+
 $("btn_save").onclick=saveProfile; $("btn_clear").onclick=clearProfile;
 // $("btn_meter").onclick=addReading; // Форма передачи удалена, используем Яндекс.Форму
 $("btn_csv").onclick=exportCSV; 
 $("btn_letter").onclick=genLetter;
-$("btn_issue").onclick=addIssue; $("btn_export").onclick=exportJSON; $("btn_copy").onclick=copyJSON;
+$("btn_export").onclick=exportJSON; $("btn_copy").onclick=copyJSON;
 $("btn_copy_phone").onclick=copyPhone;
 if($("m_date")) $("m_date").valueAsDate=new Date();
 if($("p_date")) $("p_date").valueAsDate=new Date();
