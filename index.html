@@ -778,11 +778,16 @@ function renderElecMeters(){
     return;
   }
 
-  el.innerHTML="<table><thead><tr><th>Дата</th><th>Т1 (день)</th><th>Т2 (ночь)</th><th>Примечание</th></tr></thead><tbody>"+
-    rows.slice().reverse().map(function(x){
-      return "<tr><td>"+esc(x.date||"—")+"</td><td><b>"+esc(x.t1_cur!=null?x.t1_cur:"—")+"</b></td>"+
-        "<td><b>"+esc(x.t2_cur!=null?x.t2_cur:"—")+"</b></td><td>"+esc(x.note||"—")+"</td></tr>";
-    }).join("")+"</tbody></table>";
+  el.innerHTML="<table><thead><tr><th>Дата</th><th>T1 (день)</th><th>T2 (ночь)</th><th>Δ T1</th><th>Δ T2</th><th>Примечание</th></tr></thead><tbody>"+
+rows.slice().reverse().map(function(x){
+    var t1d = x.t1_diff!=null ? esc(x.t1_diff) : "—";
+    var t2d = x.t2_diff!=null ? esc(x.t2_diff) : "—";
+    return "<tr><td>"+esc(x.date||"—")+"</td><td><b>"+esc(x.t1_cur!=null?x.t1_cur:"—")+"</b></td>"+
+        "<td><b>"+esc(x.t2_cur!=null?x.t2_cur:"—")+"</b></td>"+
+        "<td style='color:"+(x.t1_diff!=null?"#1b5e20":"#999")+";font-weight:bold'>"+t1d+"</td>"+
+        "<td style='color:"+(x.t2_diff!=null?"#1b5e20":"#999")+";font-weight:bold'>"+t2d+"</td>"+
+        "<td>"+esc(x.note||"—")+"</td></tr>";
+}).join("")+"</tbody></table>";
 }
 
 /* ---------- пропуска: тарифы и памятка ---------- */
