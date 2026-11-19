@@ -1028,7 +1028,8 @@ $("btn_csv").onclick=exportCSV;
 $("btn_letter").onclick=genLetter;
 $("btn_issue").onclick=addIssue; $("btn_export").onclick=exportJSON; $("btn_copy").onclick=copyJSON;
 $("btn_copy_phone").onclick=copyPhone;
-$("m_date").valueAsDate=new Date();
+if($("m_date")) $("m_date").valueAsDate=new Date();
+if($("p_date")) $("p_date").valueAsDate=new Date();
 $("r_lot").addEventListener("change",function(){
   var c=findLotCard(this.value);
   if(c){ if(c.cadastre) $("r_cad").value=c.cadastre; if(c.addr_short) $("r_addr").value=c.addr_short; }
