@@ -168,8 +168,9 @@ footer{text-align:center;font-size:.8rem;color:var(--muted);padding:22px 10px}
       <div><label>Дата снятия *</label><input id="m_date" type="date"></div>
     </div>
     <div class="row">
-      <div><label>Текущее показание *</label><input id="m_cur" type="number" step="0.01" min="0"></div>
-      <div><label>Предыдущее показание</label><input id="m_prev" type="number" step="0.01" min="0"></div>
+    <div><label>Текущее показание *</label><input id="m_cur" type="number" step="0.01" min="0"></div>
+    <div><label>Предыдущее показание</label><input id="m_prev" type="number" step="0.01" min="0"></div>
+    <div><label>Итого за период</label><input id="m_diff" type="text" readonly style="background:#f0f4f8;font-weight:bold;color:#1b5e20"></div>
     </div>
     <label>Заводской номер / примечание</label><input id="m_note">
     <label style="margin-top:10px">Прикрепить фото счётчика</label>
@@ -644,28 +645,59 @@ function addReading(){
   var p=prof(); if(!p) return show("m_msg","err","Сначала пройдите регистрацию.");
   var cur=parseFloat($("m_cur").value), prev=$("m_prev").value===""?null:parseFloat($("m_prev").value);
   if(isNaN(cur)||cur<0) return show("m_msg","err","Введите корректное текущее показание.");
-  if(prev!==null&&cur<prev) return show("m_msg","err","Текущее показание меньше предыдущего.");
-
-  var photoFile = $("m_photo").files[0];
-  var saveData = function(photoBase64) {
-    var all=loadArr("ed2_meters");
-    all.push({id:Date.now(),date:$("m_date").value,type:$("m_type").value,cur:cur,prev:prev,
-              note:$("m_note").value.trim(), photo: photoBase64 || null, lot:p.lot,cad:p.cad,fio:p.fio});
-    saveArr("ed2_meters",all);
-    $("m_cur").value="";$("m_prev").value="";$("m_note").value="";$("m_photo").value="";
-    show("m_msg","ok","Показание и фото сохранены. Выгрузите CSV или пакет JSON для ООО «ЭК «ЕД-2».");
+  if(prev!==null&&cur<=prev) return show("m_msg","err","Текущее показание должно быть больше предыдущего ("+prev+").");
+  var rid=Date.now();
+  var all=loadArr("ed2_meters");
+  all.push({id:rid,date:$("m_date").value,type:$("m_type").value,cur:cur,prev:prev,
+    note:$("m_note").value.trim(),lot:p.lot,cad:p.cad,fio:p.fio,sent:true});
+  saveArr("ed2_meters",all);
+  var fd=new URLSearchParams();
+  fd.append("ID записи", rid);
+  fd.append("Номер участка", p.lot);
+  fd.append("ФИО собственника", p.fio);
+  fd.append("Кадастровый номер", p.cad);
+  fd.append("Тип счётчика:", $("m_type").value);
+  fd.append("Дата снятия показаний", $("m_date").value);
+  fd.append("Текущее показание", cur);
+  fd.append("Предыдущее показание", prev!=null?prev:"");
+  fd.append("Заводской номер / примечание", $("m_note").value.trim());
+  fetch("https://forms.yandex.ru/u/6afe02459029026f2ec3f73f",{
+    method:"POST",
+    headers:{"Content-Type":"application/x-www-form-urlencoded"},
+    body:fd.toString()
+  }).then(function(r){
+    if(!r.ok) throw 0;
+    $("m_cur").value="";$("m_prev").value="";$("m_note").value="";
+    show("m_msg","ok","Показание отправлено в Эксплуатационную компанию. Статус появится в таблице.");
     renderReadings();renderTasks();
-  };
+  }).catch(function(){
+    show("m_msg","ok","Показание сохранено в кабинете. Отправьте его повторно позже или выгрузите пакет для Эксплуатационной компании.");
+    renderReadings();renderTasks();
+  });
+}
 
-  if(photoFile){
-    if(photoFile.size > 2 * 1024 * 1024) return show("m_msg","err","Фото слишком большое (макс. 2 МБ).");
-    var reader = new FileReader();
-    reader.onload = function(e) { saveData(e.target.result); };
-    reader.readAsDataURL(photoFile);
+function calcWaterDiff(){
+  var cur = parseFloat($("m_cur").value);
+  var prev = $("m_prev").value === "" ? null : parseFloat($("m_prev").value);
+  var diffEl = $("m_diff");
+  if(!diffEl) return;
+  if(isNaN(cur) || cur < 0){ diffEl.value = ""; return; }
+  if(prev === null || isNaN(prev)){ diffEl.value = ""; return; }
+  var diff = cur - prev;
+  if(diff < 0){
+    diffEl.value = "⚠ Текущее < предыдущего";
+    diffEl.style.color = "#d9534f";
+  } else if(diff === 0){
+    diffEl.value = "0 (расхода нет)";
+    diffEl.style.color = "#f0ad4e";
   } else {
-    saveData(null);
+    diffEl.value = diff.toFixed(2);
+    diffEl.style.color = "#1b5e20";
   }
 }
+
+$("m_cur").addEventListener("input", calcWaterDiff);
+$("m_prev").addEventListener("input", calcWaterDiff);
 function renderReadings(){
   var r=readings(),el=$("m_list");
   if(!r.length){el.innerHTML="<p style='color:#666;font-size:.9rem'>Показаний пока нет.</p>";return;}
