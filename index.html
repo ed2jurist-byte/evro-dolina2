@@ -149,14 +149,7 @@ footer{text-align:center;font-size:.8rem;color:var(--muted);padding:22px 10px}
     <div id="requisites" style="font-size:.87rem"></div>
   </div>
 
-  <div class="card">
-    <h2>Передача данных в ООО «ЭК «ЕД-2»</h2>
-    <p style="font-size:.86rem;color:var(--muted)">Кабинет работает без сервера: сведения хранятся в вашем браузере. Выгрузите пакет и направьте его в ООО «ЭК «ЕД-2» для обработки.</p>
-    <button class="btn gray" id="btn_export">Выгрузить пакет JSON</button>
-    <button class="btn outline" id="btn_copy">Скопировать JSON</button>
-  </div>
-</section>
-
+  
 <section id="meters">
   <div class="card">
     <h2>💧 Показания счётчиков воды</h2>
@@ -292,7 +285,7 @@ footer{text-align:center;font-size:.8rem;color:var(--muted);padding:22px 10px}
   <div class="card">
     <h2>Заявка / обращение в ООО «ЭК «ЕД-2»</h2>
     <p style="font-size:.88rem;color:var(--muted)">Приём обращений ведётся через официальную форму Яндекс Формы «Обращения собственников ЕД2». Нажмите кнопку, заполните поля и отправьте — заявка поступит в УК автоматически.</p>
-    <a class="btn" href="https://forms.yandex.ru/u/6aff10e0b9e5ca834449b9b3" target="_blank" rel="noopener">📝 Перейти к форме обращения</a>
+         <a class="btn" style="display:inline-block;margin-top:12px" href="https://forms.yandex.ru/u/6aff10e0b9e5ca834449b9b3" target="_blank" rel="noopener">📝 Перейти к форме обращения</a>
     <div class="note">Обращения с юридическими требованиями автоматически выделяются для юротдела.</div>
   </div>
   <div class="card"><h2>Журнал обращений</h2><div id="i_list"></div></div>
@@ -301,7 +294,9 @@ footer{text-align:center;font-size:.8rem;color:var(--muted);padding:22px 10px}
 <section id="docs">
   <div class="card">
     <h2>Документы по вашему участку</h2>
-    <div class="note warn"><b>Подписание через Яндекс Форму.</b> Нажмите «Подписать через Яндекс Форму», заполните форму «Подтверждение подписания документов – ЕД2» (ФИО, участок, кадастр, № и дата документа, код подтверждения, файл PDF). Статус «Подписано» появится после подтверждения ООО «ЭК «ЕД-2».</div>
+         <div class="note warn"><b>Подписание через Яндекс Форму.</b> Нажмите «Подписать через Яндекс Форму», заполните форму «Подтверждение подписания документов – ЕД2» (ФИО, участок, кадастр, № и дата документа, код подтверждения, файл PDF). Статус «Подписано» появится после подтверждения ООО «ЭК «ЕД-2».</div>
+    <div class="note" id="docs_flow_note">📤 После отправки через Яндекс Форму статус документа автоматически меняется на <b>«Отправлено»</b> (ожидает подтверждения ООО «ЭК «ЕД-2»). Если статус не обновился — нажмите «Я отправил(а) форму» под документом.</div>
+    <div id="doc_list"></div>
     <div id="doc_list"></div>
     <div id="doc_unauth_block" style="display:none; margin-top:14px; text-align:center;">
       <p style="font-size:.9rem; color:var(--muted); margin-bottom:10px;">Для просмотра документов по вашему участку пройдите регистрацию.</p>
@@ -483,10 +478,12 @@ function saveProfile(){
   show("reg_msg","ok","Регистрация завершена. Статус: "+p.id_status+".");
   renderAll();
 }
-function clearProfile(){
-  localStorage.removeItem("ed2_profile");
-  localStorage.removeItem("ed2_meters");
-  localStorage.removeItem("ed2_elec_meters");
+ function clearProfile(){
+   var sk=sentKey();
+   localStorage.removeItem("ed2_profile");
+   localStorage.removeItem("ed2_meters");
+   localStorage.removeItem("ed2_elec_meters");
+   localStorage.removeItem(sk);
   ["r_fio","r_lot","r_cad","r_addr","r_tel","r_mail","r_mosenergo_num","r_mosenergo_date"].forEach(function(i){$(i).value="";});
   $("r_mosenergo").value="";
   $("r_c1").checked=false;$("r_c2").checked=false;$("r_c3").checked=false;
@@ -744,41 +741,41 @@ function genLetter(){
 }
 
 /* ---------- показания электросчётчика (только чтение) ---------- */
-function renderElecMeters(){
-  var el = $("e_list");
-  var p = prof();
-
-  if(!p){
-    el.innerHTML = "<p style='color:#666;font-size:.9rem'>Пройдите регистрацию, чтобы увидеть показания по вашему участку.</p>";
-    return;
-  }
-
-  // ЗАЩИТА: если вдруг D.elec_meters не массив — превращаем в пустой массив
-  var elecData = D.elec_meters;
-  if (!Array.isArray(elecData)) {
-      elecData = [];
-  }
-
-  var rows = elecData.filter(function(x){
-    return x && lotMatch(x.lot, p.lot);
-  });
-
-  if(!rows.length){
-    el.innerHTML = "<p style='color:#666;font-size:.9rem'>Показания по участку №" + esc(p.lot) + " пока не опубликованы.</p>";
-    return;
-  }
-
-  el.innerHTML="<table><thead><tr><th>Дата</th><th>T1 (день)</th><th>T2 (ночь)</th><th>Δ T1</th><th>Δ T2</th><th>Примечание</th></tr></thead><tbody>"+
-rows.slice().reverse().map(function(x){
-    var t1d = x.t1_diff!=null ? esc(x.t1_diff) : "—";
-    var t2d = x.t2_diff!=null ? esc(x.t2_diff) : "—";
-    return "<tr><td>"+esc(x.date||"—")+"</td><td><b>"+esc(x.t1_cur!=null?x.t1_cur:"—")+"</b></td>"+
-        "<td><b>"+esc(x.t2_cur!=null?x.t2_cur:"—")+"</b></td>"+
-        "<td style='color:"+(x.t1_diff!=null?"#1b5e20":"#999")+";font-weight:bold'>"+t1d+"</td>"+
-        "<td style='color:"+(x.t2_diff!=null?"#1b5e20":"#999")+";font-weight:bold'>"+t2d+"</td>"+
-        "<td>"+esc(x.note||"—")+"</td></tr>";
-}).join("")+"</tbody></table>";
-}
+ /* ---------- показания электросчётчика (только чтение) ---------- */
+ function renderElecMeters(){
+   var el = $("e_list");
+   var p = prof();
+   if(!p){
+     el.innerHTML = "<p style='color:#666;font-size:.9rem'>Пройдите регистрацию, чтобы увидеть показания по вашему участку.</p>";
+     return;
+   }
+   // ЗАЩИТА: если вдруг D.elec_meters не массив — превращаем в пустой массив
+   var elecData = D.elec_meters;
+   if (!Array.isArray(elecData)) {
+       elecData = [];
+   }
+   var rows = elecData.filter(function(x){
+     return x && lotMatch(x.lot, p.lot);
+   });
+   if(!rows.length){
+     el.innerHTML = "<p style='color:#666;font-size:.9rem'>Показания по участку №" + esc(p.lot) + " пока не опубликованы.</p>";
+     return;
+   }
+   el.innerHTML="<table><thead><tr><th>Период</th><th>Т1 (предыдущие)</th><th>Т2 (предыдущие)</th><th>Т1 (текущие)</th><th>Т2 (текущие)</th><th>Разница</th></tr></thead><tbody>"+
+ rows.slice().reverse().map(function(x){
+     var period = esc(x.note || x.date || "—");
+     var t1p = x.t1_prev!=null ? esc(x.t1_prev) : "—";
+     var t2p = x.t2_prev!=null ? esc(x.t2_prev) : "—";
+     var t1c = x.t1_cur!=null ? esc(x.t1_cur) : "—";
+     var t2c = x.t2_cur!=null ? esc(x.t2_cur) : "—";
+     var parts=[];
+     if(x.t1_diff!=null) parts.push("ΔT1: "+esc(x.t1_diff));
+     if(x.t2_diff!=null) parts.push("ΔT2: "+esc(x.t2_diff));
+     var diff = parts.length ? parts.join(" · ") : "—";
+     return "<tr><td>"+period+"</td><td>"+t1p+"</td><td>"+t2p+"</td><td><b>"+t1c+"</b></td><td><b>"+t2c+"</b></td>"+
+         "<td style='color:"+(parts.length?"#1b5e20":"#999")+";font-weight:bold'>"+diff+"</td></tr>";
+ }).join("")+"</tbody></table>";
+ }
 
 /* ---------- пропуска: тарифы и памятка ---------- */
 var TARIFFS=[
@@ -821,33 +818,45 @@ function renderIssues(){
 }
 
 /* ---------- документы ---------- */
-function signedKey(){return "ed2_signed_"+(myLot()||"guest");}
-function docsForLot(){
-  var p=prof(); if(!p) return [];
-  var signed=loadArr(signedKey());
-  return pickByLot(D.docs,p.lot).map(function(d){
-    var s=signed.filter(function(x){return x.id===d.id;})[0];
-    return {id:d.id,title:d.title,date:d.date,signed:!!s,stamp:s?s.stamp:""};
-  });
-}
-function renderDocs(){
-  var el=$("doc_list"),docs=docsForLot();
-  var unauthBlock=$("doc_unauth_block");
-  if(!prof()){
-    el.innerHTML="<p style='color:#666;font-size:.9rem'>Пройдите регистрацию, чтобы увидеть документы по участку.</p>";
-    if(unauthBlock) unauthBlock.style.display="block";
-    return;
-  }
-  if(unauthBlock) unauthBlock.style.display="none";
-  if(!docs.length){el.innerHTML="<p style='color:#666;font-size:.9rem'>Документов по вашему участку нет.</p>";return;}
-  el.innerHTML=docs.map(function(d,i){
-    return "<div class='item'><b>"+esc(d.title)+"</b>"+
-      (d.signed?"<span class='badge'>Подтверждено</span>":"<span class='badge amber'>Ожидает подписи</span>")+"<br>"+
-      "<span style='color:#666;font-size:.8rem'>№ "+esc(d.id)+" от "+esc(d.date)+"</span>"+
-      (d.signed?"<div style='margin-top:6px;font-size:.82rem;color:#1b5e20'>✓ "+esc(d.stamp)+"</div>":
-       "<div style='margin-top:8px'><a class='btn outline' style='margin:0' href='https://forms.yandex.ru/u/6aff18eb28697b4ecb544905' target='_blank' rel='noopener'>Подписать через Яндекс Форму</a></div>")+
-      "</div>";}).join("");
-}
+ function signedKey(){return "ed2_signed_"+(myLot()||"guest");}
+ function sentKey(){return "ed2_sent_"+(myLot()||"guest");}
+ function markDocSent(docId){var arr=loadArr(sentKey());if(arr.indexOf(docId)<0){arr.push(docId);saveArr(sentKey(),arr);}}
+ function unmarkDocSent(docId){var arr=loadArr(sentKey()).filter(function(x){return x!==docId;});saveArr(sentKey(),arr);}
+ function docsForLot(){
+   var p=prof(); if(!p) return [];
+   var signed=loadArr(signedKey());
+   var sent=loadArr(sentKey());
+   return pickByLot(D.docs,p.lot).map(function(d){
+     var s=signed.filter(function(x){return x.id===d.id;})[0];
+     return {id:d.id,title:d.title,date:d.date,signed:!!s,stamp:s?s.stamp:"",sent:sent.indexOf(d.id)>=0};
+   });
+ }
+ function renderDocs(){
+   var el=$("doc_list"),docs=docsForLot();
+   var unauthBlock=$("doc_unauth_block");
+   if(!prof()){
+     el.innerHTML="<p style='color:#666;font-size:.9rem'>Пройдите регистрацию, чтобы увидеть документы по участку.</p>";
+     if(unauthBlock) unauthBlock.style.display="block";
+     return;
+   }
+   if(unauthBlock) unauthBlock.style.display="none";
+   if(!docs.length){el.innerHTML="<p style='color:#666;font-size:.9rem'>Документов по вашему участку нет.</p>";return;}
+   el.innerHTML=docs.map(function(d,i){
+     var badge=d.signed?"<span class='badge'>Подтверждено</span>":(d.sent?"<span class='badge amber'>Отправлено</span>":"<span class='badge amber'>Ожидает подписи</span>");
+     var action="";
+     if(d.signed){
+       action="<div style='margin-top:6px;font-size:.82rem;color:#1b5e20'>✓ "+esc(d.stamp)+"</div>";
+     }else if(d.sent){
+       action="<div style='margin-top:6px;font-size:.82rem;color:var(--amber)'>Отправлено через Яндекс Форму, ожидает подтверждения ООО «ЭК «ЕД-2»</div>"+
+         "<div style='margin-top:8px'><button class='btn outline' style='margin:0' data-unmark-id='"+esc(d.id)+"'>Отменить отметку</button></div>";
+     }else{
+       action="<div style='margin-top:8px'><a class='btn outline' style='margin:0;display:inline-block' data-sign-id='"+esc(d.id)+"' href='https://forms.yandex.ru/u/6aff18eb28697b4ecb544905' target='_blank' rel='noopener'>Подписать через Яндекс Форму</a>"+
+         "<button class='btn outline' style='margin:0 0 0 6px;display:inline-block' data-mark-id='"+esc(d.id)+"'>Я отправил(а) форму</button></div>";
+     }
+     return "<div class='item'><b>"+esc(d.title)+"</b>"+badge+"<br>"+
+       "<span style='color:#666;font-size:.8rem'>№ "+esc(d.id)+" от "+esc(d.date)+"</span>"+action+
+       "</div>";}).join("");
+ }
 
 /* ---------- новости ---------- */
 function renderNews(){
@@ -983,19 +992,26 @@ document.getElementById("r_mosenergo").addEventListener("change", function() {
   }
 });
 
-document.addEventListener("click",function(e){
-  var t=e.target.closest("[data-tab],[data-go],[data-vote]");
-  if(!t) return;
-  if(t.dataset.tab) go(t.dataset.tab);
-  else if(t.dataset.go) go(t.dataset.go);
-  else if(t.dataset.vote!==undefined) vote(+t.dataset.vote);
-});
+ document.addEventListener("click",function(e){
+   var t=e.target.closest("[data-tab],[data-go],[data-vote]");
+   if(!t) return;
+   if(t.dataset.tab) go(t.dataset.tab);
+   else if(t.dataset.go) go(t.dataset.go);
+   else if(t.dataset.vote!==undefined) vote(+t.dataset.vote);
+ });
+ /* авто-смена статуса документа: «Ожидает подписи» → «Отправлено» */
+ document.addEventListener("click",function(e){
+   var s=e.target.closest("[data-sign-id],[data-mark-id],[data-unmark-id]");
+   if(!s) return;
+   if(s.dataset.signId!==undefined){markDocSent(s.dataset.signId);setTimeout(renderDocs,400);}
+   else if(s.dataset.markId!==undefined){markDocSent(s.dataset.markId);renderDocs();}
+   else if(s.dataset.unmarkId!==undefined){unmarkDocSent(s.dataset.unmarkId);renderDocs();}
+ });
 
 $("btn_save").onclick=saveProfile; $("btn_clear").onclick=clearProfile;
 // $("btn_meter").onclick=addReading; // Форма передачи удалена, используем Яндекс.Форму
 $("btn_csv").onclick=exportCSV; 
 $("btn_letter").onclick=genLetter;
-$("btn_export").onclick=exportJSON; $("btn_copy").onclick=copyJSON;
 $("btn_copy_phone").onclick=copyPhone;
 if($("m_date")) $("m_date").valueAsDate=new Date();
 if($("p_date")) $("p_date").valueAsDate=new Date();
