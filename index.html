@@ -1,907 +1,907 @@
+# -*- coding: utf-8 -*-
+"""
+╔══════════════════════════════════════════════════════════════════╗
+║  сайт_ЭК_ЕД2.py — публикация личного кабинета КП «Европейская    ║
+║  долина 2» на GitHub Pages (только обезличенные данные, 152-ФЗ)  ║
+║                                                                  ║
+║  ИСТОЧНИКИ ДАННЫХ:                                               ║
+║  1. Реестр: reports_реестр/реестр_собственников_КП_ЕД2_*.xlsx    ║
+║  2. Долги: input_xlsx из Инфокрафта/*.xlsx                       ║
+║  3. Претензии: output_претензии*/READY_TO_SEND.xlsx              ║
+║  4. Соглашения: output_соглашения/MASTER_REPORT_СОГЛАШЕНИЯ.xlsx  ║
+║  5. Показания: input_xlsx из Инфокрафта/показания_инженера.xlsx  ║
+║  6. Голоса: input_кабинет/*.json + входящие_пакеты_собственников ║
+║                                                                  ║
+║  КОМАНДЫ:                                                        ║
+║    python сайт_ЭК_ЕД2.py --with-html --push                      ║
+║    python сайт_ЭК_ЕД2.py              # собрать данные           ║
+║    python сайт_ЭК_ЕД2.py --push       # собрать + опубликовать   ║
+║    python сайт_ЭК_ЕД2.py --check      # только проверка 152-ФЗ   ║
+║    python сайт_ЭК_ЕД2.py --serve      # локальный тест :8000     ║
+║    python сайт_ЭК_ЕД2.py --with-html  # обновить index.html      ║
+║    python сайт_ЭК_ЕД2.py --init       # один раз: связать с GH   ║
+╚══════════════════════════════════════════════════════════════════╝
+"""
+import re, sys, csv, json, shutil, argparse, subprocess, difflib, qrcode
+from datetime import datetime, date
+from pathlib import Path
+from collections import defaultdict
 
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#1b5e20">
-<link rel="manifest" href="manifest.json">
-<link rel="apple-touch-icon" href="icon.svg">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="ЕД-2 Кабинет">
-<title>КП «Европейская долина 2» — личный кабинет собственника</title>
-<style>
-:root{--green:#2e7d32;--gd:#1b5e20;--gl:#e8f5e9;--bg:#f4f6f4;--muted:#666;--red:#c62828;--amber:#ef6c00;--ab:#fff3e0}
-*{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth}
-body{font-family:system-ui,-apple-system,'Segoe UI',Roboto,Arial,sans-serif;background:var(--bg);color:#212121;line-height:1.55}
-header{background:linear-gradient(135deg,var(--gd),var(--green));color:#fff;padding:22px 16px;text-align:center}
-header h1{font-size:1.5rem}header p{opacity:.92;font-size:.9rem;margin-top:4px}
-nav{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;background:var(--gd);padding:10px;position:sticky;top:0;z-index:10}
-nav button{background:transparent;border:1px solid rgba(255,255,255,.35);color:#fff;padding:7px 13px;border-radius:20px;cursor:pointer;font-size:.85rem}
-nav button.active,nav button:hover{background:#fff;color:var(--gd);font-weight:600}
-main{max-width:900px;margin:0 auto;padding:18px 14px}
-section{display:none}section.active{display:block}
-.card{background:#fff;border-radius:12px;padding:18px;margin-bottom:16px;box-shadow:0 1px 4px rgba(0,0,0,.08)}
-h2{font-size:1.15rem;color:var(--gd);margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
-h3{font-size:1rem;margin:14px 0 8px}
-label{display:block;font-size:.83rem;color:var(--muted);margin:10px 0 4px}
-input,select,textarea{width:100%;padding:10px;border:1px solid #ccc;border-radius:8px;font-size:.94rem;font-family:inherit}
-input[readonly], input:disabled{background:#f0f4f0;color:#666}
-textarea{min-height:80px;resize:vertical}
-.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
-@media(max-width:650px){.row,.grid3{grid-template-columns:1fr}}
-.btn{background:var(--green);color:#fff;border:none;padding:10px 18px;border-radius:8px;font-size:.92rem;cursor:pointer;margin:12px 6px 0 0}
-.btn:hover{background:var(--gd)}.btn.gray{background:#546e7a}.btn.outline{background:transparent;border:1px solid var(--green);color:var(--gd)}
-.msg{margin-top:12px;padding:10px;border-radius:8px;font-size:.88rem;display:none}
-.msg.ok{display:block;background:var(--gl);border:1px solid var(--green);color:var(--gd)}
-.msg.err{display:block;background:#ffebee;border:1px solid var(--red);color:var(--red)}
-.note{font-size:.82rem;color:var(--muted);background:#f0f4f0;border-left:3px solid var(--green);padding:10px;border-radius:0 8px 8px 0;margin-top:12px}
-.warn{border-left-color:var(--red);background:#fdf0f0;color:#7f1d1d}
-table{width:100%;border-collapse:collapse;font-size:.86rem;margin-top:10px}
-th,td{padding:9px;border-bottom:1px solid #e0e0e0;text-align:left}th{background:#f0f4f0;color:var(--gd)}
-tr.mine{background:var(--gl)}
-.task{display:flex;justify-content:space-between;align-items:center;padding:12px;border:1px solid #e0e0e0;border-radius:10px;margin-bottom:8px;cursor:pointer}
-.task:hover{border-color:var(--green)}
-.task.urgent{background:var(--ab);border-color:#ffb74d}.task.danger{background:#ffebee;border-color:#ef9a9a}.task.done{background:var(--gl);border-color:#a5d6a7}
-.t-title{font-weight:600;font-size:.93rem}.t-sub{font-size:.8rem;color:var(--muted)}
-.item{border:1px solid #e0e0e0;border-radius:8px;padding:12px;margin-top:10px;font-size:.9rem;background:#fafafa}
-.badge{display:inline-block;font-size:.72rem;background:var(--gl);color:var(--gd);border-radius:10px;padding:2px 8px;margin-left:6px;font-weight:600}
-.badge.red{background:#ffebee;color:var(--red)}.badge.amber{background:var(--ab);color:var(--amber)}
-.code{font-family:ui-monospace,Consolas,monospace;font-size:1.05rem;letter-spacing:1px;background:#fff;border:1px dashed var(--green);border-radius:8px;padding:8px 10px;display:inline-block;margin-top:6px}
-.chk{margin:14px 0;font-size:.82rem;background:#f9fbf9;padding:12px;border-radius:8px;border:1px solid #e0e8e0}
-.chk label{display:flex;gap:10px;color:#212121;margin-bottom:10px;cursor:pointer}
-.chk input{width:18px;height:18px;flex-shrink:0;margin-top:2px}
-pre{background:#f0f4f0;padding:12px;border-radius:8px;font-size:.84rem;white-space:pre-wrap;margin-top:10px;display:none}
-footer{text-align:center;font-size:.8rem;color:var(--muted);padding:22px 10px}
-.qr-block{text-align:center;margin-top:16px;padding:16px;background:#f9fbf9;border-radius:8px}
-.qr-block img{max-width:200px;height:auto;margin:0 auto;border:1px solid #ddd;border-radius:8px}
-#passes .card{scroll-margin-top:76px}
-.pass-hero{background:linear-gradient(135deg,var(--gd),var(--green));color:#fff}
-.pass-hero h2{color:#fff;margin-bottom:4px}
-.pass-hero-top{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
-.pass-hero-sub{font-size:.85rem;opacity:.92}
-.pass-crest{flex-shrink:0}
-.call-btn{display:inline-flex;align-items:center;gap:8px;background:#fff;color:var(--gd);font-weight:700;text-decoration:none;padding:10px 20px;border-radius:24px;font-size:.95rem;margin-left:auto}
-.call-btn:hover{background:var(--gl)}
-.pass-nav{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px}
-.pass-nav a{color:#fff;text-decoration:none;font-size:.82rem;padding:6px 12px;border-radius:16px;border:1px solid rgba(255,255,255,.4)}
-.pass-nav a.active{background:#fff;color:var(--gd);font-weight:600}
-.pass-nav a:hover{background:rgba(255,255,255,.15)}
-.guard-alert{background:#ffebee;border:1px solid #ef9a9a;color:#b71c1c;border-radius:10px;padding:12px 14px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px}
-.guard-grid{display:grid;grid-template-columns:1.15fr 1fr;gap:16px}
-@media(max-width:750px){.guard-grid{grid-template-columns:1fr}}
-.mini-steps{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px}
-@media(max-width:650px){.mini-steps{grid-template-columns:repeat(2,1fr)}}
-.mini-step{background:#fff;border:1px solid #e0e8e0;border-radius:8px;padding:10px;font-size:.78rem}
-.mini-step b{display:block;color:var(--gd);font-size:1rem}
-.call-panel{background:#f0f7f0;border:1px solid #c8e6c9;border-radius:12px;padding:16px;text-align:center}
-.pulse{display:inline-flex;align-items:center;gap:8px;font-size:.82rem;color:var(--gd);font-weight:600}
-.pulse-dot{width:10px;height:10px;border-radius:50%;background:var(--green);animation:pulse 1.6s infinite}
-@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(46,125,50,.5)}70%{box-shadow:0 0 0 10px rgba(46,125,50,0)}100%{box-shadow:0 0 0 0 rgba(46,125,50,0)}}
-.big-phone{font-size:1.65rem;font-weight:800;color:var(--gd);letter-spacing:.5px;margin:8px 0 4px;text-decoration:none;display:block}
-.meta-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px;text-align:left}
-.meta-cell{background:#fff;border:1px solid #e0e8e0;border-radius:8px;padding:10px;font-size:.78rem}
-.meta-cell b{display:block;color:var(--gd);margin-bottom:2px;font-size:.72rem;text-transform:uppercase;letter-spacing:.4px}
-.data-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
-@media(max-width:650px){.data-cards{grid-template-columns:1fr}}
-.data-card{border:1px solid #e0e8e0;border-radius:10px;padding:14px;background:#f9fbf9;font-size:.87rem}
-.data-card b{color:var(--gd)}
-.data-card .ex{display:block;margin-top:6px;font-size:.8rem;color:var(--muted);background:#fff;border:1px dashed #a5d6a7;border-radius:6px;padding:8px}
-.except-box{margin-top:16px;background:var(--gl);border:1px solid #a5d6a7;border-radius:10px;padding:12px 14px;font-size:.85rem}
-.order-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:8px}
-@media(max-width:750px){.order-steps{grid-template-columns:1fr}}
-.order-step{background:#fff;border:1px solid #e0e8e0;border-radius:10px;padding:16px 12px 12px;font-size:.84rem;position:relative;margin-top:10px}
-.order-step .num{position:absolute;top:-13px;left:12px;background:var(--green);color:#fff;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.85rem}
-.pay-warn{background:#fff3e0;border:1px solid #ffb74d;color:#e65100;border-radius:10px;padding:12px 14px;font-weight:600;margin-top:12px;font-size:.88rem}
-</style>
-<base target="_self">
-</head>
-<body>
-<header>
-  <h1 id="h_set">КП «Европейская долина 2»</h1>
-  <p id="h_org">ООО «ЭК «ЕД-2» — личный кабинет собственника</p>
-  <div style="font-size: 0.85rem; opacity: 0.9; margin-top: 8px;">
-    <span id="header_time">--:--:--</span> | <span id="header_date">--.--.----</span>
-  </div>
-</header>
-<nav id="nav">
-  <button data-tab="home" class="active">Главная</button>
-  <button data-tab="meters">Счётчики</button>
-  <button data-tab="passes">Пропуска</button>
-  <button data-tab="issues">Обращения</button>
-  <button data-tab="docs">Документы</button>
-  <button data-tab="debts">Задолженности</button>
-  <button data-tab="reg">Регистрация</button>
-</nav>
-<main>
-<section id="home" class="active">
-  <div class="card">
-    <h2><span>Центр задач</span><span id="user_badge" style="font-size:.82rem;font-weight:400;color:var(--muted)">Гость</span></h2>
-    <div id="tasks"></div>
-    <h3>Быстрые действия</h3>
-    <div class="grid3">
-      <button class="btn outline" style="margin:0" data-go="meters">Передать показания</button>
-      <button class="btn outline" style="margin:0" data-go="passes">Заказать пропуск</button>
-      <button class="btn outline" style="margin:0" data-go="issues">Создать обращение</button>
-    </div>
-    <div class="note" id="freshness">Данные загружаются…</div>
-  </div>
-  <div class="card" style="border-left: 4px solid var(--amber);">
-    <h2>⚠️ Важно</h2>
-    <div id="important-notices">
-      <p style="color: var(--muted); font-style: italic;">Объявлений пока нет.</p>
-    </div>
-  </div>
-  <div class="card"><h2>Контакты и режим работы</h2><div id="contacts" style="font-size:.88rem"></div></div>
-  <div class="card">
-    <h2>Реквизиты ООО «ЭК «ЕД-2»</h2>
-    <div id="requisites" style="font-size:.87rem"></div>
-  </div>
-</section>
-<section id="meters">
-  <div class="card">
-    <h2>💧 Показания счётчиков воды</h2>
-    <p style="font-size:.87rem;color:var(--muted)">Рекомендуемый срок передачи показаний — до 25 числа ежемесячно.</p>
-    <div class="note" style="background: #fff3e0; border-left-color: var(--amber); margin-bottom: 16px; padding: 16px; text-align: center;">
-      <b style="color: #e65100; font-size: 1.05rem;">Передача показаний</b><br>
-      <p style="margin: 8px 0; font-size: 0.9rem;">Для передачи показаний счётчиков ХВС, пожалуйста, воспользуйтесь официальной формой.</p>
-      <a href="https://forms.yandex.ru/u/6afe02459029026f2ec3f73f" target="_blank" class="btn" style="display: inline-block; padding: 12px 24px; text-decoration: none; background-color: #ef6c00; color: white; border-radius: 8px; font-weight: 600; font-size: 1rem;">
-        📝 Открыть форму передачи показаний
-      </a>
-    </div>
-  </div>
-  <div class="card">
-    <h2>📜 История показаний воды</h2>
-    <div class="note" style="background:#e8f5e9; border-left-color:#2e7d32; margin-bottom:12px">
-      Показания, переданные через Яндекс Форму, обрабатываются главным инженером и отображаются здесь в сводном виде (аналогично разделу электросчётчиков). Функции локального экспорта отключены.
-    </div>
-    <div id="m_list"></div>
-  </div>
-  <div class="card" id="elec_meter_block">
-    <h2>⚡ Показания электросчётчика</h2>
-    <div class="note">
-      Сведения публикуются Главным инженером ООО «ЭК «ЕД-2» для собственников, которые имеют прямые договора с АО «Мосэнергосбыт». Чтобы увидеть свои показания, убедитесь, что в разделе «Регистрация» вы указали наличие прямого договора, а также внесли его номер и дату.
-    </div>
-    <div id="e_list" style="margin-top:10px"></div>
-  </div>
-</section>
-<section id="passes">
-  <div class="card pass-hero">
-    <div class="pass-hero-top">
-      <div class="pass-crest">
-        <svg viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="Герб КП «Европейская долина 2»">
-          <path d="M32 3 L58 12 V32 C58 48 46 57 32 62 C18 57 6 48 6 32 V12 Z" fill="#ffffff" opacity=".95"/>
-          <path d="M32 8 L53 15.5 V32 C53 45 43 52.5 32 56.5 C21 52.5 11 45 11 32 V15.5 Z" fill="#2e7d32"/>
-          <text x="32" y="40" text-anchor="middle" font-size="20" fill="#ffffff" font-weight="800" font-family="system-ui,Arial">ЕД</text>
-        </svg>
-      </div>
-      <div>
-        <h2>Пропуска и въезд на территорию</h2>
-        <p class="pass-hero-sub">КП «Европейская долина 2» · ООО «ЭК «ЕД-2» · КПП: пер. 4-й Дунайский, 21</p>
-      </div>
-      <a class="call-btn" href="tel:+79855473300">📞 Позвонить на КПП</a>
-    </div>
-    <nav class="pass-nav" id="pass_nav">
-      <a href="#pv_guard" class="active" target="_self" onclick="event.preventDefault();document.getElementById('pv_guard').scrollIntoView({behavior:'smooth',block:'start'})">Охрана</a>
-      <a href="#pv_data" target="_self" onclick="event.preventDefault();document.getElementById('pv_data').scrollIntoView({behavior:'smooth',block:'start'})">Данные для звонка</a>
-      <a href="#pv_tariffs" target="_self" onclick="event.preventDefault();document.getElementById('pv_tariffs').scrollIntoView({behavior:'smooth',block:'start'})">Тарифы</a>
-      <a href="#pv_pay" target="_self" onclick="event.preventDefault();document.getElementById('pv_pay').scrollIntoView({behavior:'smooth',block:'start'})">Оплата</a>
-      <a href="#pv_order" target="_self" onclick="event.preventDefault();document.getElementById('pv_order').scrollIntoView({behavior:'smooth',block:'start'})">Порядок</a>
-      <a href="#pv_questions" target="_self" onclick="event.preventDefault();document.getElementById('pv_questions').scrollIntoView({behavior:'smooth',block:'start'})">Вопросы</a>
-    </nav>
-  </div>
-  <div class="card" id="pv_guard">
-    <h2>Въезд на территорию оформляет охрана КПП</h2>
-    <div class="guard-alert">⛔ Онлайн-заявки отключены</div>
-    <div class="guard-grid">
-      <div>
-        <div class="mini-steps">
-          <div class="mini-step"><b>1</b>Позвоните на КПП</div>
-          <div class="mini-step"><b>2</b>Назовите ФИО, авто, дату</div>
-          <div class="mini-step"><b>3</b>Грузовой — оплатите тариф</div>
-          <div class="mini-step"><b>4</b>Охрана подтвердит въезд</div>
-        </div>
-      </div>
-      <div class="call-panel">
-        <span class="pulse"><span class="pulse-dot"></span> круглосуточно</span>
-        <a class="big-phone" href="tel:+79855473300">+7 (985) 547-33-00</a>
-        <button class="btn outline" id="btn_copy_phone" style="margin:4px 0 0">Скопировать номер</button>
-        <div class="meta-grid">
-          <div class="meta-cell"><b>Когда звонить</b>Круглосуточно, без выходных</div>
-          <div class="meta-cell"><b>Что назвать</b>ФИО гостя, госномер авто, дата визита</div>
-          <div class="meta-cell"><b>Грузовой</b>Платно — по тарифам (приказ № 11/01)</div>
-          <div class="meta-cell"><b>Адрес КПП</b>пер. 4-й Дунайский, 21</div>
-        </div>
-      </div>
-    </div>
-  </div>
-  <div class="card" id="pv_data">
-    <h2>01 · Данные для звонка</h2>
-    <div class="data-cards">
-      <div class="data-card"><b>ФИО гостя</b><span class="ex">Пример: Иванов Иван Иванович</span></div>
-      <div class="data-card"><b>Госномер с регионом</b><span class="ex">Пример: А123АА799</span></div>
-      <div class="data-card"><b>Дата визита</b><span class="ex">Пример: 20.11.2026</span></div>
-    </div>
-    <div class="note">Назовите охране три параметра: ФИО гостя, госномер автомобиля и дату визита. Для грузового транспорта — уточните тариф по телефону КПП.</div>
-  </div>
-  <div class="card" id="pv_tariffs">
-    <h2>02 · Тарифы (приказ № 11/01)</h2>
-    <table>
-      <thead><tr><th>Категория ТС</th><th>Въезд</th><th>Стоянка суточная</th><th>Стоянка месячная</th></tr></thead>
-      <tbody id="t_body"></tbody>
-    </table>
-    <div class="except-box"><b>Бесплатно:</b> доставка Яндекс / Озон / Лемана Про и экстренные службы.</div>
-  </div>
-  <div class="card" id="pv_pay">
-    <h2>03 · Оплата</h2>
-    <div class="qr-block">
-      <p style="font-size:.9rem; margin-bottom:10px; font-weight:600;">QR-код для оплаты</p>
-      <img src="payment_qr.png" alt="QR-код для оплаты" style="max-width:200px;height:auto;margin:0 auto;border:1px solid #ddd;border-radius:8px;display:block;">
-      <p style="font-size:.8rem; color:var(--muted); margin-top:8px;">Отсканируйте код для быстрой оплаты через банковское приложение</p>
-    </div>
-    <div class="pay-warn">⚠️ Оплата не заменяет звонок — въезд оформляет охрана КПП: +7 (985) 547-33-00</div>
-  </div>
-  <div class="card" id="pv_order">
-    <h2>04 · Порядок въезда</h2>
-    <div class="order-steps">
-      <div class="order-step"><span class="num">1</span>Позвоните на КПП +7 (985) 547-33-00</div>
-      <div class="order-step"><span class="num">2</span>Продиктуйте 3 пункта: ФИО, госномер, дата визита</div>
-      <div class="order-step"><span class="num">3</span>Если грузовой — оплатите по тарифу</div>
-    </div>
-  </div>
-  <div class="card" id="pv_questions">
-    <h2>05 · Вопросы</h2>
-    <div class="item">
-      <p><b>Куда обращаться по спорным ситуациям на КПП?</b><br>
-      <span style="color:var(--muted)">К Управляющему посёлка: +7 (965) 294-40-00</span></p>
-    </div>
-  </div>
-</section>
-<section id="issues">
-  <div class="card">
-    <h2>Заявка / обращение в ООО «ЭК «ЕД-2»</h2>
-    <p style="font-size:.88rem;color:var(--muted)">Приём обращений ведётся через официальную форму «Обращения собственников ЕД2». Нажмите кнопку, заполните поля и отправьте — заявка поступит в ООО «ЭК «ЕД-2» автоматически.</p>
-    <a class="btn" style="display:inline-block;margin-top:12px" href="https://forms.yandex.ru/u/6aff10e0b9e5ca834449b9b3" target="_blank" rel="noopener">📝 Перейти к форме обращения</a>
-    <div class="note">Обращения с юридическими требованиями автоматически выделяются для юротдела.</div>
-  </div>
-  <div class="card"><h2>Журнал обращений</h2><div id="i_list"></div></div>
-</section>
-<section id="docs">
-  <div class="card">
-    <h2>Документы по вашему участку</h2>
-    <div class="note warn"><b>Подписание через Яндекс Форму.</b> Нажмите «Подписать через Яндекс Форму», заполните форму «Подтверждение подписания документов – ЕД2» (ФИО, участок, кадастр, № и дата документа, код подтверждения, файл PDF). Статус «Подписано» появится после подтверждения ООО «ЭК «ЕД-2».</div>
-    <div class="note" id="docs_flow_note">📤 После отправки через Яндекс Форму статус документа автоматически меняется на <b>«Отправлено»</b> (ожидает подтверждения ООО «ЭК «ЕД-2»). Если статус не обновился — нажмите «Я отправил(а) форму» под документом.</div>
-    <div id="doc_list"></div>
-    <div id="doc_unauth_block" style="display:none; margin-top:14px; text-align:center;">
-      <p style="font-size:.9rem; color:var(--muted); margin-bottom:10px;">Для просмотра документов по вашему участку пройдите регистрацию.</p>
-      <a class="btn" href="https://forms.yandex.ru/u/6aff18eb28697b4ecb544905" target="_blank" rel="noopener" style="text-decoration:none">📄 Подписать через Яндекс Форму</a>
-    </div>
-  </div>
-  <div class="card"><h2>Новости и опрос</h2><div id="news"></div><div id="poll" class="item"></div></div>
-</section>
-<section id="debts">
-  <div class="card">
-    <h2>Реестр задолженностей</h2>
-    <div class="note warn"><b>152-ФЗ:</b> публикуются только данные вашего участка. ФИО, телефоны, e-mail и иные персональные данные не размещаются.</div>
-    <div id="debts_auth_block"></div>
-    <div class="note" id="debts_date"></div>
-    <div id="debts_table_block" style="display:none">
-      <table><thead><tr><th>Услуга</th><th>Период</th><th>Сумма, ₽</th><th>Статус</th></tr></thead>
-        <tbody id="d_body"><tr><td colspan="4" style="text-align:center;color:#666">Загрузка…</td></tr></tbody></table>
-      <div class="note">Если списка нет — задолженность не зафиксирована. Сверка начислений: бухгалтерия ООО «ЭК «ЕД-2».</div>
-    </div>
-  </div>
-</section>
-<section id="reg">
-  <div class="card">
-    <h2>Регистрация и идентификация собственника</h2>
-    <div class="note">Все поля обязательны. Данные сверяются с реестром собственников по <b>публичным</b> сведениям (участок, кадастровый номер, адрес). ФИО, e-mail и телефон в открытый доступ не публикуются.</div>
-    <div class="row">
-      <div><label>Фамилия Имя Отчество (полностью) *</label><input id="r_fio" placeholder="Иванов Иван Иванович"></div>
-      <div><label>№ участка *</label><input id="r_lot" list="lots_list" placeholder="например, 115/1"><datalist id="lots_list"></datalist></div>
-    </div>
-    <div class="row">
-      <div><label>Кадастровый номер участка *</label><input id="r_cad" placeholder="77:22:0020229:1072"></div>
-      <div><label>Контактный телефон *</label><input id="r_tel" placeholder="+7 (900) 000-00-00"></div>
-    </div>
-    <label>Адрес участка — постоянная часть (заполняется автоматически)</label>
-    <input id="r_addr_base" readonly>
-    <label>Адрес участка — переулок/улица и дом *</label>
-    <input id="r_addr" placeholder="пер. 1-й Моравский, 2/2">
-    <label>Действующий e-mail *</label><input id="r_mail" type="email" placeholder="you@mail.ru">
-    <div class="row" style="margin-top:14px; align-items: start;">
-      <div>
-        <label>Есть ли у вас прямой договор с АО «Мосэнергосбыт»? *</label>
-        <select id="r_mosenergo" required>
-          <option value="">— не знаю / не заполнено —</option>
-          <option value="no">Нет, оплачиваю через ООО «ЭК «ЕД-2»</option>
-          <option value="yes">Да, есть прямой договор</option>
-        </select>
-      </div>
-      <div id="r_mosenergo_details" style="display:none; background:#e8f5e9; border:1px solid #a5d6a7; border-radius:8px; padding:12px;">
-        <div style="font-size:0.82rem; color:var(--gd); font-weight:600; margin-bottom:8px;">Укажите данные прямого договора</div>
-        <label>Номер договора *</label>
-        <input id="r_mosenergo_num" placeholder="например, 77-12345/2024">
-        <label style="margin-top:8px">Дата заключения *</label>
-        <input id="r_mosenergo_date" type="date">
-      </div>
-    </div>
-    <div class="note" style="margin-top:8px">
-      <b>Зачем это нужно:</b> собственники без прямого договора с Мосэнергосбыт получают показания общего счётчика от инженера ООО «ЭК «ЕД-2». После подтверждения наличия прямого договора в вашем личном кабинете появится возможность прикрепить скан и передавать показания напрямую в Мосэнергосбыт.
-    </div>
-    <div class="chk">
-      <label><input type="checkbox" id="r_c1"><span><b>Согласие на обработку персональных данных (152-ФЗ).</b> Даю согласие ООО «ЭК «Европейская Долина-2» (ИНН 7751167800, КПП 770501001; фактический адрес: 108825, г. Москва, вн. тер. г. муниципальный округ Краснопахорский, пер. 4-й Дунайский, 21 — КПП КП «Европейская долина 2») на обработку следующих данных: <b>фамилия, имя, отчество; номер земельного участка; кадастровый номер участка; адрес участка; действующий адрес электронной почты; номер телефона</b>, а также сведений о показаниях приборов учёта, заявках и пропусках. Цель — идентификация собственника, ведение расчётов, информирование о задолженности и услугах, рассмотрение обращений. Действия: сбор, запись, систематизация, накопление, хранение, уточнение, использование, передача (предоставление уполномоченным лицам ООО «ЭК «ЕД-2»), блокирование, удаление, уничтожение. Согласие действует до его отзыва путём направления письма на ed2.jurist@ya.ru либо нажатия кнопки «Очистить профиль».</span></label>
-      <label><input type="checkbox" id="r_c2"><span><b>Политика обработки данных.</b> Ознакомлен с Политикой обработки персональных данных ООО «ЭК «ЕД-2». Кабинет использует локальное хранилище браузера (localStorage); сторонние счётчики, cookie и внешние сервисы не применяются, данные не передаются третьим лицам автоматически.</span></label>
-      <label><input type="checkbox" id="r_c3"><span><b>Достоверность сведений.</b> Подтверждаю, что указанные сведения достоверны, я являюсь собственником (либо уполномоченным представителем собственника) указанного земельного участка и несу ответственность за достоверность предоставленных данных.</span></label>
-    </div>
-    <button class="btn" id="btn_save">Зарегистрироваться</button>
-    <button class="btn gray" id="btn_clear">Очистить профиль</button>
-    <div class="msg" id="reg_msg"></div>
-  </div>
-</section>
-</main>
-<footer id="footer">© ООО «ЭК «ЕД-2»</footer>
-<script src="qrcode.min.js"></script>
-<script>
-/* ---------- утилиты ---------- */
-function $(id){return document.getElementById(id);}
-function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){
-  return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];});}
-function show(id,type,text){var e=$(id);e.className="msg "+type;e.textContent=text;}
-function loadArr(k){try{return JSON.parse(localStorage.getItem(k))||[];}catch(e){return [];}}
-function saveArr(k,v){localStorage.setItem(k,JSON.stringify(v));}
-function fmt(n){return new Intl.NumberFormat("ru-RU",{minimumFractionDigits:2,maximumFractionDigits:2}).format(n);}
-function money(n){return new Intl.NumberFormat("ru-RU",{maximumFractionDigits:0}).format(n);}
-/* ---------- участки ---------- */
-function normLot(s){
-  s=String(s||"").toLowerCase();
-  s=s.replace(/\([^)]*\)/g,"");
-  s=s.replace(/\s+\d*\s*оч\.?\s*$/,"");
-  s=s.replace(/(\d)оч\.?$/,"$1");
-  s=s.replace(/^уч\.?\s*№?\s*/,"");
-  return s.replace(/\s+/g,"").trim();
+try:
+    from openpyxl import load_workbook
+except ImportError:
+    print("❌ Установите: pip install openpyxl")
+    sys.exit(1)
+
+# ██ ПУТИ И ПУБЛИКАЦИЯ
+SCRIPT_DIR = Path(__file__).resolve().parent
+ROOT_DIR   = SCRIPT_DIR.parent
+REG_DIR    = ROOT_DIR / "reports_реестр"
+INPUT_DIR  = ROOT_DIR / "input_xlsx из Инфокрафта"
+REPORTS    = ROOT_DIR / "reports"
+CABINET    = ROOT_DIR / "input_кабинет"
+PACKAGES_DIR = ROOT_DIR / "входящие_пакеты_собственников"
+SITE       = ROOT_DIR / "site"
+DATA       = SITE / "data"
+AGREEMENTS_REPORT = ROOT_DIR / "output_соглашения" / "MASTER_REPORT_СОГЛАШЕНИЯ.xlsx"
+AGREEMENTS_DIR = ROOT_DIR / "output_соглашения"
+ENGINEER_METERS_FILE = INPUT_DIR / "показания_инженера.xlsx"
+SITE_URL   = "https://ed2jurist-byte.github.io/evro-dolina2/"
+GIT_REPO   = "https://github.com/ed2jurist-byte/evro-dolina2.git"
+GIT_BRANCH = "main"
+METERS_FILE  = INPUT_DIR / "meters_common.xlsx"
+PERIOD_START = "01.01.2024"
+FUZZY = 0.82
+ACC_RE = re.compile(r"^\d{2}-\d{4,}(?:/[А-Яа-яЁё])?$")
+
+GITIGNORE = """# Публикуем только обезличенные данные личного кабинета
+*
+!.gitignore
+!index.html
+!qrcode.min.js
+!payment_qr.png
+!data/
+!data/**
+!qr/
+!qr/**
+!docs/
+!docs/**
+"""
+
+# ██ РЕКВИЗИТЫ УК
+COMPANY = {
+    "name": "ОБЩЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ \"ЭКСПЛУАТАЦИОННАЯ КОМПАНИЯ \"ЕВРОПЕЙСКАЯ ДОЛИНА-2\"",
+    "short": "ООО «ЭК «ЕД-2»",
+    "settlement": "КП «Европейская долина 2»",
+    "cabinet_url": SITE_URL,
+    "legal_address": "115172, Г.МОСКВА, ВН.ТЕР.Г. МУНИЦИПАЛЬНЫЙ ОКРУГ ТАГАНСКИЙ, УЛ БОЛЬШИЕ КАМЕНЩИКИ, Д. 21/8, ПОДВ. ПОМ.II, КОМ. 1Б",
+    "office_address": "108825, г. Москва, вн. тер. г. муниципальный округ Краснопахорский, пер. 4-й Дунайский, д. 21 (КПП КП «Европейская долина 2»)",
+    "region_prefix": "108825, г. Москва, вн. тер. г. муниципальный округ Краснопахорский",
+    "inn": "7751167800", "kpp": "770501001", "ogrn": "1197746494483",
+    "okved": "68.32.1", "director": "Аникеев Дмитрий Александрович",
+    "egrul_ref": "выписке из ЕГРЮЛ № ЮЭ9965-26-56986964 от 01.04.2026",
+    "account": "40702810938000335019", "bank": "ПАО Сбербанк",
+    "corr": "30101810400000000225", "bik": "044525225",
+    "email_jurist": "ed2.jurist@ya.ru",
+    "email_buh": "ed2.buh@gmail.com",
+    "email_direct": "ed2.direct@gmail.com",
+    "phones": {
+        "Общий": "+7 (901) 586-83-11", "Дежурный / УК": "+7 (925) 228-91-38",
+        "Управляющий": "+7 (965) 294-40-00", "Гл. инженер": "+7 (901) 189-15-24",
+        "КПП (охрана)": "+7 (985) 547-33-00", "Бухгалтерия": "+7 (905) 749-09-99"
+    },
+    "hours": "Пн–Чт 10:00–18:00, Пт 10:00–17:00 (Сб–Вс и праздники — выходные). Приём бухгалтера: Вт, Чт 10:00–18:00",
 }
-function lotVariants(raw){
-  var s=normLot(raw); if(!s) return [];
-  var out=[];
-  s.split(",").forEach(function(p){
-    p=p.trim(); if(!p) return;
-    if(/^\d+\/\d+-\d+\/\d+$/.test(p)){p.split("-").forEach(function(x){out.push(x);});return;}
-    var seg=p.split("/");
-    if(seg.length===3&&seg[0]&&seg[1]&&seg[2]){out.push(seg[0]+"/"+seg[1]);out.push(seg[0]+"/"+seg[2]);}
-    else out.push(p);
-  });
-  return out.filter(function(v,i){return out.indexOf(v)===i;});
-}
-function lotMatch(a,b){
-  var A=lotVariants(a),B=lotVariants(b);
-  return A.some(function(x){return B.indexOf(x)>=0;});
-}
-function pickByLot(obj,lot){
-  var res=[];
-  Object.keys(obj||{}).forEach(function(k){ if(lotMatch(k,lot)) res=res.concat(obj[k]); });
-  return res;
-}
-function findLotCard(lot){
-  var res=null;
-  (D.lots||[]).forEach(function(c){ if(!res&&c&&lotMatch(c.lot,lot)) res=c; });
-  return res;
-}
-function normCad(s){return String(s||"").replace(/\s+/g,"");}
-function normAddr(s){return String(s||"").toLowerCase().replace(/[\s.,]/g,"");}
-/* ---------- профиль ---------- */
-function prof(){try{return JSON.parse(localStorage.getItem("ed2_profile"))||null;}catch(e){return null;}}
-function myLot(){var p=prof();return p?normLot(p.lot):"";}
-function saveProfile(){
-  var p={fio:$("r_fio").value.trim(),lot:$("r_lot").value.trim(),cad:$("r_cad").value.trim(),
-         addr_base:$("r_addr_base").value.trim(),addr:$("r_addr").value.trim(),
-         tel:$("r_tel").value.trim(),mail:$("r_mail").value.trim(),
-         mosenergo:$("r_mosenergo").value,
-         mosenergo_num:$("r_mosenergo_num").value.trim(),
-         mosenergo_date:$("r_mosenergo_date").value,
-         c1:$("r_c1").checked,c2:$("r_c2").checked,c3:$("r_c3").checked,
-         reg_date:new Date().toISOString()};
-    if(!p.fio||!p.lot||!p.cad||!p.addr||!p.tel||!p.mail||!p.mosenergo)
-    return show("reg_msg","err","Заполните все обязательные поля.");
-  if(p.mosenergo === "yes" && (!p.mosenergo_num || !p.mosenergo_date))
-    return show("reg_msg","err","Пожалуйста, укажите номер и дату договора с Мосэнергосбытом.");
-  if(p.fio.split(/\s+/).length<2)
-    return show("reg_msg","err","Укажите фамилию, имя и отчество полностью.");
-  if(!/^\d{2}:\d{2}:\d{6,7}:\d+$/.test(normCad(p.cad)))
-    return show("reg_msg","err","Кадастровый номер указан неверно. Формат: 77:22:0020229:1072.");
-  if(!/\d/.test(p.addr)||p.addr.length<4)
-    return show("reg_msg","err","Укажите адрес участка.");
-  if(!/^[^\s@]+@[^\s@]+\.[a-zA-Zа-яА-Я]{2,}$/.test(p.mail))
-    return show("reg_msg","err","Укажите действующий адрес электронной почты.");
-  if(p.tel.replace(/\D/g,"").length<10)
-    return show("reg_msg","err","Укажите действующий номер телефона.");
-  if(!p.c1||!p.c2||!p.c3)
-    return show("reg_msg","err","Необходимо подтвердить все три отметки.");
-  p.cad=normCad(p.cad);
-  p.addr_full=(p.addr_base?p.addr_base+", ":"")+p.addr;
-  if((D.lots||[]).length){
-    var card=findLotCard(p.lot);
-    if(!card) return show("reg_msg","err","Участок №"+p.lot+" не найден в реестре.");
-    if(card.cadastre&&normCad(card.cadastre)!==p.cad)
-      return show("reg_msg","err","Кадастровый номер не соответствует участку №"+card.lot+".");
-    if(card.addr_short&&normAddr(card.addr_short)!==normAddr(p.addr))
-      return show("reg_msg","err","Адрес участка не совпадает с реестром.");
-    p.id_status="Идентифицирован по реестру";
-    p.lot=card.lot;
-  }else{
-    p.id_status="Ожидает проверки ООО «ЭК «ЕД-2»";
-  }
-  localStorage.setItem("ed2_profile",JSON.stringify(p));
-  show("reg_msg","ok","Регистрация завершена. Статус: "+p.id_status+".");
-  renderAll();
-}
-function clearProfile(){
-  var sk=sentKey();
-  localStorage.removeItem("ed2_profile");
-  localStorage.removeItem("ed2_meters");
-  localStorage.removeItem("ed2_elec_meters");
-  localStorage.removeItem(sk);
-  ["r_fio","r_lot","r_cad","r_addr","r_tel","r_mail","r_mosenergo_num","r_mosenergo_date"].forEach(function(i){$(i).value="";});
-  $("r_mosenergo").value="";
-  $("r_c1").checked=false;$("r_c2").checked=false;$("r_c3").checked=false;
-  $("r_mosenergo_details").style.display="none";
-  show("reg_msg","ok","Профиль и согласие удалены из браузера.");
-  renderAll();
-}
-/* ---------- данные от локального агента ---------- */
-var D={meta:{},company:{},lots:[],tasks:{},docs:{},news:[],debts:[],elec_meters:[]};
-function getJSON(name,fb){
-  return fetch("data/"+name+".json?t="+Date.now())
-    .then(function(r){return r.ok?r.json():fb;}).catch(function(){return fb;});
-}
-function loadDebts(){
-  return fetch("data/debts.csv?t="+Date.now()).then(function(r){
-    if(!r.ok) throw 0; return r.text();
-  }).then(function(txt){
-    var rows=[];
-    txt = txt.replace(/^\ufeff/, '');
-    txt.split(/\r?\n/).forEach(function(line){
-      line=line.trim(); if(!line) return;
-      var c=line.split(";"); if(c.length<4) return;
-      var lotOrFio=c[0].trim().replace(/^\ufeff/,'');
-      if(/участок|лицевой|сумма/i.test(lotOrFio)) return;
-      var sum=parseFloat(c[3].replace(/\s/g,"").replace(",","."));
-      if(!isFinite(sum)||sum<=0) return;
-      rows.push({lot:lotOrFio, srv:c[1].trim(), per:c[2].trim(), sum:sum, st:(c[4]||"Задолженность").trim(), qr:(c[5]||"").trim()});
-    });
-    return rows;
-  }).catch(function(){return [];});
-}
-function loadAll(){
-  Promise.all([
-    getJSON("meta",{}),
-    getJSON("company",{}),
-    getJSON("lots",[]),
-    getJSON("tasks",{}),
-    getJSON("docs",{}),
-    getJSON("news",[]),
-    loadDebts(),
-    getJSON("engineer_meters",[])
-  ]).then(function(r){
-    D.meta=r[0]||{};
-    D.company=r[1]||{};
-    D.lots=r[2]||[];
-    D.tasks=r[3]||{};
-    D.docs=r[4]||{};
-    D.news=r[5]||[];
-    D.debts=r[6]||[];
-    D.elec_meters=r[7]||[];
-    if(!Array.isArray(D.news)) D.news = [];
-    if(!Array.isArray(D.debts)) D.debts = [];
-    if(!Array.isArray(D.elec_meters)) D.elec_meters = [];
-    if(!Array.isArray(D.lots)) D.lots = [];
-    renderAll();
-  }).catch(function(err){
-    console.error("Критическая ошибка загрузки:", err);
-    renderAll();
-  });
-}
-/* ---------- реквизиты и контакты ---------- */
-function renderCompany(){
-  var c=D.company||{};
-  if(c.settlement) $("h_set").textContent=c.settlement;
-  if(c.short) $("h_org").textContent=c.short+" — личный кабинет собственника";
-  var ph="";
-  Object.keys(c.phones||{}).forEach(function(k){ph+="• <b>"+esc(k)+":</b> "+esc(c.phones[k])+"<br>";});
-  $("contacts").innerHTML="<p><b>Фактический адрес (офис):</b> "+esc(c.office_address||"108825, г. Москва, вн. тер. г. муниципальный округ Краснопахорский, пер. 4-й Дунайский, 21")+"</p>"+
-    "<p style='margin:6px 0'><b>Режим работы:</b> "+esc(c.hours||"Пн–Пт 09:00–18:00, обед 13:00–14:00")+"</p><div class='row'><div>"+ph+"</div><div>"+
-    "• <b>Юротдел:</b> "+esc(c.email_jurist||"ed2.jurist@ya.ru")+"<br>"+
-    "• <b>Бухгалтерия:</b> "+esc(c.email_buh||"ed2.buh@gmail.com")+"<br>"+
-    "• <b>Общий:</b> "+esc(c.email_direct||"ed2.info@ya.ru")+"<br>"+
-    "• <b>Мессенджер MAX:</b> <a href='https://max.ru/join/7lv4MjtNdRfwkgHaLz2qJeQTWLH2syWpjs18zaFMCCM' target='_blank' style='color:var(--green); text-decoration:underline;'>Присоединиться к каналу</a></div></div>";
-    $("requisites").innerHTML=
-    "<b>Наименование:</b> "+esc(c.name||"ООО «ЭК «Европейская Долина-2»")+"<br>"+
-    "<b>Юридический адрес:</b> "+esc(c.legal_address||"115172, Г.МОСКВА, ВН.ТЕР.Г. МУНИЦИПАЛЬНЫЙ ОКРУГ ТАГАНСКИЙ, УЛ БОЛЬШИЕ КАМЕНЩИКИ, Д. 21/8, ПОДВ. ПОМ.II, КОМ. 1Б")+"<br>"+
-    "<b>Фактический адрес:</b> "+esc(c.office_address||"108825, г. Москва, вн. тер. г. муниципальный округ Краснопахорский, пер. 4-й Дунайский, д. 21")+"<br>"+
-    "<b>ИНН:</b> "+esc(c.inn||"7751167800")+" | <b>КПП:</b> "+esc(c.kpp||"770501001")+" | <b>ОГРН:</b> "+esc(c.ogrn||"1197746494483")+"<br>"+
-    "<b>Р/с:</b> "+esc(c.account||"40702810938000335019")+" в "+esc(c.bank||"ПАО Сбербанк")+"<br>"+
-    "<b>К/с:</b> "+esc(c.corr||"30101810400000000225")+" | <b>БИК:</b> "+esc(c.bik||"044525225")+"<br>"+
-    "<b>Генеральный директор:</b> "+esc(c.director||"Аникеев Дмитрий Александрович")+"<br>"+
-    "<div class='note' style='margin-top:8px'>Примечание: Реквизиты приведены в соответствии с выпиской из ЕГРЮЛ № ЮЭ9965-26-56986964 от 01.04.2026.</div>";
-  $("footer").textContent="© "+(c.short||"ООО «ЭК «ЕД-2»")+" · "+(c.settlement||"");
-  var m=D.meta||{};
-  $("footer").textContent="© "+(c.short||"ООО «ЭК «ЕД-2»")+" · "+(c.settlement||"");
-  var m=D.meta||{};
-  $("freshness").style.display="none";
-  $("debts_date").innerHTML="Актуально на <b>"+esc(m.source_date||"—")+"</b>, опубликовано "+esc(m.generated_at||"—");
-  $("r_addr_base").value=c.region_prefix||"108825, г. Москва, вн. тер. г. муниципальный округ Краснопахорский";
-  $("lots_list").innerHTML=(D.lots||[]).map(function(l){
-    return "<option value='"+esc(l.lot)+"'>"+esc(l.addr_short||"")+"</option>";}).join("");
-}
-/* ---------- центр задач ---------- */
-function renderTasks(){
-  var p=prof(),box=$("tasks"),t=[];
-  if(!p){
-    $("user_badge").textContent="Не авторизован";
-    t.push({cls:"urgent",tab:"reg",title:"Пройдите регистрацию и идентификацию",
-            sub:"ФИО, участок, кадастровый номер, адрес участка, e-mail, телефон и согласия (152-ФЗ)"});
-  }else{
-    $("user_badge").innerHTML="Участок №"+esc(p.lot)+" · "+esc(p.fio)+
-      " <span class='badge"+(p.id_status==="Идентифицирован по реестру"?"":" amber")+"'>"+esc(p.id_status||"")+"</span>";
-    var mine=D.debts.filter(function(d){return lotMatch(d.lot,p.lot);});
-    if(mine.length){
-      var total=mine.reduce(function(a,b){return a+b.sum;},0);
-      t.push({cls:"danger",tab:"debts",title:"Задолженность по участку №"+p.lot,
-              sub:"К оплате "+fmt(total)+" ₽. Нажмите для деталей."});
+
+# ██ НОВОСТИ
+def get_news():
+    news_file = SITE / "data" / "news.json"
+    if news_file.exists():
+        try:
+            return json.loads(news_file.read_text(encoding="utf-8"))
+        except Exception:
+            print("   ⚠️ Ошибка чтения news.json. Файл будет проигнорирован.")
+    return [{
+        "date": date.today().strftime("%d.%m.%Y"),
+        "title": "Передача показаний приборов учёта",
+        "text": "Показания передаются до 25 числа текущего месяца — это влияет на корректность квитанции."
+    }]
+
+# ██ ЕДИНСТВЕННЫЙ ОПРОС (ТКО)
+POLLS = [
+    {
+        "id": "poll_tko",
+        "question": "Поддерживаете ли вы переход на прямые договоры с региональным оператором АО «Экотехпром» по вывозу ТКО?",
+        "options": [
+            "Да, поддерживаю переход на прямой договор с АО «Экотехпром»",
+            "Нет, оставляю оплату через ООО «ЭК «ЕД-2»"
+        ],
+        "active": True,
+        "created": "2026-11-15"
     }
-    pickByLot(D.tasks,p.lot).forEach(function(x){
-      t.push({cls:x.priority==="danger"?"danger":"urgent",tab:x.tab,title:x.title,sub:x.sub});
-    });
-    var month=new Date().toISOString().slice(0,7);
-    if(!readings().some(function(r){return (r.date||"").indexOf(month)===0;})) 
-      t.push({cls:"urgent",tab:"meters",title:"Передайте показания за текущий месяц",sub:"Рекомендуемый срок — до 25 числа"});
-    var unsigned=docsForLot().filter(function(d){return !d.signed;});
-    if(unsigned.length)
-      t.push({cls:"urgent",tab:"docs",title:"🔔 Новые документы по участку ("+unsigned.length+")",
-              sub:"Требуется ознакомление и подтверждение подписания"});
-  }
-  if(!t.length){
-    box.innerHTML="<div class='task done'><div><div class='t-title'>Нет задач, требующих внимания</div>"+
-      "<div class='t-sub'>Все обязательные действия выполнены</div></div><div>✓</div></div>";
-    return;
-  }
-  box.innerHTML=t.map(function(x){
-    return "<div class='task "+x.cls+"' data-go='"+esc(x.tab)+"'><div><div class='t-title'>"+esc(x.title)+
-      "</div><div class='t-sub'>"+esc(x.sub)+"</div></div><div>→</div></div>";}).join("");
-}
-/* ---------- счётчики воды ---------- */
-function readings(){var l=myLot();return loadArr("ed2_meters").filter(function(r){return l&&lotMatch(r.lot,l);});}
-function calcWaterDiff(){
-  var cur = parseFloat($("m_cur").value);
-  var prev = $("m_prev").value === "" ? null : parseFloat($("m_prev").value);
-  var diffEl = $("m_diff");
-  if(!diffEl) return;
-  if(isNaN(cur) || cur < 0){ diffEl.value = ""; return; }
-  if(prev === null || isNaN(prev)){ diffEl.value = ""; return; }
-  var diff = cur - prev;
-  if(diff < 0){
-    diffEl.value = "⚠ Текущее < предыдущего";
-    diffEl.style.color = "#d9534f";
-  } else if(diff === 0){
-    diffEl.value = "0 (расхода нет)";
-    diffEl.style.color = "#f0ad4e";
-  } else {
-    diffEl.value = diff.toFixed(2);
-    diffEl.style.color = "#1b5e20";
-  }
-}
-document.addEventListener("input", function(e){
-  if(e.target && (e.target.id === "m_cur" || e.target.id === "m_prev")){
-    calcWaterDiff();
-  }
-});
-function renderReadings(){
-  var r=readings(),el=$("m_list");
-  if(!r.length){el.innerHTML="<p style='color:#666;font-size:.9rem'>Показаний пока нет.</p>";return;}
-  el.innerHTML="<table><thead><tr><th>Дата</th><th>Тип</th><th>Текущее</th><th>Пред.</th><th>Фото</th><th>Примечание</th></tr></thead><tbody>"+
-    r.slice().reverse().map(function(x){
-      var photoHtml = x.photo ? "<span style='color:var(--green);cursor:pointer' onclick='window.open(\""+x.photo+"\")'>📷 Просмотр</span>" : "—";
-      return "<tr><td>"+esc(x.date)+"</td><td>"+esc(x.type)+"</td><td><b>"+esc(x.cur)+"</b></td><td>"+esc(x.prev==null?"—":x.prev)+"</td><td>"+photoHtml+"</td><td>"+esc(x.note||"—")+"</td></tr>";
-    }).join("")+"</tbody></table>";
-}
-/* ---------- показания электросчётчика (только чтение) ---------- */
-function renderElecMeters(){
-  var el = $("e_list");
-  var p = prof();
-  if(!p){
-    el.innerHTML = "<p style='color:#666;font-size:.9rem'>Пройдите регистрацию, чтобы увидеть показания по вашему участку.</p>";
-    return;
-  }
-  var elecData = D.elec_meters;
-  if (!Array.isArray(elecData)) {
-      elecData = [];
-  }
-  var rows = elecData.filter(function(x){
-    return x && lotMatch(x.lot, p.lot);
-  });
-  if(!rows.length){
-    el.innerHTML = "<p style='color:#666;font-size:.9rem'>Показания по участку №" + esc(p.lot) + " пока не опубликованы.</p>";
-    return;
-  }
-  el.innerHTML="<table><thead><tr><th>Период</th><th>Т1 (предыдущие)</th><th>Т2 (предыдущие)</th><th>Т1 (текущие)</th><th>Т2 (текущие)</th><th>Разница</th></tr></thead><tbody>"+
- rows.slice().reverse().map(function(x){
-    var period = esc(x.note || x.date || "—");
-    var t1p = x.t1_prev!=null ? esc(x.t1_prev) : "—";
-    var t2p = x.t2_prev!=null ? esc(x.t2_prev) : "—";
-    var t1c = x.t1_cur!=null ? esc(x.t1_cur) : "—";
-    var t2c = x.t2_cur!=null ? esc(x.t2_cur) : "—";
-    var parts=[];
-    if(x.t1_diff!=null) parts.push("ΔT1: "+esc(x.t1_diff));
-    if(x.t2_diff!=null) parts.push("ΔT2: "+esc(x.t2_diff));
-    var diff = parts.length ? parts.join(" · ") : "—";
-    return "<tr><td>"+period+"</td><td>"+t1p+"</td><td>"+t2p+"</td><td><b>"+t1c+"</b></td><td><b>"+t2c+"</b></td>"+
-        "<td style='color:"+(parts.length?"#1b5e20":"#999")+";font-weight:bold'>"+diff+"</td></tr>";
-}).join("")+"</tbody></table>";
-}
-/* ---------- пропуска: тарифы и памятка ---------- */
-var TARIFFS=[
-  {cat:"До 3,5 т", in:250, day:950, month:25000},
-  {cat:"Свыше 3,5 т", in:600, day:1400, month:37000},
-  {cat:"Спецтехника", in:950, day:null, month:null}
-];
-function renderTariffs(){
-  $("t_body").innerHTML=TARIFFS.map(function(t){
-    return "<tr><td>"+esc(t.cat)+"</td><td>"+money(t.in)+" ₽</td><td>"+
-      (t.day==null?"—":money(t.day)+" ₽")+"</td><td>"+(t.month==null?"—":money(t.month)+" ₽")+"</td></tr>";
-  }).join("");
-}
-function copyPhone(){
-  var tempInput = document.createElement("input");
-  tempInput.value = "+79855473300";
-  document.body.appendChild(tempInput);
-  tempInput.select();
-  try {
-    document.execCommand("copy");
-    alert("Номер скопирован: +7 (985) 547-33-00");
-  } catch (e) {
-    alert("Не удалось скопировать номер. Пожалуйста, скопируйте вручную: +7 (985) 547-33-00");
-  }
-  document.body.removeChild(tempInput);
-}
-/* ---------- обращения ---------- */
-function issues(){var l=myLot();return loadArr("ed2_issues").filter(function(r){return l&&lotMatch(r.lot,l);});}
-function renderIssues(){
-  var l=issues(),el=$("i_list");
-  if(!l.length){el.innerHTML="<p style='color:#666;font-size:.9rem'>Обращений пока нет.</p>";return;}
-  el.innerHTML=l.slice().reverse().map(function(x){
-    return "<div class='item'><b>"+esc(x.title)+"</b><span class='badge'>"+esc(x.cat)+"</span>"+
-      (x.prio.indexOf("Срочный")===0?"<span class='badge red'>Срочный</span>":"")+
-      (x.legal_risk?"<span class='badge amber'>Юротдел</span>":"")+"<br>"+
-      "<span style='color:#666;font-size:.8rem'>"+esc(x.id)+" · "+esc(x.date)+" · "+esc(x.status)+"</span>"+
-      "<p style='margin-top:6px'>"+esc(x.text).replace(/\n/g,"<br>")+"</p></div>";}).join("");
-}
-/* ---------- документы ---------- */
-function signedKey(){return "ed2_signed_"+(myLot()||"guest");}
-function sentKey(){return "ed2_sent_"+(myLot()||"guest");}
-function markDocSent(docId){var arr=loadArr(sentKey());if(arr.indexOf(docId)<0){arr.push(docId);saveArr(sentKey(),arr);}}
-function unmarkDocSent(docId){var arr=loadArr(sentKey()).filter(function(x){return x!==docId;});saveArr(sentKey(),arr);}
-function docsForLot(){
-  var p=prof(); if(!p) return [];
-  var signed=loadArr(signedKey());
-  var sent=loadArr(sentKey());
-  return pickByLot(D.docs,p.lot).map(function(d){
-    var s=signed.filter(function(x){return x.id===d.id;})[0];
-    return {id:d.id,title:d.title,date:d.date,signed:!!s,stamp:s?s.stamp:"",sent:sent.indexOf(d.id)>=0};
-  });
-}
-function renderDocs(){
-  var el=$("doc_list"),docs=docsForLot();
-  var unauthBlock=$("doc_unauth_block");
-  if(!prof()){
-    el.innerHTML="<p style='color:#666;font-size:.9rem'>Пройдите регистрацию, чтобы увидеть документы по участку.</p>";
-    if(unauthBlock) unauthBlock.style.display="block";
-    return;
-  }
-  if(unauthBlock) unauthBlock.style.display="none";
-  if(!docs.length){el.innerHTML="<p style='color:#666;font-size:.9rem'>Документов по вашему участку нет.</p>";return;}
-  el.innerHTML=docs.map(function(d,i){
-    var badge=d.signed?"<span class='badge'>Подтверждено</span>":(d.sent?"<span class='badge amber'>Отправлено</span>":"<span class='badge amber'>Ожидает подписи</span>");
-    var downloadBtn = d.url ? "<a class='btn outline' style='margin:0 0 8px 0; display:inline-block; font-size:.82rem' href='"+esc(d.url)+"' target='_blank' rel='noopener'>📥 Скачать документ</a><br>" : "";
-    var action="";
-    if(d.signed){
-      action="<div style='margin-top:6px;font-size:.82rem;color:#1b5e20'>✓ "+esc(d.stamp)+"</div>";
-    }else if(d.sent){
-      action="<div style='margin-top:6px;font-size:.82rem;color:var(--amber)'>Отправлено через Яндекс Форму, ожидает подтверждения ООО «ЭК «ЕД-2»</div>"+
-        "<div style='margin-top:8px'><button class='btn outline' style='margin:0' data-unmark-id='"+esc(d.id)+"'>Отменить отметку</button></div>";
-    }else{
-      action="<div style='margin-top:8px'><a class='btn outline' style='margin:0;display:inline-block' data-sign-id='"+esc(d.id)+"' href='https://forms.yandex.ru/u/6aff18eb28697b4ecb544905' target='_blank' rel='noopener'>Подписать через Яндекс Форму</a>"+
-        "<button class='btn outline' style='margin:0 0 0 6px;display:inline-block' data-mark-id='"+esc(d.id)+"'>Я отправил(а) форму</button></div>";
-    }
-    return "<div class='item'><b>"+esc(d.title)+"</b>"+badge+"<br>"+
-      "<span style='color:#666;font-size:.8rem'>№ "+esc(d.id)+" от "+esc(d.date)+"</span><br>"+
-      downloadBtn+action+
-      "</div>";}).join("");
-}
-/* ---------- новости ---------- */
-function renderNews(){
-  var nws = D.news;
-  if(!Array.isArray(nws)) nws = [];
-  $("news").innerHTML=nws.map(function(n){
-    return "<div class='item'><b>"+esc(n.title)+"</b><span class='badge'>Новости</span><br>"+
-      "<span style='color:#666;font-size:.8rem'>"+esc(n.date)+"</span><p style='margin-top:6px'>"+esc(n.text).replace(/\n/g,"<br>")+"</p></div>";}).join("");
-  var importantBox = $("important-notices");
-  if(importantBox){
-    var impNews = nws.filter(function(n){ return n.important === true; });
-    if(impNews.length > 0){
-      importantBox.innerHTML = impNews.map(function(n){
-        return "<div style='margin-bottom:10px; padding-bottom:10px; border-bottom:1px solid #ffe0b2;'>"+
-               "<b style='color:var(--amber);'>"+esc(n.title)+"</b><br>"+
-               "<span style='font-size:.8rem; color:#666;'>"+esc(n.date)+"</span>"+
-               "<p style='margin-top:4px; font-size:.9rem;'>"+esc(n.text).replace(/\n/g,"<br>")+"</p></div>";
-      }).join("");
-    } else {
-      importantBox.innerHTML = "<p style='color: var(--muted); font-style: italic;'>Объявлений пока нет.</p>";
-    }
-  }
-}
-/* ---------- задолженности (строго индивидуальные) ---------- */
-function renderDebts(){
-  var p=prof();
-  var authBlock=$("debts_auth_block");
-  var tableBlock=$("debts_table_block");
-  if(!p){
-    authBlock.innerHTML="<div class='note warn'><b>Раздел доступен только зарегистрированным собственникам.</b><br>Пожалуйста, пройдите регистрацию и идентификацию в разделе «Регистрация», чтобы увидеть информацию о задолженности по вашему участку.</div>";
-    tableBlock.style.display="none";
-    return;
-  }
-  authBlock.innerHTML="<div class='note' style='border-left-color:var(--green)'><b>Ваш участок №"+esc(p.lot)+"</b> · "+esc(p.fio)+" · Кадастр: "+esc(p.cad)+"</div>";
-  tableBlock.style.display="block";
-  var b=$("d_body");
-  if(!D.debts || !Array.isArray(D.debts) || !D.debts.length){b.innerHTML="<tr><td colspan='4' style='text-align:center;color:#666'>Реестр ожидает выгрузки бухгалтерией.</td></tr>";return;}
-  var mine=D.debts.filter(function(d){return lotMatch(d.lot,p.lot);});
-  if(!mine.length){
-    b.innerHTML="<tr><td colspan='4' style='text-align:center;color:#666'>Задолженность по вашему участку не зафиксирована.</td></tr>";
-    return;
-  }
-    b.innerHTML=mine.map(function(d){
-    var qrHtml = "";
-    if (d.qr) {
-       qrHtml = "<div style='margin-top:10px; padding:10px; background:#f9fbf9; border:1px solid #c8e6c9; border-radius:8px; display:inline-block; text-align:center;'>" +
-                "<div style='font-size:0.85rem; font-weight:600; color:var(--gd); margin-bottom:5px;'>Погашение задолженности</div>" +
-                "<img src='"+esc(d.qr)+"' style='max-width:120px; border:1px solid #ddd; border-radius:6px; margin-bottom:5px;'>" +
-                "<div style='font-size:0.75rem; color:#666;'>Сканируйте в приложении банка</div></div>";
-    }
-    return "<tr class='mine'><td>"+esc(d.srv)+"</td><td>"+esc(d.per)+
-      "</td><td>"+fmt(d.sum)+"</td><td><span class='badge red'>"+esc(d.st)+"</span>"+qrHtml+"</td></tr>";}).join("");
-}
-/* ---------- экспорт ---------- */
-function payload(){
-  var p=prof();
-  if(!p) return null;
-  return {system:"KP_ED2_LK",exported_at:new Date().toISOString(),owner_profile:p,
-          meter_readings:readings(),issues_and_requests:issues(),
-          documents_confirmed:loadArr(signedKey())};
-}
-function exportJSON(){
-  var d=payload(); if(!d) return alert("Сначала заполните профиль собственника.");
-  var a=document.createElement("a");
-  a.href=URL.createObjectURL(new Blob([JSON.stringify(d,null,2)],{type:"application/json"}));
-  a.download="ed2_uch_"+normLot(d.owner_profile.lot).replace(/\//g,"-")+"_"+Date.now()+".json";a.click();
-}
-function copyJSON(){
-  var d=payload(); if(!d) return alert("Сначала заполните профиль собственника.");
-  navigator.clipboard.writeText(JSON.stringify(d,null,2)).then(function(){alert("Пакет скопирован в буфер обмена.");});
-}
-/* ---------- навигация и инициализация ---------- */
-function go(tab){
-  Array.prototype.forEach.call(document.querySelectorAll("#nav button"),function(b){
-    b.classList.toggle("active",b.dataset.tab===tab);});
-  Array.prototype.forEach.call(document.querySelectorAll("main section"),function(s){
-    s.classList.toggle("active",s.id===tab);});
-  window.scrollTo({top:0,behavior:"smooth"});
-}
-function renderAll(){
-  try { renderCompany(); } catch(e) { console.error("Ошибка в Компании:", e); }
-  try { renderTasks(); } catch(e) { console.error("Ошибка в Задачах:", e); }
-  try { renderReadings(); } catch(e) { console.error("Ошибка в Воде:", e); }
-  try { renderDebts(); } catch(e) { console.error("Ошибка в Долгах:", e); } 
-  try { renderTariffs(); } catch(e) { console.error("Ошибка в Тарифах:", e); }
-  try { renderIssues(); } catch(e) { console.error("Ошибка в Обращениях:", e); }
-  try { renderDocs(); } catch(e) { console.error("Ошибка в Документах:", e); }
-  try { renderNews(); } catch(e) { console.error("Ошибка в Новостях:", e); }
-  try { renderElecMeters(); } catch(e) { console.error("Ошибка в Счетчиках:", e); }
-  var p = prof();
-  if(p){ 
-    try {
-      if($("r_fio")) $("r_fio").value = p.fio || "";
-      if($("r_lot")) $("r_lot").value = p.lot || "";
-      if($("r_cad")) $("r_cad").value = p.cad || "";
-      if($("r_tel")) $("r_tel").value = p.tel || "";
-      if($("r_addr")) $("r_addr").value = p.addr || "";
-      if($("r_addr_base")) $("r_addr_base").value = p.addr_base || "";
-      if($("r_mail")) $("r_mail").value = p.mail || "";
-      $("r_mosenergo").value=p.mosenergo||"";
-      $("r_mosenergo_num").value=p.mosenergo_num||"";
-      $("r_mosenergo_date").value=p.mosenergo_date||"";
-      $("r_mosenergo_details").style.display=(p.mosenergo==="yes")?"block":"none";
-      $("r_c1").checked=!!p.c1;$("r_c2").checked=!!p.c2;$("r_c3").checked=!!p.c3;
-    } catch(e) { console.error("Ошибка формы:", e); }
-  }
-}
-document.getElementById("r_mosenergo").addEventListener("change", function() {
-  var box = document.getElementById("r_mosenergo_details");
-  if (this.value === "yes") {
-    box.style.display = "block";
-  } else {
-    box.style.display = "none";
-    document.getElementById("r_mosenergo_num").value = "";
-    document.getElementById("r_mosenergo_date").value = "";
-  }
-});
-document.addEventListener("click",function(e){
-  var t=e.target.closest("[data-tab],[data-go],[data-vote]");
-  if(!t) return;
-  if(t.dataset.tab) go(t.dataset.tab);
-  else if(t.dataset.go) go(t.dataset.go);
-  else if(t.dataset.vote!==undefined) vote(+t.dataset.vote);
-});
-/* авто-смена статуса документа: «Ожидает подписи» → «Отправлено» */
-document.addEventListener("click",function(e){
-  var s=e.target.closest("[data-sign-id],[data-mark-id],[data-unmark-id]");
-  if(!s) return;
-  if(s.dataset.signId!==undefined){markDocSent(s.dataset.signId);setTimeout(renderDocs,400);}
-  else if(s.dataset.markId!==undefined){markDocSent(s.dataset.markId);renderDocs();}
-  else if(s.dataset.unmarkId!==undefined){unmarkDocSent(s.dataset.unmarkId);renderDocs();}
-});
-if($("btn_save")) $("btn_save").onclick=saveProfile; 
-if($("btn_clear")) $("btn_clear").onclick=clearProfile;
-if($("btn_export")) $("btn_export").onclick=exportJSON; 
-if($("btn_copy")) $("btn_copy").onclick=copyJSON;
-if($("btn_copy_phone")) $("btn_copy_phone").onclick=copyPhone;
-if($("m_date")) $("m_date").valueAsDate=new Date();
-if($("p_date")) $("p_date").valueAsDate=new Date();
-$("r_lot").addEventListener("change",function(){
-  var c=findLotCard(this.value);
-  if(c){ if(c.cadastre) $("r_cad").value=c.cadastre; if(c.addr_short) $("r_addr").value=c.addr_short; }
-});
-(function(){
-  var links=document.querySelectorAll("#pass_nav a");
-  function setActive(id){
-    Array.prototype.forEach.call(links,function(l){
-      l.classList.toggle("active", l.getAttribute("href")==="#"+id);
-    });
-  }
-  Array.prototype.forEach.call(links,function(l){
-    l.addEventListener("click",function(){
-      setActive(this.getAttribute("href").slice(1));
-    });
-  });
-  if(!("IntersectionObserver" in window)) return;
-  var obs=new IntersectionObserver(function(entries){
-    entries.forEach(function(en){
-      if(!en.isIntersecting) return;
-      setActive(en.target.id);
-    });
-  },{rootMargin:"-35% 0px -55% 0px"});
-  ["pv_guard","pv_data","pv_tariffs","pv_pay","pv_order","pv_questions"].forEach(function(id){
-    var el=$(id); if(el) obs.observe(el);
-  });
-})();
-renderAll(); loadAll();
-function updateClock() {
-  var now = new Date();
-  var timeStr = now.toLocaleTimeString("ru-RU");
-  var dateStr = now.toLocaleDateString("ru-RU");
-  var tEl = $("header_time"), dEl = $("header_date");
-  if(tEl) tEl.textContent = timeStr;
-  if(dEl) dEl.textContent = dateStr;
-}
-setInterval(updateClock, 1000);
-updateClock();
-var nowStr = new Date().toLocaleString("ru-RU");
-localStorage.setItem("ed2_session_start", nowStr);
-window.addEventListener("beforeunload", function() {
-  var endStr = new Date().toLocaleString("ru-RU");
-  localStorage.setItem("ed2_session_end", endStr);
-});
-</script>
-</body>
-</html>
+]
+
+# ██ УТИЛИТЫ
+def clean(v):
+    if v is None: return ""
+    s = str(v).strip()
+    return "" if s.lower() in ("none", "nan") else s
+
+def find_latest(folder, pattern):
+    if not folder.exists(): return None
+    files = [f for f in folder.glob(pattern) if not f.name.startswith("~$") and "backup" not in f.name.lower()]
+    return max(files, key=lambda p: p.stat().st_mtime) if files else None
+
+def date_from_name(name):
+    m = re.search(r"(\d{1,2})[.-](\d{1,2})[.-](\d{2,4})", name)
+    if m:
+        d, mo, y = m.groups()
+        if len(y) == 2: y = "20" + y
+        try: return datetime(int(y), int(mo), int(d)).strftime("%d.%m.%Y")
+        except ValueError: pass
+    return None
+
+def is_yellow(cell):
+    try:
+        fg = cell.fill.fgColor
+        if fg is None or fg.type != "rgb" or not fg.rgb: return False
+        c = str(fg.rgb).upper()
+        if len(c) == 8: r, g, b = int(c[2:4], 16), int(c[4:6], 16), int(c[6:8], 16)
+        elif len(c) == 6: r, g, b = int(c[0:2], 16), int(c[2:4], 16), int(c[4:6], 16)
+        else: return False
+        return r >= 200 and g >= 180 and b <= r - 30
+    except Exception:
+        return False
+
+def parse_amount(raw):
+    if raw is None: return None
+    s = str(raw).replace("\xa0", " ").replace("  ", " ")
+    if not s: return None
+    s = s.replace(",", " ") if "." in s else s.replace(",", ".")
+    try: return float(s)
+    except ValueError: return None
+
+def norm_fio(s):
+    if not s: return ""
+    s = re.sub(r"\([^)]*\)", " ", s)
+    s = re.sub(r"(?i)по доверенности.*", " ", s)
+    return " ".join(s.replace("ё", "е").replace("Ё", "Е").replace(".", " ").upper().split())
+
+def persons(raw):
+    out = []
+    for line in re.sub(r"\{[^}]*\}", " ", str(raw or "")).split("\n"):
+        line = re.sub(r"\([^)]*\)", " ", line)
+        line = re.sub(r"(?i)по доверенности.*", " ", line)
+        words = [w for w in re.sub(r"[,\s]+", " ", line).split() if re.match(r"^[А-ЯЁ][а-яёА-ЯЁ-]+$", w)]
+        i = 0
+        while i < len(words):
+            if i + 3 <= len(words): out.append(" ".join(words[i:i + 3])); i += 3
+            elif i + 2 <= len(words): out.append(" ".join(words[i:i + 2])); i += 2
+            else: break
+    seen, res = set(), []
+    for p in out:
+        k = norm_fio(p)
+        if k and k not in seen: seen.add(k); res.append(p)
+    return res
+
+# ██ УЧАСТКИ / КАДАСТРЫ / АДРЕСА
+def norm_lot(s):
+    s = str(s or "").lower()
+    s = re.sub(r"\{[^{}]*\}", " ", s)
+    s = re.sub(r"\([^)]*\)", " ", s)
+    s = re.sub(r"\s+\d*\s*оч\.?\s*$", " ", s)
+    s = re.sub(r"(?<=\d)оч\.?$", " ", s)
+    s = re.sub(r"^уч\.?\s*№?\s*", " ", s)
+    s = re.sub(r"^[№#]\s*", " ", s)
+    return re.sub(r"\s+", " ", s).strip()
+
+def expand_cadastres(raw):
+    s = re.sub(r"\s+", " ", str(raw or "")).replace(";", ", ")
+    out, prefix = [], ""
+    for part in s.split(","):
+        if not part: continue
+        m = re.match(r"^(\d{2}:\d{2}:\d{6,7}):(\d+(?:/\d+)*)$", part)
+        if m:
+            prefix = m.group(1)
+            for tail in m.group(2).split("/"): out.append(prefix + ":" + tail)
+        elif re.match(r"^\d+$", part) and prefix: out.append(prefix + ":" + part)
+    return list(dict.fromkeys(out))
+
+def _split_plot(token, need):
+    seg = token.split("/")
+    if need >= 2 and len(seg) == 3 and all(seg): return [seg[0] + "/" + seg[1], seg[0] + "/" + seg[2]]
+    return [token]
+
+def expand_plots(raw, need):
+    parts = [norm_lot(p) for p in str(raw or "").split(",") if p.strip()]
+    parts = [p for p in parts if p]
+    if not parts: return []
+    if len(parts) >= need: return parts[:need]
+    res = []
+    for p in parts:
+        if "-" in p and re.match(r"^\d+/\d+-\d+/\d+$", p): res.extend(p.split("-")); continue
+        res.extend(_split_plot(p, need - len(res)))
+    while len(res) < need: res.append(res[-1])
+    return list(dict.fromkeys(res))[:need]
+
+def _split_addr(token, need):
+    if need < 2: return [token]
+    m = re.search(r"(\d+(?:/\d+){2,})\s*$", token)
+    if m:
+        seg = m.group(1).split("/")
+        pre = token[:m.start()].rstrip(", ")
+        if len(seg) == 3: return [(pre + ", " + seg[0] + "/" + seg[1]).strip(", "), (pre + ", " + seg[0] + "/" + seg[2]).strip(", ")]
+    return [token]
+
+def _areas(raw, need):
+    parts = [x.strip() for x in str(raw or "").split(",") if x.strip()]
+    if len(parts) > 1 and not all(re.match(r"^\d[\d\s]*$", x) for x in parts): parts = [str(raw).strip()]
+    if len(parts) == 1 and "/" in parts[0] and need >= 2: parts = [x.strip() for x in parts[0].split("/") if x.strip()]
+    if not parts: return [" "] * need
+    while len(parts) < need: parts.append(parts[-1])
+    return parts[:need]
+
+def location_variants(text):
+    uch_raw, cad_raw, area_raw, addr_lines = "", "", "", []
+    for line in [l.strip() for l in str(text or "").split("\n") if l.strip()]:
+        m = re.match(r"(?i)^участок\s*:\s*(.+)", line)
+        if m: uch_raw = m.group(1).strip().rstrip(",; "); continue
+        if re.match(r"(?i)^кадастр\s+дома\s*:", line): continue
+        if re.match(r"(?i)^площадь\s+дома\s*:", line): continue
+        m = re.match(r"(?i)^кадастр\s*:\s*(.+)", line)
+        if m: cad_raw = m.group(1).strip(); continue
+        m = re.match(r"(?i)^п[лощ]{2,4}ад[ьйя][\w\s]*[:\s]\s*(.+)", line)
+        if m: area_raw = m.group(1).strip(); continue
+        if re.match(r"^\d{2}:\d{2}:\d+", line): continue
+        addr_lines.append(line)
+    
+    cads = expand_cadastres(cad_raw)
+    comma_cnt = len([p for p in uch_raw.split(",") if p.strip()])
+    addr_multi = any(re.search(r"\d+/\d+/\d+\s*$", a) for a in addr_lines)
+    need = max(len(cads), comma_cnt, 2 if addr_multi else 1, 1)
+    
+    lots = expand_plots(uch_raw, need)
+    if not lots: return []
+    
+    addrs = []
+    for a in addr_lines: addrs.extend(_split_addr(a, need - len(addrs)))
+    while len(addrs) < need: addrs.append(addrs[-1] if addrs else " ")
+    
+    areas = _areas(area_raw, need)
+    if re.match(r"(?i)не\s+найдено", " ".join(areas)): areas = [" "] * need
+    
+    pick = lambda lst, i: lst[i] if i < len(lst) else (lst[-1] if lst else " ")
+    return [{"lot": lot, "cadastre": cads[i] if i < len(cads) else "",
+             "addr_short": pick(addrs, i), "area": pick(areas, i)}
+            for i, lot in enumerate(lots)]
+
+def contract_no(notes):
+    if not notes: return ""
+    s = re.sub(r"\{[^}]*\}", " ", str(notes))
+    m = re.search(r"([А-ЯA-Z]?\d[\dА-Яа-яA-Za-z-/]+/[Ээ])", s)
+    if m: return m.group(1).upper()
+    m = re.search(r"(\d[\d/-]+)\s+от\s+\d{2}.\d{2}.\d{4}", s)
+    if m: return m.group(1)
+    m = re.search(r"№\s*([\dА-Яа-я/-]+)", s)
+    return m.group(1).upper() if m else ""
+
+# ██ ЗАГРУЗКА ДАННЫХ
+def load_registry(path):
+    if not path: return [], ""
+    wb = load_workbook(path, data_only=True, read_only=True)
+    ws = wb.active
+    header = next(ws.iter_rows(min_row=1, max_row=1, values_only=True), ())
+    hdr = str(header[5] if len(header) > 5 and header[5] else "").replace("\n", " ")
+    m = re.search(r"(?i)площадь\s+участка\s*:\s*(.+)", hdr)
+    base_addr = (m.group(1) if m else "").strip().rstrip(",; ")
+    
+    recs = []
+    for row in ws.iter_rows(min_row=2, values_only=True):
+        if len(row) < 7: continue
+        fio_raw = clean(row[1])
+        if not fio_raw or "ф.и.о" in fio_raw.lower(): continue
+        
+        variants = location_variants(row[5])
+        notes = clean(row[6])
+        if re.search(r"(?i)участок\s*:", notes):
+            known = [x["lot"] for x in variants]
+            for v in location_variants(notes):
+                if v["lot"] not in known: v["from_notes"] = True; variants.append(v)
+        
+        if not variants: continue
+        
+        passport = clean(row[2])
+        rec = {"variants": variants, "lots": [v["lot"] for v in variants], "contract": contract_no(notes),
+               "email": clean(row[3]), "phone": clean(row[4]),
+               "has_passport": bool(re.search(r"\d{4}\D{0,3}\d{6}", passport)),
+               "has_reg_addr": bool(re.search(r"(?i)адрес\s*:\s*\S", passport))}
+        for p in persons(fio_raw):
+            r = dict(rec); r["fio"] = p; r["fio_norm"] = norm_fio(p); recs.append(r)
+    wb.close()
+    return recs, base_addr
+
+def load_debtors(path):
+    if not path: return [], 0, ""
+    wb = load_workbook(path, data_only=True)
+    debt_date = date.today().strftime("%d.%m.%Y")
+    for ws in wb.worksheets:
+        for r in range(1, 10):
+            val = clean(str(ws.cell(row=r, column=1).value))
+            if "долг на" in val.lower():
+                m = re.search(r"(\d{1,2})\s+([а-яА-Я]+)\s+(\d{4})", val)
+                if m:
+                    months = {"января":"01","февраля":"02","марта":"03","апреля":"04","мая":"05","июня":"06",
+                              "июля":"07","августа":"08","сентября":"09","октября":"10","ноября":"11","декабря":"12"}
+                    if m.group(2).lower() in months:
+                        debt_date = f"{m.group(1).zfill(2)}.{months[m.group(2).lower()]}.{m.group(3)}"
+                break
+    
+    best = None
+    for ws in wb.worksheets:
+        hdr, c_acc, c_sum, c_fio = 0, None, None, None
+        for r in range(1, min(ws.max_row, 15) + 1):
+            vals = [clean(str(ws.cell(row=r, column=c).value)).lower() for c in range(1, min(ws.max_column, 12) + 1)]
+            a = s = f = None
+            for i, v in enumerate(vals, 1):
+                if a is None and ("лицев" in v or "л/с" in v): a = i
+                if s is None and any(k in v for k in ("сумм", "остат", "долг", "сальдо")): s = i
+                if f is None and any(k in v for k in ("фио", "собствен", "абонент")): f = i
+            if a and s: hdr, c_acc, c_sum, c_fio = r, a, s, f; break
+        
+        if c_acc is None:
+            for c in range(1, min(ws.max_column, 8) + 1):
+                hits = sum(1 for r in range(1, min(ws.max_row, 300) + 1) if ACC_RE.match(clean(str(ws.cell(row=r, column=c).value)).split(",")[0].strip()))
+                if hits >= 3: c_acc, c_sum = c, c + 1; break
+        if c_acc is None: continue
+        
+        cnt = sum(1 for r in range(hdr + 1, ws.max_row + 1) if ACC_RE.match(clean(str(ws.cell(row=r, column=c_acc).value)).split(",")[0].strip()))
+        if cnt and (best is None or cnt > best[0]): best = (cnt, ws, hdr, c_acc, c_sum, c_fio)
+    
+    if not best:
+        wb.close(); return [], 0, debt_date
+    
+    _, ws, hdr, c_acc, c_sum, c_fio = best
+    out, yellow, st = [], 0, {"neg": 0, "nosum": 0}
+    for r in range(hdr + 1, ws.max_row + 1):
+        ca, cs = ws.cell(row=r, column=c_acc), ws.cell(row=r, column=c_sum)
+        parts = clean(str(ca.value)).split(",", 1)
+        acc = parts[0].strip()
+        if not ACC_RE.match(acc): continue
+        
+        fio = parts[1].strip() if len(parts) > 1 else (clean(str(ws.cell(row=r, column=c_fio).value)) if c_fio else "")
+        if is_yellow(ca) or is_yellow(cs): yellow += 1; continue
+        
+        amt = parse_amount(cs.value)
+        if amt is None: st["nosum"] += 1; continue
+        if amt <= 0: st["neg"] += 1; continue
+        
+        raw_row = " ".join(str(ws.cell(row=r, column=c).value) for c in range(1, ws.max_column + 1) if ws.cell(row=r, column=c).value is not None)
+        out.append({"acc": acc, "fio": fio, "fio_norm": norm_fio(fio), "raw_text": raw_row, "amount": amt})
+    wb.close()
+    return out, yellow, debt_date
+
+def fio_compat(a, b):
+    pa, pb = a.split(), b.split()
+    if not pa or not pb or pa[0] != pb[0]: return False
+    for xa, xb in zip(pa[1:], pb[1:]):
+        if len(xa) == 1:
+            if xb[:1] != xa: return False
+        elif xa != xb: return False
+    return True
+
+def match(fio_norm, registry):
+    if not fio_norm: return None
+    cands = [fio_norm] + ([p for p in fio_norm.split(" И ") if p] if " И " in fio_norm else [])
+    for c in cands:
+        for r in registry:
+            if r["fio_norm"] == c: return r
+    for c in cands:
+        for r in registry:
+            if fio_compat(c, r["fio_norm"]): return r
+    
+    key = " ".join(fio_norm.split()[:2])
+    same = [r for r in registry if " ".join(r["fio_norm"].split()[:2]) == key]
+    if len(same) == 1: return same[0]
+    
+    best, score = None, 0.0
+    for r in registry:
+        s = difflib.SequenceMatcher(None, fio_norm, r["fio_norm"]).ratio()
+        if s > score: best, score = r, s
+    if score >= FUZZY: return best
+    
+    m = re.search(r"(?i)участок\s*:?\s*(\d+(?:/\d+)*)", fio_norm)
+    if m:
+        target_lot = norm_lot(m.group(1))
+        for r in registry:
+            for l in r["lots"]:
+                if norm_lot(l) == target_lot: return r
+    return None
+
+def load_claims_csv():
+    claim_report = REPORTS / "ОТЧЕТ_РАССЫЛКА_ПРЕТЕНЗИИ.csv"
+    if not claim_report.exists(): return {}
+    rows = {}
+    try:
+        with open(claim_report, encoding="utf-8-sig") as f:
+            for r in csv.DictReader(f, delimiter=";"):
+                key = (r.get("№ претензии") or r.get("ID_рассылки") or "").strip()
+                if key: rows[key] = r
+    except Exception as e:
+        print("⚠️ Отчёт рассылки не прочитан:", e)
+    return rows
+
+def get_claimed_accounts():
+    claimed = set()
+    candidates = list(ROOT_DIR.glob("output_претензии*/READY_TO_SEND.xlsx"))
+    if not candidates:
+        fallback = ROOT_DIR / "output_претензии" / "READY_TO_SEND.xlsx"
+        if fallback.exists(): candidates = [fallback]
+    if not candidates: return claimed
+    
+    ready_file = max(candidates, key=lambda p: p.stat().st_mtime)
+    try:
+        wb = load_workbook(ready_file, data_only=True, read_only=True)
+        ws = wb.active
+        headers = [clean(str(c)).lower() for c in next(ws.iter_rows(min_row=1, max_row=1, values_only=True), [])]
+        idx_acc = next((i for i, h in enumerate(headers) if "претензии" in h or "лицев" in h or "л/с" in h), 0)
+        for row in ws.iter_rows(min_row=2, values_only=True):
+            if not row or len(row) <= idx_acc: continue
+            acc_raw = clean(str(row[idx_acc]))
+            acc = acc_raw.split(",")[0].strip()
+            if acc and ACC_RE.match(acc): claimed.add(acc)
+        wb.close()
+    except Exception as e:
+        print(f"   ❌ Ошибка чтения READY_TO_SEND.xlsx: {e}")
+    return claimed
+
+def load_agreements_status():
+    status_map = {}
+    if not AGREEMENTS_REPORT.exists(): return status_map
+    try:
+        wb = load_workbook(AGREEMENTS_REPORT, data_only=True)
+        ws = wb["Соглашения"] if "Соглашения" in wb.sheetnames else wb.active
+        headers = [clean(str(c)).lower() for c in next(ws.iter_rows(min_row=1, max_row=1, values_only=True), [])]
+        idx_key = next((i for i, h in enumerate(headers) if "№" in h or "номер" in h or "фио" in h), 0)
+        idx_status = next((i for i, h in enumerate(headers) if "статус" in h or "примечание" in h or "состояние" in h), -1)
+        if idx_status == -1: wb.close(); return status_map
+        
+        for row in ws.iter_rows(min_row=2, values_only=True):
+            if not row or len(row) <= idx_key: continue
+            key = clean(str(row[idx_key])).strip()
+            if not key: continue
+            status = clean(str(row[idx_status])) if idx_status < len(row) else ""
+            if key and status: status_map[key] = status
+        wb.close()
+    except Exception as e:
+        print(f"   ⚠️ Ошибка чтения MASTER_REPORT_СОГЛАШЕНИЯ.xlsx: {e}")
+    return status_map
+
+def load_engineer_meters():
+    meters_json = SITE / "data" / "engineer_meters.json"
+    if not meters_json.exists(): return []
+    try:
+        data = json.loads(meters_json.read_text(encoding="utf-8"))
+        return data if isinstance(data, list) else []
+    except Exception as e:
+        print(f"   ⚠️ Ошибка чтения engineer_meters.json: {e}")
+        return []
+
+def collect_docs(acc2lots):
+    docs = defaultdict(list)
+    if AGREEMENTS_REPORT.exists():
+        try:
+            wb = load_workbook(AGREEMENTS_REPORT, data_only=True)
+            ws = wb.active
+            headers = [clean(str(c)).lower() for c in next(ws.iter_rows(min_row=1, max_row=1, values_only=True), [])]
+            idx_num = next((i for i, h in enumerate(headers) if "соглашения" in h or "номер" in h), 0)
+            idx_date = next((i for i, h in enumerate(headers) if "дата" in h), 1)
+            idx_fio = next((i for i, h in enumerate(headers) if "фио" in h), 2)
+            idx_lot = next((i for i, h in enumerate(headers) if "участок" in h), 3)
+            
+            for row in ws.iter_rows(min_row=2, values_only=True):
+                if not row or len(row) <= max(idx_num, idx_lot, idx_fio): 
+                    continue
+                
+                num = clean(row[idx_num])
+                lot_raw = clean(row[idx_lot])
+                dt = clean(row[idx_date])
+                fio_raw = clean(row[idx_fio]) if idx_fio < len(row) else ""
+                
+                # ФИЛЬТР: исключаем служебные/тестовые записи
+                if "ЮРИСТ" in fio_raw.upper() or "ЕД ЭК2" in fio_raw.upper():
+                    continue
+                
+                if not num or not lot_raw: 
+                    continue
+                
+                lot = norm_lot(lot_raw)
+                file_url = ""
+                
+                # Попытка 1: точное совпадение по дате из номера и участку (напр. *201126*21*.docx)
+                search_pattern_1 = f"*{num.split('/')[0]}*{lot_raw.replace('/', '-')}*.docx"
+                found_files = list(AGREEMENTS_DIR.glob(search_pattern_1))
+                
+                # Попытка 2: резервный поиск по участку (если дата в имени файла отличается)
+                if not found_files:
+                    search_pattern_2 = f"*Соглашение*{lot_raw.replace('/', '-')}*.docx"
+                    found_files = list(AGREEMENTS_DIR.glob(search_pattern_2))
+                    
+                if found_files:
+                    file_url = "docs/" + found_files[0].name
+                    
+                docs[lot].append({
+                    "id": num, 
+                    "type": "agreement", 
+                    "title": "Соглашение о погашении задолженности", 
+                    "date": dt, 
+                    "status": "Подписано", 
+                    "url": file_url
+                })
+            wb.close()
+        except Exception as e:
+            print(f"⚠️ Ошибка чтения MASTER_REPORT_СОГЛАШЕНИЯ.xlsx: {e}")
+    return docs
+
+# ██ СБОР ГОЛОСОВ
+def дата_голоса(s):
+    s = str(s or "").strip()
+    m = re.match(r"(\d{2}).(\d{2}).(\d{4})(?:[ ,T]+(\d{1,2}):(\d{2}))?", s)
+    if m:
+        d, mo, y, hh, mm = m.groups()
+        try: return datetime(int(y), int(mo), int(d), int(hh or 0), int(mm or 0)).isoformat()
+        except ValueError: return ""
+    try: return datetime.fromisoformat(s).isoformat()
+    except Exception: return ""
+
+def collect_polls():
+    polls_out = []
+    search_dirs = [d for d in (CABINET, PACKAGES_DIR) if d.exists()]
+    for poll in POLLS:
+        poll_id = poll["id"]
+        entries, отклонено = [], 0
+        for search_dir in search_dirs:
+            for f in search_dir.glob("*.json"):
+                try:
+                    payload = json.loads(f.read_text(encoding="utf-8"))
+                except Exception:
+                    continue
+                if not isinstance(payload, dict): continue
+                mtime = datetime.fromtimestamp(f.stat().st_mtime).isoformat()
+                if isinstance(payload.get("votes"), list):
+                    if payload.get("poll_id") and payload["poll_id"] != poll_id: continue
+                    for v in payload["votes"]:
+                        if isinstance(v, dict):
+                            entries.append((дата_голоса(v.get("date")) or mtime, v, payload))
+                    continue
+                v = payload.get("poll_votes")
+                if v is None:
+                    for key in payload:
+                        if key.startswith("ed2_") and "poll" in key:
+                            v = payload[key]
+                            break
+                if not isinstance(v, dict): continue
+                entries.append((дата_голоса(v.get("date")) or mtime, v, payload))
+        
+        votes_by_lot = {}
+        for dt, v, payload in sorted(entries, key=lambda e: str(e[0])):
+            if v.get("id") and v["id"] != poll_id: continue
+            choice = str(v.get("choice", "")).strip()
+            if choice not in poll["options"]:
+                отклонено += 1
+                continue
+            lot = norm_lot(v.get("lot") or (payload.get("owner_profile") or {}).get("lot") or "")
+            if not lot: continue
+            votes_by_lot[lot] = choice
+        
+        counts = {opt: 0 for opt in poll["options"]}
+        for choice in votes_by_lot.values():
+            counts[choice] = counts.get(choice, 0) + 1
+        
+        polls_out.append({
+            "id": poll_id,
+            "question": poll["question"],
+            "options": [{"label": opt, "votes": counts.get(opt, 0)} for opt in poll["options"]],
+            "total": sum(counts.values()),
+            "active": poll.get("active", True),
+            "created": poll.get("created", "")
+        })
+    return polls_out
+
+def load_meters_common():
+    if not METERS_FILE.exists(): return None
+    try:
+        wb = load_workbook(METERS_FILE, data_only=True)
+        ws1 = wb.worksheets[0]; data = {}
+        for row in ws1.iter_rows(min_row=2, values_only=True):
+            if len(row) < 2: continue
+            key, val = clean(row[0]).lower(), row[1]
+            if "период" in key: data["period"] = clean(val)
+            elif "предыдущ" in key: data["prev_reading"] = float(str(val).replace(",", "."))
+            elif "текущ" in key or "общее" in key: data["total_reading"] = float(str(val).replace(",", "."))
+            elif "тариф" in key: data["tariff"] = float(str(val).replace(",", "."))
+            elif "опубликован" in key or "дата" in key: data["published_at"] = clean(val)
+        
+        if "prev_reading" not in data or "total_reading" not in data: wb.close(); return None
+        data["consumption"] = round(data["total_reading"] - data["prev_reading"], 2)
+        if "published_at" not in data: data["published_at"] = datetime.now().strftime("%d.%m.%Y %H:%M")
+        
+        data["lots"] = {}
+        if len(wb.worksheets) > 1:
+            ws2 = wb.worksheets[1]
+            for row in ws2.iter_rows(min_row=2, values_only=True):
+                if len(row) < 5: continue
+                lot = norm_lot(clean(row[0]))
+                if not lot: continue
+                try:
+                    data["lots"][lot] = {"area": float(str(row[1]).replace(",", ".")), "share_pct": round(float(str(row[2]).replace(",", ".")), 4), "consumption": round(float(str(row[3]).replace(",", ".")), 2), "amount": round(float(str(row[4]).replace(",", ".")), 2)}
+                except (ValueError, TypeError): continue
+        wb.close()
+        return data
+    except Exception: return None
+
+# ██ СБОРКА ДАННЫХ
+def lot_key(x): return [int(t) if t.isdigit() else t for t in re.split(r"(\d+)", x)]
+
+def build():
+    reg_file = find_latest(REG_DIR, "реестр_собственников*.xlsx")
+    deb_file = find_latest(INPUT_DIR, "*.xlsx")
+    registry, base_addr = load_registry(reg_file)
+    debtors, yellow, debt_period_end = load_debtors(deb_file)
+    claims_csv = load_claims_csv()
+    claimed_accounts = get_claimed_accounts()
+    agreements_status = load_agreements_status()
+    engineer_meters = load_engineer_meters()
+    
+    src_date = (date_from_name(deb_file.name) if deb_file else None) or (datetime.fromtimestamp(deb_file.stat().st_mtime).strftime("%d.%m.%Y") if deb_file else "")
+    
+    cards, issues = {}, []
+    for r in registry:
+        for v in r["variants"]:
+            lot = v["lot"]
+            c = cards.get(lot)
+            if c is None: c = cards[lot] = {"lot": lot, "cadastre": "", "addr_short": "", "addr_full": "", "area": "", "owners": 0}
+            c["owners"] += 1
+            for field, val in (("cadastre", v.get("cadastre", "")), ("addr_short", v.get("addr_short", "")), ("area", v.get("area", ""))):
+                if not val: continue
+                if not c[field]: c[field] = val
+                elif c[field] != val: issues.append({"Тип": "КОНФЛИКТ", "Участок": lot, "Поле": field, "Значение": c[field], "Другое значение": val, "ФИО": r["fio"]})
+            if not c["addr_full"]: c["addr_full"] = ", ".join(x for x in [base_addr, v.get("addr_short", "")] if x)
+    
+    for lot, c in cards.items():
+        if not c["cadastre"]: issues.append({"Тип": "НЕТ КАДАСТРА", "Участок": lot, "Поле": "cadastre", "Значение": "", "Другое значение": "", "ФИО": ""})
+    
+    lots_out = [cards[k] for k in sorted(cards, key=lot_key)]
+    by_lot = defaultdict(lambda: {"sum": 0.0, "accounts": []})
+    acc2lots, unmatched, groups = {}, [], {}
+    
+    for d in debtors:
+        groups.setdefault(d["fio_norm"], []).append(d)
+    
+    for fio_norm, group in groups.items():
+        full_text = " ".join([g.get("raw_text", "") for g in group])
+        r = match(full_text, registry)
+        if not r: unmatched.extend(group); continue
+        
+        lots = r["lots"]
+        pairs = ([(d, [lot]) for d, lot in zip(group, lots)] if len(group) == len(lots) else [(d, lots) for d in group])
+        for d, dl in pairs:
+            acc2lots[d["acc"]] = dl
+            b = by_lot[", ".join(dl)]
+            b["sum"] += d["amount"]; b["accounts"].append(d["acc"])
+    
+    docs = collect_docs(acc2lots)
+    debts_rows, tasks = [], defaultdict(list)
+    today = date.today()
+    
+    for lot in sorted(by_lot, key=lot_key):
+        b = by_lot[lot]
+        status = "Задолженность"
+        for acc in b["accounts"]:
+            if acc in agreements_status:
+                agr_status = agreements_status[acc].lower()
+                if "оплачен" in agr_status or "погашен" in agr_status or "полн" in agr_status:
+                    status = "Оплачено полностью"; break
+                elif "соглашен" in agr_status or "заключен" in agr_status or "рассрочк" in agr_status:
+                    status = "Соглашение заключено"
+        
+        if status != "Оплачено полностью":
+            for acc in b["accounts"]:
+                if acc in claimed_accounts:
+                    if status == "Задолженность": status = "Претензия направлена"
+                    c = claims_csv.get(acc)
+                    if c:
+                        st = (c.get("Статус") or "").strip().lower()
+                        dl = (c.get("Срок_ответа_до") or "").strip()
+                        if st == "иск_сформирован" and status not in ("Оплачено полностью", "Соглашение заключено"):
+                            status = "Готовится иск"
+                            tasks[lot].append({"type": "lawsuit", "tab": "debts", "priority": "danger", "title": "По задолженности готовится иск", "sub": "Урегулируйте вопрос до подачи заявления в суд"})
+                        elif st in ("ok", "test_ok", "отправлено") and dl and status == "Претензия направлена":
+                            try: left = (datetime.strptime(dl, "%d.%m.%Y").date() - today).days
+                            except ValueError: left = None
+                            sub = "Срок ответа до " + dl + ((" (осталось %d дн.)" % left) if left is not None and left >= 0 else " (срок истёк)")
+                            tasks[lot].append({"type": "claim_deadline", "tab": "debts", "priority": "danger" if (left is not None and left <= 3) else "urgent", "title": "Ответ на досудебную претензию", "sub": sub, "deadline": dl})
+                        elif st == "ответил" and status in ("Задолженность", "Претензия направлена"):
+                            status = "Ответ получен"
+        
+        debts_rows.append([lot, "Эксплуатация и КУ", PERIOD_START + "–" + debt_period_end, ("%.2f" % b["sum"]).replace(".", ","), status])
+        
+        if status not in ("Оплачено полностью", "Соглашение заключено"):
+            if docs.get(lot):
+                tasks[lot].append({"type": "agreement", "tab": "docs", "priority": "urgent", "title": "Соглашение о рассрочке готово к подписанию", "sub": "Откройте раздел «Документы» и подтвердите подписание"})
+    
+    meters_common = load_meters_common()
+    polls = collect_polls()
+    
+    meta = {"generated_at": datetime.now().strftime("%d.%m.%Y %H:%M"), "source_date": src_date,
+            "debtors_file": deb_file.name if deb_file else "", "registry_file": reg_file.name if reg_file else "",
+            "lots_total": len(lots_out), "debt_lots": len(debts_rows), "yellow_skipped": yellow,
+            "unmatched": len(unmatched), "registry_issues": len(issues),
+            "poll_votes": sum(p["total"] for p in polls), "cabinet_url": SITE_URL}
+    
+    return {"meta": meta, "company": COMPANY, "lots": lots_out, "debts_rows": debts_rows, "tasks": dict(tasks),
+            "docs": dict(docs), "news": get_news(), "polls": polls, "meters_common": meters_common,
+            "engineer_meters": engineer_meters,
+            "privacy": {"emails": sorted({r["email"] for r in registry if r["email"]}),
+                        "phones": sorted({r["phone"] for r in registry if r["phone"]}),
+                        "fio": sorted({r["fio"] for r in registry})},
+            "issues": issues, "unmatched": unmatched}
+
+# ██ КОНТРОЛЬ 152-ФЗ И ЗАПИСЬ
+def privacy_guard(b):
+    public = json.dumps({k: v for k, v in b.items() if k not in ("privacy", "issues", "unmatched")}, ensure_ascii=False)
+    public += "\n".join("; ".join(r) for r in b["debts_rows"])
+    official = {COMPANY["email_jurist"].lower(), COMPANY["email_buh"].lower(), COMPANY["email_direct"].lower()}
+    official_ph = {re.sub(r"\D", "", v) for v in COMPANY["phones"].values()}
+    hits = []
+    for e in b["privacy"]["emails"]:
+        for part in re.split(r"[,\s;]+", e):
+            if "@" not in part or part.lower() in official: continue
+            if part.lower() in public.lower(): hits.append(part)
+    for p in b["privacy"]["phones"]:
+        for part in re.split(r"[,\s;]+", p):
+            digits = re.sub(r"\D", "", part)
+            if digits in official_ph: continue
+            if len(digits) >= 10 and digits in re.sub(r"\D", "", public): hits.append(part)
+    for f in b["privacy"]["fio"]:
+        if f and f in public: hits.append(f)
+    return sorted(set(hits))
+
+def write_site(b, copy_html=False):
+    DATA.mkdir(parents=True, exist_ok=True)
+    
+    # === Генерация QR-кодов для оплаты ===
+    QR_DIR = SITE / "qr"
+    QR_DIR.mkdir(parents=True, exist_ok=True)
+    qr_links = {}
+    for row in b["debts_rows"]:
+        lot = row[0]
+        sum_str = row[3].replace(".", ",")
+        total_debt = float(sum_str.replace(",", "."))
+        payment_sum = total_debt
+        purpose = f"Оплата задолженности, участок № {lot}"
+        gost_payload = f"ST00012|Name=ООО «ЭК «ЕД-2»|PersonalAcc=40702810938000335019|BankName=ПАО Сбербанк|BIC=044525225|CorrespAcc=30101810400000000225|PayeeINN=7751167800|KPP=770501001|Sum={int(round(payment_sum * 100))}|Purpose={purpose}"
+        safe_lot = lot.replace("/", "_").replace(" ", "")
+        out_file = QR_DIR / f"QR_{safe_lot}.png"
+        qrcode.make(gost_payload).save(out_file)
+        qr_links[lot] = f"qr/{out_file.name}"
+    
+    # Копируем сгенерированные DOCX-соглашения на сайт
+    DOCS_DIR = SITE / "docs"
+    DOCS_DIR.mkdir(parents=True, exist_ok=True)
+    if AGREEMENTS_DIR.exists():
+        for f in AGREEMENTS_DIR.glob("Соглашение_*.docx"):
+            shutil.copy2(f, DOCS_DIR / f.name)
+    
+    (SITE / ".gitignore").write_text(GITIGNORE, encoding="utf-8")
+    for name in ("meta", "company", "lots", "tasks", "docs", "news", "polls", "meters_common", "engineer_meters"):
+        val = b.get(name)
+        if val is None: continue
+        (DATA / (name + ".json")).write_text(json.dumps(val, ensure_ascii=False, indent=1), encoding="utf-8")
+    
+    polls = b.get("polls")
+    if polls:
+        (DATA / "poll.json").write_text(json.dumps(polls[0], ensure_ascii=False, indent=1), encoding="utf-8")
+    
+    with open(DATA / "debts.csv", "w", encoding="utf-8-sig", newline="") as f:
+        w = csv.writer(f, delimiter=";")
+        w.writerow(["Участок", "Услуга", "Период", "Сумма", "Статус", "QR"])
+        for row in b["debts_rows"]:
+            lot = row[0]
+            qr_path = qr_links.get(lot, "")
+            w.writerow(row + [qr_path])
+    
+    if copy_html:
+        print("ℹ️ index.html уже находится в папке site (копирование не требуется)")
+    else:
+        print("ℹ️ index.html не изменялся (по умолчанию; для обновления — --with-html)")
+    
+    # документы и любые файлы с персональными данными не должны попасть в публикацию
+    for bad in list(SITE.glob("*.xlsx")) + list(SITE.glob("*.docx")) + list(SITE.glob("*.pdf")):
+        bad.unlink()
+        print("🗑 Удалён из публикации:", bad.name)
+    for bad in (list(SITE.rglob("пульт_голоса*.json")) + list(SITE.rglob("журнал_голосов*.csv"))
+                + list(SITE.rglob("голос_*.json")) + list(SITE.rglob("обработанные_письма*.json"))):
+        bad.unlink()
+        print("🗑 Удалён из публикации (перс. данные):", bad.name)
+
+def serve():
+    import http.server, functools
+    handler = functools.partial(http.server.SimpleHTTPRequestHandler, directory=str(SITE))
+    print("\n🌐 Локальный тест: http://localhost:8000  (остановить — Ctrl+C)")
+    with http.server.HTTPServer(("127.0.0.1", 8000), handler) as httpd:
+        try: httpd.serve_forever()
+        except KeyboardInterrupt: print("\n⏹ Сервер остановлен")
+
+def init_repo():
+    SITE.mkdir(parents=True, exist_ok=True)
+    if (SITE / ".git").exists(): print("ℹ️ Репозиторий уже инициализирован: ", SITE)
+    else:
+        for cmd in (["git", "init"], ["git", "branch", "-M", GIT_BRANCH], ["git", "remote", "add", "origin", GIT_REPO]): subprocess.run(cmd, cwd=str(SITE))
+        print("✅ Папка site связана с " + GIT_REPO)
+        print("\nДалее выполните ОДИН раз: ")
+        print('   cd "' + str(SITE) + '"')
+        print("   git pull origin " + GIT_BRANCH + " --allow-unrelated-histories")
+        print('   git add . && git commit -m "data" && git push -u origin ' + GIT_BRANCH)
+
+def push():
+    if not (SITE / ".git").exists():
+        print("❌ Папка site не связана с GitHub. Запустите: python сайт_ЭК_ЕД2.py --init")
+        return
+    print("⏳ Подготовка к публикации на GitHub...")
+    subprocess.run(["git", "add", "."], cwd=str(SITE))
+    subprocess.run(["git", "commit", "-m", "Автообновление данных " + datetime.now().strftime("%d.%m.%Y %H:%M")], cwd=str(SITE), capture_output=True)
+    print("⏳ Синхронизация с сервером (git pull)...")
+    pull_res = subprocess.run(["git", "pull", "origin", GIT_BRANCH, "--rebase"], cwd=str(SITE))
+    if pull_res.returncode != 0:
+        print("❌ Ошибка при слиянии (git pull). Возможно, есть конфликты в файлах. Исправьте их вручную.")
+        return
+    print("⏳ Отправка данных (git push)...")
+    push_res = subprocess.run(["git", "push", "origin", GIT_BRANCH], cwd=str(SITE))
+    if push_res.returncode == 0:
+        print("✅ Успешно опубликовано: " + SITE_URL)
+    else:
+        print("❌ Ошибка при отправке на GitHub (git push).")
+
+def main():
+    ap = argparse.ArgumentParser(description="Личный кабинет КП «Европейская долина 2»")
+    ap.add_argument("--serve", action="store_true", help="собрать и запустить локальный тест")
+    ap.add_argument("--push", action="store_true", help="собрать и отправить в GitHub")
+    ap.add_argument("--check", action="store_true", help="только проверка данных")
+    ap.add_argument("--with-html", action="store_true", help="также обновить index.html")
+    ap.add_argument("--no-html", action="store_true", help="(устарело) это поведение по умолчанию")
+    ap.add_argument("--init", action="store_true", help="связать папку site с репозиторием")
+    a = ap.parse_args()
+    
+    if a.init: init_repo(); return
+    
+    print("=" * 62)
+    print("🌐 САЙТ КП «ЕВРОПЕЙСКАЯ ДОЛИНА 2» — сборка данных")
+    print("=" * 62)
+    
+    b = build(); m = b["meta"]
+    print("📂 Реестр:    " + (m["registry_file"] or "НЕ НАЙДЕН"))
+    print("📂 Должники:  " + (m["debtors_file"] or "НЕ НАЙДЕН") + "  (дата выгрузки " + (m["source_date"] or "—") + ")")
+    print("🏷 Участков: %d | с долгом: %d " % (m["lots_total"], m["debt_lots"]))
+    print("🟡 Жёлтых пропущено: %d | без сопоставления: %d " % (m["yellow_skipped"], m["unmatched"]))
+    print("📄 Документов: %d | задач: %d | замечаний по реестру: %d " % (sum(len(v) for v in b["docs"].values()), sum(len(v) for v in b["tasks"].values()), m["registry_issues"]))
+    
+    leaks = privacy_guard(b)
+    if leaks:
+        print("\n🛑 ОСТАНОВЛЕНО: в публикуемых данных найдены персональные данные: ")
+        for x in leaks[:10]: print("   • ", x)
+        return
+    
+    print("🔒 Контроль 152-ФЗ пройден: ФИО, почт и телефонов собственников нет")
+    if a.check: print("\n✅ Проверка завершена (файлы не записаны) "); return
+    
+    write_site(b, copy_html=a.with_html)
+    print("\n✅ Сайт собран: " + str(SITE))
+    
+    if a.push: push()
+    if a.serve: serve()
+    else:
+        print("💡 Локальный тест: python сайт_ЭК_ЕД2.py --serve")
+        print("🌐 Публикация:      " + SITE_URL)
+
+if __name__ == "__main__":
+    main()
