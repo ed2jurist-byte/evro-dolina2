@@ -689,34 +689,34 @@ function docsForLot(){
     return {id:d.id,title:d.title,date:d.date,signed:!!s,stamp:s?s.stamp:"",sent:sent.indexOf(d.id)>=0};
   });
 }
-function renderDocs(){
-  var el=$("doc_list"),docs=docsForLot();
-  var unauthBlock=$("doc_unauth_block");
-  if(!prof()){
-    el.innerHTML="<p style='color:#666;font-size:.9rem'>Пройдите регистрацию, чтобы увидеть документы по участку.</p>";
-    if(unauthBlock) unauthBlock.style.display="block";
-    return;
-  }
-  if(unauthBlock) unauthBlock.style.display="none";
-  if(!docs.length){el.innerHTML="<p style='color:#666;font-size:.9rem'>Документов по вашему участку нет.</p>";return;}
-  el.innerHTML=docs.map(function(d,i){
-    var downloadBtn = d.url ? "<a class='btn outline' style='margin:0 0 8px 0; display:inline-block; font-size:.82rem' href='"+esc(d.url)+"' target='_blank' rel='noopener'>📥 Скачать документ</a><br>" : "";
-    var action="";
-    if(d.signed){
-      action="<div style='margin-top:6px;font-size:.82rem;color:#1b5e20'>✓ "+esc(d.stamp)+"</div>";
-    }else if(d.sent){
-      action="<div style='margin-top:6px;font-size:.82rem;color:var(--amber)'>Отправлено через Яндекс Форму, ожидает подтверждения ООО «ЭК «ЕД-2»</div>"+
-        "<div style='margin-top:8px'><button class='btn outline' style='margin:0' data-unmark-id='"+esc(d.id)+"'>Отменить отметку</button></div>";
-    }else{
-      action="<div style='margin-top:8px'>"+downloadBtn+"<a class='btn outline' style='margin:0; display:inline-block' data-sign-id='"+esc(d.id)+"' href='https://forms.yandex.ru/u/6aff18eb28697b4ecb544905' target='_blank' rel='noopener'>Подписать через Яндекс Форму</a>"+
-        "<button class='btn outline' style='margin:0 0 0 6px;display:inline-block' data-mark-id='"+esc(d.id)+"'>Я отправил(а) форму</button></div>";
-    }
-    return "<div class='item'><b>"+esc(d.title)+"</b>"+
-      (d.signed?"<span class='badge'>Подтверждено</span>":(d.sent?"<span class='badge amber'>Отправлено</span>":"<span class='badge amber'>Ожидает подписи</span>"))+"<br>"+
-      "<span style='color:#666;font-size:.8rem'>№ "+esc(d.id)+" от "+esc(d.date)+"</span>"+
-      action+
-      "</div>";}).join("");
-}
+ function renderDocs(){
+   var el=$("doc_list"),docs=docsForLot();
+   var unauthBlock=$("doc_unauth_block");
+   if(!prof()){
+     el.innerHTML="<p style='color:#666;font-size:.9rem'>Пройдите регистрацию, чтобы увидеть документы по участку.</p>";
+     if(unauthBlock) unauthBlock.style.display="block";
+     return;
+   }
+   if(unauthBlock) unauthBlock.style.display="none";
+   if(!docs.length){el.innerHTML="<p style='color:#666;font-size:.9rem'>Документов по вашему участку нет.</p>";return;}
+   el.innerHTML=docs.map(function(d,i){
+     var downloadBtn = d.url ? "<a class='btn outline' style='margin:0 0 8px 0; display:inline-block; font-size:.82rem' href='"+esc(d.url)+"' target='_blank' rel='noopener'>📥 Скачать документ</a><br>" : "";
+     var action="";
+     if(d.signed){
+       action="<div style='margin-top:6px;font-size:.82rem;color:#1b5e20'>✓ "+esc(d.stamp)+"</div>";
+     }else if(d.sent){
+       action="<div style='margin-top:6px;font-size:.82rem;color:var(--amber)'>Отправлено через Яндекс Форму, ожидает подтверждения ООО «ЭК «ЕД-2»</div>"+
+         "<div style='margin-top:8px'><button class='btn outline' style='margin:0' data-unmark-id='"+esc(d.id)+"'>Отменить отметку</button></div>";
+     }else{
+       action="<div style='margin-top:8px'>"+downloadBtn+"<a class='btn outline' style='margin:0; display:inline-block' data-sign-id='"+esc(d.id)+"' href='https://forms.yandex.ru/u/6aff18eb28697b4ecb544905' target='_blank' rel='noopener'>Подписать через Яндекс Форму</a>"+
+         "<button class='btn outline' style='margin:0 0 0 6px;display:inline-block' data-mark-id='"+esc(d.id)+"'>Я отправил(а) форму</button></div>";
+     }
+     return "<div class='item'><b>"+esc(d.title)+"</b>"+
+       (d.signed?"<span class='badge'>Подтверждено</span>":(d.sent?"<span class='badge amber'>Отправлено</span>":"<span class='badge amber'>Ожидает подписи</span>"))+"<br>"+
+       "<span style='color:#666;font-size:.8rem'>№ "+esc(d.id)+" от "+esc(d.date)+"</span>"+
+       action+
+       "</div>";}).join("");
+ }
 /* ---------- новости ---------- */
 function renderNews(){
   var nws = D.news;
