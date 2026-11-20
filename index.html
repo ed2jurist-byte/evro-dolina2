@@ -267,6 +267,7 @@ footer{text-align:center;font-size:.8rem;color:var(--muted);padding:22px 10px}
     <a class="btn" style="display:inline-block;margin-top:12px" href="https://forms.yandex.ru/u/6aff10e0b9e5ca834449b9b3" target="_blank" rel="noopener">📝 Перейти к форме обращения</a>
     <div class="note">Обращения с юридическими требованиями автоматически выделяются для юротдела.</div>
   </div>
+  <div class="card"><h2>Журнал обращений</h2><div id="i_list"></div></div>
 </section>
 <section id="docs">
   <div class="card">
@@ -403,7 +404,7 @@ function saveProfile(){
          mosenergo_date:$("r_mosenergo_date").value,
          c1:$("r_c1").checked,c2:$("r_c2").checked,c3:$("r_c3").checked,
          reg_date:new Date().toISOString()};
-    if(!p.fio||!p.lot||!p.cad||!p.addr||!p.tel||!p.mail||!p.mosenergo)
+  if(!p.fio||!p.lot||!p.cad||!p.addr||!p.tel||!p.mail||!p.mosenergo)
     return show("reg_msg","err","Заполните все обязательные поля.");
   if(p.mosenergo === "yes" && (!p.mosenergo_num || !p.mosenergo_date))
     return show("reg_msg","err","Пожалуйста, укажите номер и дату договора с Мосэнергосбытом.");
@@ -516,7 +517,7 @@ function renderCompany(){
     "• <b>Бухгалтерия:</b> "+esc(c.email_buh||"ed2.buh@gmail.com")+"<br>"+
     "• <b>Общий:</b> "+esc(c.email_direct||"ed2.info@ya.ru")+"<br>"+
     "• <b>Мессенджер MAX:</b> <a href='https://max.ru/join/7lv4MjtNdRfwkgHaLz2qJeQTWLH2syWpjs18zaFMCCM' target='_blank' style='color:var(--green); text-decoration:underline;'>Присоединиться к каналу</a></div></div>";
-    $("requisites").innerHTML=
+  $("requisites").innerHTML=
     "<b>Наименование:</b> "+esc(c.name||"ООО «ЭК «Европейская Долина-2»")+"<br>"+
     "<b>Юридический адрес:</b> "+esc(c.legal_address||"115172, Г.МОСКВА, ВН.ТЕР.Г. МУНИЦИПАЛЬНЫЙ ОКРУГ ТАГАНСКИЙ, УЛ БОЛЬШИЕ КАМЕНЩИКИ, Д. 21/8, ПОДВ. ПОМ.II, КОМ. 1Б")+"<br>"+
     "<b>Фактический адрес:</b> "+esc(c.office_address||"108825, г. Москва, вн. тер. г. муниципальный округ Краснопахорский, пер. 4-й Дунайский, д. 21")+"<br>"+
@@ -604,7 +605,7 @@ function renderReadings(){
       return "<tr><td>"+esc(x.date)+"</td><td>"+esc(x.type)+"</td><td><b>"+esc(x.cur)+"</b></td><td>"+esc(x.prev==null?"—":x.prev)+"</td><td>"+photoHtml+"</td><td>"+esc(x.note||"—")+"</td></tr>";
     }).join("")+"</tbody></table>";
 }
-/* ---------- показания электросчётчика (только чтение) ---------- */
+/* ---------- показания электросчётчика ---------- */
 function renderElecMeters(){
   var el = $("e_list");
   var p = prof();
@@ -638,7 +639,7 @@ function renderElecMeters(){
         "<td style='color:"+(parts.length?"#1b5e20":"#999")+";font-weight:bold'>"+diff+"</td></tr>";
 }).join("")+"</tbody></table>";
 }
-/* ---------- пропуска: тарифы и памятка ---------- */
+/* ---------- пропуска ---------- */
 var TARIFFS=[
   {cat:"До 3,5 т", in:250, day:950, month:25000},
   {cat:"Свыше 3,5 т", in:600, day:1400, month:37000},
@@ -664,7 +665,17 @@ function copyPhone(){
   document.body.removeChild(tempInput);
 }
 /* ---------- обращения ---------- */
-function issues(){var l=myLot();return loadArr("ed2_issues").filter(function(r){return l
+function issues(){var l=myLot();return loadArr("ed2_issues").filter(function(r){return l&&lotMatch(r.lot,l);});}
+function renderIssues(){
+  var l=issues(),el=$("i_list");
+  if(!l.length){el.innerHTML="<p style='color:#666;font-size:.9rem'>Обращений пока нет.</p>";return;}
+  el.innerHTML=l.slice().reverse().map(function(x){
+    return "<div class='item'><b>"+esc(x.title)+"</b><span class='badge'>"+esc(x.cat)+"</span>"+
+      (x.prio.indexOf("Срочный")===0?"<span class='badge red'>Срочный</span>":"")+
+      (x.legal_risk?"<span class='badge amber'>Юротдел</span>":"")+"<br>"+
+      "<span style='color:#666;font-size:.8rem'>"+esc(x.id)+" · "+esc(x.date)+" · "+esc(x.status)+"</span>"+
+      "<p style='margin-top:6px'>"+esc(x.text).replace(/\n/g,"<br>")+"</p></div>";}).join("");
+}
 /* ---------- документы ---------- */
 function signedKey(){return "ed2_signed_"+(myLot()||"guest");}
 function sentKey(){return "ed2_sent_"+(myLot()||"guest");}
@@ -676,7 +687,7 @@ function docsForLot(){
   var sent=loadArr(sentKey());
   return pickByLot(D.docs,p.lot).map(function(d){
     var s=signed.filter(function(x){return x.id===d.id;})[0];
-    return {id:d.id,title:d.title,date:d.date,signed:!!s,stamp:s?s.stamp:"",sent:sent.indexOf(d.id)>=0,url:d.url||""};
+    return {id: d.id, title: d.title, date: d.date, signed: !!s, stamp: s ? s.stamp : "", sent: sent.indexOf(d.id) >= 0, url: d.url || ""};
   });
 }
 function renderDocs(){
@@ -729,7 +740,7 @@ function renderNews(){
     }
   }
 }
-/* ---------- задолженности (строго индивидуальные) ---------- */
+/* ---------- задолженности ---------- */
 function renderDebts(){
   var p=prof();
   var authBlock=$("debts_auth_block");
@@ -748,7 +759,7 @@ function renderDebts(){
     b.innerHTML="<tr><td colspan='4' style='text-align:center;color:#666'>Задолженность по вашему участку не зафиксирована.</td></tr>";
     return;
   }
-    b.innerHTML=mine.map(function(d){
+  b.innerHTML=mine.map(function(d){
     var qrHtml = "";
     if (d.qr) {
        qrHtml = "<div style='margin-top:10px; padding:10px; background:#f9fbf9; border:1px solid #c8e6c9; border-radius:8px; display:inline-block; text-align:center;'>" +
@@ -791,6 +802,7 @@ function renderAll(){
   try { renderReadings(); } catch(e) { console.error("Ошибка в Воде:", e); }
   try { renderDebts(); } catch(e) { console.error("Ошибка в Долгах:", e); } 
   try { renderTariffs(); } catch(e) { console.error("Ошибка в Тарифах:", e); }
+  try { renderIssues(); } catch(e) { console.error("Ошибка в Обращениях:", e); }
   try { renderDocs(); } catch(e) { console.error("Ошибка в Документах:", e); }
   try { renderNews(); } catch(e) { console.error("Ошибка в Новостях:", e); }
   try { renderElecMeters(); } catch(e) { console.error("Ошибка в Счетчиках:", e); }
