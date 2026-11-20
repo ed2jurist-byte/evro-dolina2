@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -154,10 +155,10 @@ footer{text-align:center;font-size:.8rem;color:var(--muted);padding:22px 10px}
   </div>
   <div class="card">
     <h2>📜 История показаний воды</h2>
+    <div class="note" style="background:#e8f5e9; border-left-color:#2e7d32; margin-bottom:12px">
+      Показания, переданные через Яндекс Форму, обрабатываются главным инженером и отображаются здесь в сводном виде (аналогично разделу электросчётчиков). Функции локального экспорта отключены.
+    </div>
     <div id="m_list"></div>
-    <button class="btn gray" id="btn_csv">Выгрузить CSV</button>
-    <button class="btn gray" id="btn_letter">Письмо в бухгалтерию</button>
-    <pre id="m_letter"></pre>
   </div>
   <div class="card" id="elec_meter_block">
     <h2>⚡ Показания электросчётчика</h2>
@@ -262,7 +263,7 @@ footer{text-align:center;font-size:.8rem;color:var(--muted);padding:22px 10px}
 <section id="issues">
   <div class="card">
     <h2>Заявка / обращение в ООО «ЭК «ЕД-2»</h2>
-    <p style="font-size:.88rem;color:var(--muted)">Приём обращений ведётся через официальную форму Яндекс Формы «Обращения собственников ЕД2». Нажмите кнопку, заполните поля и отправьте — заявка поступит в УК автоматически.</p>
+    <p style="font-size:.88rem;color:var(--muted)">Приём обращений ведётся через официальную форму «Обращения собственников ЕД2». Нажмите кнопку, заполните поля и отправьте — заявка поступит в ООО «ЭК «ЕД-2» автоматически.</p>
     <a class="btn" style="display:inline-block;margin-top:12px" href="https://forms.yandex.ru/u/6aff10e0b9e5ca834449b9b3" target="_blank" rel="noopener">📝 Перейти к форме обращения</a>
     <div class="note">Обращения с юридическими требованиями автоматически выделяются для юротдела.</div>
   </div>
@@ -559,8 +560,8 @@ function renderTasks(){
       t.push({cls:"urgent",tab:"meters",title:"Передайте показания за текущий месяц",sub:"Рекомендуемый срок — до 25 числа"});
     var unsigned=docsForLot().filter(function(d){return !d.signed;});
     if(unsigned.length)
-      t.push({cls:"urgent",tab:"docs",title:"Документы на подтверждение ("+unsigned.length+")",
-              sub:"Требуется подтверждение подписания"});
+      t.push({cls:"urgent",tab:"docs",title:"🔔 Новые документы по участку ("+unsigned.length+")",
+              sub:"Требуется ознакомление и подтверждение подписания"});
   }
   if(!t.length){
     box.innerHTML="<div class='task done'><div><div class='t-title'>Нет задач, требующих внимания</div>"+
@@ -573,40 +574,6 @@ function renderTasks(){
 }
 /* ---------- счётчики воды ---------- */
 function readings(){var l=myLot();return loadArr("ed2_meters").filter(function(r){return l&&lotMatch(r.lot,l);});}
-function addReading(){
-  var p=prof(); if(!p) return show("m_msg","err","Сначала пройдите регистрацию.");
-  var cur=parseFloat($("m_cur").value), prev=$("m_prev").value===""?null:parseFloat($("m_prev").value);
-  if(isNaN(cur)||cur<0) return show("m_msg","err","Введите корректное текущее показание.");
-  if(prev!==null&&cur<=prev) return show("m_msg","err","Текущее показание должно быть больше предыдущего ("+prev+").");
-  var rid=Date.now();
-  var all=loadArr("ed2_meters");
-  all.push({id:rid,date:$("m_date").value,type:$("m_type").value,cur:cur,prev:prev,
-    note:$("m_note").value.trim(),lot:p.lot,cad:p.cad,fio:p.fio,sent:true});
-  saveArr("ed2_meters",all);
-  var fd=new URLSearchParams();
-  fd.append("ID записи", rid);
-  fd.append("Номер участка", p.lot);
-  fd.append("ФИО собственника", p.fio);
-  fd.append("Кадастровый номер", p.cad);
-  fd.append("Тип счётчика:", $("m_type").value);
-  fd.append("Дата снятия показаний", $("m_date").value);
-  fd.append("Текущее показание", cur);
-  fd.append("Предыдущее показание", prev!=null?prev:"");
-  fd.append("Заводской номер / примечание", $("m_note").value.trim());
-  fetch("https://forms.yandex.ru/u/6afe02459029026f2ec3f73f",{
-    method:"POST",
-    headers:{"Content-Type":"application/x-www-form-urlencoded"},
-    body:fd.toString()
-  }).then(function(r){
-    if(!r.ok) throw 0;
-    $("m_cur").value="";$("m_prev").value="";$("m_note").value="";
-    show("m_msg","ok","Показание отправлено в Эксплуатационную компанию. Статус появится в таблице.");
-    renderReadings();renderTasks();
-  }).catch(function(){
-    show("m_msg","ok","Показание сохранено в кабинете. Отправьте его повторно позже или выгрузите пакет для Эксплуатационной компании.");
-    renderReadings();renderTasks();
-  });
-}
 function calcWaterDiff(){
   var cur = parseFloat($("m_cur").value);
   var prev = $("m_prev").value === "" ? null : parseFloat($("m_prev").value);
@@ -639,24 +606,6 @@ function renderReadings(){
       var photoHtml = x.photo ? "<span style='color:var(--green);cursor:pointer' onclick='window.open(\""+x.photo+"\")'>📷 Просмотр</span>" : "—";
       return "<tr><td>"+esc(x.date)+"</td><td>"+esc(x.type)+"</td><td><b>"+esc(x.cur)+"</b></td><td>"+esc(x.prev==null?"—":x.prev)+"</td><td>"+photoHtml+"</td><td>"+esc(x.note||"—")+"</td></tr>";
     }).join("")+"</tbody></table>";
-}
-function exportCSV(){
-  var r=readings(); if(!r.length) return alert("Нет данных для выгрузки.");
-  function q(v){return '"'+String(v==null?"":v).replace(/"/g,'""')+'"';}
-  var csv=["Участок;Кадастр;ФИО;Дата;Тип;Текущее;Предыдущее;Примечание"].concat(
-    r.map(function(x){return [x.lot,x.cad,x.fio,x.date,x.type,x.cur,x.prev,x.note].map(q).join(";");})).join("\n");
-  var a=document.createElement("a");
-  a.href=URL.createObjectURL(new Blob(["\ufeff"+csv],{type:"text/csv"}));
-  a.download="pokazaniya_ED2_"+normLot(r[0].lot).replace(/\//g,"-")+".csv";a.click();
-}
-function genLetter(){
-  var r=readings(),p=prof(); if(!p||!r.length) return alert("Нет данных.");
-  var t="Кому: Бухгалтерия "+(D.company.short||"ООО «ЭК «ЕД-2»")+" ("+(D.company.email_buh||"")+")\n"+
-    "От: собственника участка №"+p.lot+" (кадастр "+p.cad+"), "+p.fio+"\n"+
-    "Адрес участка: "+p.addr_full+"\nТема: Передача показаний приборов учёта\n\n"+
-    r.map(function(x){return "- "+x.date+" | "+x.type+": "+x.cur+(x.prev!=null?" (пред. "+x.prev+")":"");}).join("\n")+
-    "\n\nТелефон: "+p.tel+", e-mail: "+p.mail;
-  var el=$("m_letter");el.style.display="block";el.textContent=t;
 }
 /* ---------- показания электросчётчика (только чтение) ---------- */
 function renderElecMeters(){
@@ -755,6 +704,7 @@ function renderDocs(){
   if(!docs.length){el.innerHTML="<p style='color:#666;font-size:.9rem'>Документов по вашему участку нет.</p>";return;}
   el.innerHTML=docs.map(function(d,i){
     var badge=d.signed?"<span class='badge'>Подтверждено</span>":(d.sent?"<span class='badge amber'>Отправлено</span>":"<span class='badge amber'>Ожидает подписи</span>");
+    var downloadBtn = d.url ? "<a class='btn outline' style='margin:0 0 8px 0; display:inline-block; font-size:.82rem' href='"+esc(d.url)+"' target='_blank' rel='noopener'>📥 Скачать документ</a><br>" : "";
     var action="";
     if(d.signed){
       action="<div style='margin-top:6px;font-size:.82rem;color:#1b5e20'>✓ "+esc(d.stamp)+"</div>";
@@ -766,7 +716,8 @@ function renderDocs(){
         "<button class='btn outline' style='margin:0 0 0 6px;display:inline-block' data-mark-id='"+esc(d.id)+"'>Я отправил(а) форму</button></div>";
     }
     return "<div class='item'><b>"+esc(d.title)+"</b>"+badge+"<br>"+
-      "<span style='color:#666;font-size:.8rem'>№ "+esc(d.id)+" от "+esc(d.date)+"</span>"+action+
+      "<span style='color:#666;font-size:.8rem'>№ "+esc(d.id)+" от "+esc(d.date)+"</span><br>"+
+      downloadBtn+action+
       "</div>";}).join("");
 }
 /* ---------- новости ---------- */
@@ -902,8 +853,6 @@ document.addEventListener("click",function(e){
 });
 if($("btn_save")) $("btn_save").onclick=saveProfile; 
 if($("btn_clear")) $("btn_clear").onclick=clearProfile;
-if($("btn_csv")) $("btn_csv").onclick=exportCSV; 
-if($("btn_letter")) $("btn_letter").onclick=genLetter;
 if($("btn_export")) $("btn_export").onclick=exportJSON; 
 if($("btn_copy")) $("btn_copy").onclick=copyJSON;
 if($("btn_copy_phone")) $("btn_copy_phone").onclick=copyPhone;
