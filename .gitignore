@@ -4,6 +4,9 @@
 !index.html
 !qrcode.min.js
 !payment_qr.png
+!icon.svg
+!manifest.json
+!favicon.ico
 !data/
 !data/**
 !qr/
