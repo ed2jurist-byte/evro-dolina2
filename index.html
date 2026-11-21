@@ -267,7 +267,6 @@ footer{text-align:center;font-size:.8rem;color:var(--muted);padding:22px 10px}
     <a class="btn" style="display:inline-block;margin-top:12px" href="https://forms.yandex.ru/u/6aff10e0b9e5ca834449b9b3" target="_blank" rel="noopener">📝 Перейти к форме обращения</a>
     <div class="note">Обращения с юридическими требованиями автоматически выделяются для юротдела.</div>
   </div>
-  <div class="card"><h2>Журнал обращений</h2><div id="i_list"></div></div>
 </section>
 <section id="docs">
   <div class="card">
@@ -664,18 +663,6 @@ function copyPhone(){
   }
   document.body.removeChild(tempInput);
 }
-/* ---------- обращения ---------- */
-function issues(){var l=myLot();return loadArr("ed2_issues").filter(function(r){return l&&lotMatch(r.lot,l);});}
-function renderIssues(){
-  var l=issues(),el=$("i_list");
-  if(!l.length){el.innerHTML="<p style='color:#666;font-size:.9rem'>Обращений пока нет.</p>";return;}
-  el.innerHTML=l.slice().reverse().map(function(x){
-    return "<div class='item'><b>"+esc(x.title)+"</b><span class='badge'>"+esc(x.cat)+"</span>"+
-      (x.prio.indexOf("Срочный")===0?"<span class='badge red'>Срочный</span>":"")+
-      (x.legal_risk?"<span class='badge amber'>Юротдел</span>":"")+"<br>"+
-      "<span style='color:#666;font-size:.8rem'>"+esc(x.id)+" · "+esc(x.date)+" · "+esc(x.status)+"</span>"+
-      "<p style='margin-top:6px'>"+esc(x.text).replace(/\n/g,"<br>")+"</p></div>";}).join("");
-}
 /* ---------- документы ---------- */
 function signedKey(){return "ed2_signed_"+(myLot()||"guest");}
 function sentKey(){return "ed2_sent_"+(myLot()||"guest");}
@@ -802,7 +789,6 @@ function renderAll(){
   try { renderReadings(); } catch(e) { console.error("Ошибка в Воде:", e); }
   try { renderDebts(); } catch(e) { console.error("Ошибка в Долгах:", e); } 
   try { renderTariffs(); } catch(e) { console.error("Ошибка в Тарифах:", e); }
-  try { renderIssues(); } catch(e) { console.error("Ошибка в Обращениях:", e); }
   try { renderDocs(); } catch(e) { console.error("Ошибка в Документах:", e); }
   try { renderNews(); } catch(e) { console.error("Ошибка в Новостях:", e); }
   try { renderElecMeters(); } catch(e) { console.error("Ошибка в Счетчиках:", e); }
