@@ -2,10 +2,11 @@
  {
   "lot": "21",
   "date": "2026-11-20",
-  "type": "Водоотведение",
-  "cur": 1456.0,
-  "prev": 1453.0,
-  "diff": 3.0,
+  "type": "ХВС / водоотведение",
+  "cur": 1456,
+  "prev": 1453,
+  "diff": 3,
+  "photo": "https://disk.yandex.ru/client/disk/Yandex.Forms/6afe02459029026f2ec3f73f/Files?idApp=client&dialog=slider&idDialog=%2Fdisk%2FYandex.Forms%2F6afe02459029026f2ec3f73f%2FFiles%2F6b0147efc45c0707762a1dee_image_10_11_26_04_42.jpeg",
   "note": "Ноябрь 2026"
  }
 ]

@@ -609,12 +609,22 @@ document.addEventListener("input", function(e){
   }
 });
 function renderReadings(){
-  var r=readings(),el=$("m_list");
-  if(!r.length){el.innerHTML="<p style='color:#666;font-size:.9rem'>Показаний пока нет.</p>";return;}
-  el.innerHTML="<table><thead><tr><th>Дата</th><th>Тип</th><th>Текущее</th><th>Пред.</th><th>Фото</th><th>Примечание</th></tr></thead><tbody>"+
-    r.slice().reverse().map(function(x){
+  var p = prof();
+  var el = $("m_list");
+  if(!p){
+    el.innerHTML = "<p style='color:#666;font-size:.9rem'>Пройдите регистрацию, чтобы увидеть историю показаний по вашему участку.</p>";
+    return;
+  }
+  var rows = (D.water_meters || []).filter(function(x){ return x && lotMatch(x.lot, p.lot); });
+  if(!rows.length){
+    el.innerHTML = "<p style='color:#666;font-size:.9rem'>Показаний по участку №"+esc(p.lot)+" пока нет.</p>";
+    return;
+  }
+  el.innerHTML="<table><thead><tr><th>Дата</th><th>Тип</th><th>Текущее</th><th>Пред.</th><th>Разница</th><th>Фото</th><th>Примечание</th></tr></thead><tbody>"+
+    rows.slice().reverse().map(function(x){
       var photoHtml = x.photo ? "<span style='color:var(--green);cursor:pointer' onclick='window.open(\""+x.photo+"\")'>📷 Просмотр</span>" : "—";
-      return "<tr><td>"+esc(x.date)+"</td><td>"+esc(x.type)+"</td><td><b>"+esc(x.cur)+"</b></td><td>"+esc(x.prev==null?"—":x.prev)+"</td><td>"+photoHtml+"</td><td>"+esc(x.note||"—")+"</td></tr>";
+      var diff = (x.diff==null||x.diff==="") ? "—" : x.diff;
+      return "<tr><td>"+esc(x.date)+"</td><td>"+esc(x.type)+"</td><td><b>"+esc(x.cur)+"</b></td><td>"+esc(x.prev==null?"—":x.prev)+"</td><td style='color:#1b5e20;font-weight:bold'>"+esc(diff)+"</td><td>"+photoHtml+"</td><td>"+esc(x.note||"—")+"</td></tr>";
     }).join("")+"</tbody></table>";
 }
 /* ---------- показания электросчётчика ---------- */
