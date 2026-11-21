@@ -158,6 +158,7 @@ footer{text-align:center;font-size:.8rem;color:var(--muted);padding:22px 10px}
     <div class="note" style="background:#e8f5e9; border-left-color:#2e7d32; margin-bottom:12px">
       Показания, переданные через Яндекс Форму, обрабатываются главным инженером и отображаются здесь в сводном виде. Функции локального экспорта отключены.
     </div>
+    <div id="water_meters_list"></div>
     <div id="m_list"></div>
   </div>
   <div class="card" id="elec_meter_block">
@@ -267,6 +268,7 @@ footer{text-align:center;font-size:.8rem;color:var(--muted);padding:22px 10px}
     <a class="btn" style="display:inline-block;margin-top:12px" href="https://forms.yandex.ru/u/6aff10e0b9e5ca834449b9b3" target="_blank" rel="noopener">📝 Перейти к форме обращения</a>
     <div class="note">Обращения с юридическими требованиями автоматически выделяются для юротдела.</div>
   </div>
+  <div class="card"><h2>Журнал обращений</h2><div id="i_list"></div></div>
 </section>
 <section id="docs">
   <div class="card">
@@ -354,6 +356,7 @@ function loadArr(k){try{return JSON.parse(localStorage.getItem(k))||[];}catch(e)
 function saveArr(k,v){localStorage.setItem(k,JSON.stringify(v));}
 function fmt(n){return new Intl.NumberFormat("ru-RU",{minimumFractionDigits:2,maximumFractionDigits:2}).format(n);}
 function money(n){return new Intl.NumberFormat("ru-RU",{maximumFractionDigits:0}).format(n);}
+
 /* ---------- участки ---------- */
 function normLot(s){
   s=String(s||"").toLowerCase();
@@ -391,6 +394,7 @@ function findLotCard(lot){
 }
 function normCad(s){return String(s||"").replace(/\s+/g,"");}
 function normAddr(s){return String(s||"").toLowerCase().replace(/[\s.,]/g,"");}
+
 /* ---------- профиль ---------- */
 function prof(){try{return JSON.parse(localStorage.getItem("ed2_profile"))||null;}catch(e){return null;}}
 function myLot(){var p=prof();return p?normLot(p.lot):"";}
@@ -450,8 +454,9 @@ function clearProfile(){
   show("reg_msg","ok","Профиль и согласие удалены из браузера.");
   renderAll();
 }
+
 /* ---------- данные от локального агента ---------- */
-var D={meta:{},company:{},lots:[],tasks:{},docs:{},news:[],debts:[],elec_meters:[]};
+var D={meta:{},company:{},lots:[],tasks:{},docs:{},news:[],debts:[],elec_meters:[],water_meters:[]};
 function getJSON(name,fb){
   return fetch("data/"+name+".json?t="+Date.now())
     .then(function(r){return r.ok?r.json():fb;}).catch(function(){return fb;});
@@ -483,7 +488,8 @@ function loadAll(){
     getJSON("docs",{}),
     getJSON("news",[]),
     loadDebts(),
-    getJSON("engineer_meters",[])
+    getJSON("engineer_meters",[]),
+    getJSON("water_meters",[])
   ]).then(function(r){
     D.meta=r[0]||{};
     D.company=r[1]||{};
@@ -493,9 +499,11 @@ function loadAll(){
     D.news=r[5]||[];
     D.debts=r[6]||[];
     D.elec_meters=r[7]||[];
+    D.water_meters=r[8]||[];
     if(!Array.isArray(D.news)) D.news = [];
     if(!Array.isArray(D.debts)) D.debts = [];
     if(!Array.isArray(D.elec_meters)) D.elec_meters = [];
+    if(!Array.isArray(D.water_meters)) D.water_meters = [];
     if(!Array.isArray(D.lots)) D.lots = [];
     renderAll();
   }).catch(function(err){
@@ -503,6 +511,7 @@ function loadAll(){
     renderAll();
   });
 }
+
 /* ---------- реквизиты и контакты ---------- */
 function renderCompany(){
   var c=D.company||{};
@@ -533,6 +542,7 @@ function renderCompany(){
   $("lots_list").innerHTML=(D.lots||[]).map(function(l){
     return "<option value='"+esc(l.lot)+"'>"+esc(l.addr_short||"")+"</option>";}).join("");
 }
+
 /* ---------- центр задач ---------- */
 function renderTasks(){
   var p=prof(),box=$("tasks"),t=[];
@@ -569,6 +579,7 @@ function renderTasks(){
     return "<div class='task "+x.cls+"' data-go='"+esc(x.tab)+"'><div><div class='t-title'>"+esc(x.title)+
       "</div><div class='t-sub'>"+esc(x.sub)+"</div></div><div>→</div></div>";}).join("");
 }
+
 /* ---------- счётчики воды ---------- */
 function readings(){var l=myLot();return loadArr("ed2_meters").filter(function(r){return l&&lotMatch(r.lot,l);});}
 function calcWaterDiff(){
@@ -604,6 +615,41 @@ function renderReadings(){
       return "<tr><td>"+esc(x.date)+"</td><td>"+esc(x.type)+"</td><td><b>"+esc(x.cur)+"</b></td><td>"+esc(x.prev==null?"—":x.prev)+"</td><td>"+photoHtml+"</td><td>"+esc(x.note||"—")+"</td></tr>";
     }).join("")+"</tbody></table>";
 }
+
+function renderWaterMeters(){
+  var el = $("water_meters_list");
+  if(!el) return;
+  var p = prof();
+  var wm = (D.water_meters || []).filter(function(x){ return x && lotMatch(x.lot, p ? p.lot : ""); });
+  
+  if(!p || !wm.length){
+    el.innerHTML = "<div style='display:grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap:10px; margin-top:12px;'>"+
+      "<div class='item' style='text-align:center; padding:10px;'><b style='font-size:.75rem;color:var(--muted)'>Тип счётчика</b><div style='font-size:.9rem;margin-top:4px'>ХВС</div></div>"+
+      "<div class='item' style='text-align:center; padding:10px;'><b style='font-size:.75rem;color:var(--muted)'>Дата</b><div style='font-size:.9rem;margin-top:4px'>ДД.ММ.ГГГГ</div></div>"+
+      "<div class='item' style='text-align:center; padding:10px;'><b style='font-size:.75rem;color:var(--muted)'>Текущее</b><div style='font-size:.9rem;margin-top:4px'>000.00</div></div>"+
+      "<div class='item' style='text-align:center; padding:10px;'><b style='font-size:.75rem;color:var(--muted)'>Предыдущее</b><div style='font-size:.9rem;margin-top:4px'>000.00</div></div>"+
+      "<div class='item' style='text-align:center; padding:10px;'><b style='font-size:.75rem;color:var(--muted)'>Расход</b><div style='font-size:.9rem;margin-top:4px'>0.00</div></div>"+
+      "</div>";
+    return;
+  }
+  
+  el.innerHTML = "<div style='margin-top:12px'>" + wm.slice().reverse().map(function(x){
+    var type = esc(x.type || "ХВС");
+    var date = esc(x.date || "—");
+    var cur = esc(x.cur != null ? x.cur : "—");
+    var prev = esc(x.prev != null ? x.prev : "—");
+    var diff = esc(x.diff != null ? x.diff : "—");
+    var diffColor = (parseFloat(diff) > 0) ? "#1b5e20" : "#999";
+    return "<div class='item' style='display:grid; grid-template-columns: repeat(5, 1fr); gap:8px; text-align:center; margin-bottom:8px;'>"+
+      "<div><b style='font-size:.75rem;color:var(--muted)'>Тип</b><div>"+type+"</div></div>"+
+      "<div><b style='font-size:.75rem;color:var(--muted)'>Дата</b><div>"+date+"</div></div>"+
+      "<div><b style='font-size:.75rem;color:var(--muted)'>Текущее</b><div><b>"+cur+"</b></div></div>"+
+      "<div><b style='font-size:.75rem;color:var(--muted)'>Предыдущее</b><div>"+prev+"</div></div>"+
+      "<div><b style='font-size:.75rem;color:var(--muted)'>Расход</b><div style='color:"+diffColor+"; font-weight:bold'>"+diff+"</div></div>"+
+      "</div>";
+  }).join("") + "</div>";
+}
+
 /* ---------- показания электросчётчика ---------- */
 function renderElecMeters(){
   var el = $("e_list");
@@ -638,6 +684,7 @@ function renderElecMeters(){
         "<td style='color:"+(parts.length?"#1b5e20":"#999")+";font-weight:bold'>"+diff+"</td></tr>";
 }).join("")+"</tbody></table>";
 }
+
 /* ---------- пропуска ---------- */
 var TARIFFS=[
   {cat:"До 3,5 т", in:250, day:950, month:25000},
@@ -663,6 +710,20 @@ function copyPhone(){
   }
   document.body.removeChild(tempInput);
 }
+
+/* ---------- обращения ---------- */
+function issues(){var l=myLot();return loadArr("ed2_issues").filter(function(r){return l&&lotMatch(r.lot,l);});}
+function renderIssues(){
+  var l=issues(),el=$("i_list");
+  if(!l.length){el.innerHTML="<p style='color:#666;font-size:.9rem'>Обращений пока нет.</p>";return;}
+  el.innerHTML=l.slice().reverse().map(function(x){
+    return "<div class='item'><b>"+esc(x.title)+"</b><span class='badge'>"+esc(x.cat)+"</span>"+
+      (x.prio.indexOf("Срочный")===0?"<span class='badge red'>Срочный</span>":"")+
+      (x.legal_risk?"<span class='badge amber'>Юротдел</span>":"")+"<br>"+
+      "<span style='color:#666;font-size:.8rem'>"+esc(x.id)+" · "+esc(x.date)+" · "+esc(x.status)+"</span>"+
+      "<p style='margin-top:6px'>"+esc(x.text).replace(/\n/g,"<br>")+"</p></div>";}).join("");
+}
+
 /* ---------- документы ---------- */
 function signedKey(){return "ed2_signed_"+(myLot()||"guest");}
 function sentKey(){return "ed2_sent_"+(myLot()||"guest");}
@@ -674,7 +735,7 @@ function docsForLot(){
   var sent=loadArr(sentKey());
   return pickByLot(D.docs,p.lot).map(function(d){
     var s=signed.filter(function(x){return x.id===d.id;})[0];
-    return {id: d.id, title: d.title, date: d.date, signed: !!s, stamp: s ? s.stamp : "", sent: sent.indexOf(d.id) >= 0, url: d.url || ""};
+    return {id:d.id,title:d.title,date:d.date,signed:!!s,stamp:s?s.stamp:"",sent:sent.indexOf(d.id)>=0,url:d.url||""};
   });
 }
 function renderDocs(){
@@ -705,6 +766,7 @@ function renderDocs(){
       action+
       "</div>";}).join("");
 }
+
 /* ---------- новости ---------- */
 function renderNews(){
   var nws = D.news;
@@ -727,6 +789,7 @@ function renderNews(){
     }
   }
 }
+
 /* ---------- задолженности ---------- */
 function renderDebts(){
   var p=prof();
@@ -757,6 +820,7 @@ function renderDebts(){
     return "<tr class='mine'><td>"+esc(d.srv)+"</td><td>"+esc(d.per)+
       "</td><td>"+fmt(d.sum)+"</td><td><span class='badge red'>"+esc(d.st)+"</span>"+qrHtml+"</td></tr>";}).join("");
 }
+
 /* ---------- экспорт ---------- */
 function payload(){
   var p=prof();
@@ -775,6 +839,7 @@ function copyJSON(){
   var d=payload(); if(!d) return alert("Сначала заполните профиль собственника.");
   navigator.clipboard.writeText(JSON.stringify(d,null,2)).then(function(){alert("Пакет скопирован в буфер обмена.");});
 }
+
 /* ---------- навигация и инициализация ---------- */
 function go(tab){
   Array.prototype.forEach.call(document.querySelectorAll("#nav button"),function(b){
@@ -787,8 +852,10 @@ function renderAll(){
   try { renderCompany(); } catch(e) { console.error("Ошибка в Компании:", e); }
   try { renderTasks(); } catch(e) { console.error("Ошибка в Задачах:", e); }
   try { renderReadings(); } catch(e) { console.error("Ошибка в Воде:", e); }
+  try { renderWaterMeters(); } catch(e) { console.error("Ошибка в Водосчетчиках:", e); }
   try { renderDebts(); } catch(e) { console.error("Ошибка в Долгах:", e); } 
   try { renderTariffs(); } catch(e) { console.error("Ошибка в Тарифах:", e); }
+  try { renderIssues(); } catch(e) { console.error("Ошибка в Обращениях:", e); }
   try { renderDocs(); } catch(e) { console.error("Ошибка в Документах:", e); }
   try { renderNews(); } catch(e) { console.error("Ошибка в Новостях:", e); }
   try { renderElecMeters(); } catch(e) { console.error("Ошибка в Счетчиках:", e); }
@@ -827,7 +894,6 @@ document.addEventListener("click",function(e){
   else if(t.dataset.go) go(t.dataset.go);
   else if(t.dataset.vote!==undefined) vote(+t.dataset.vote);
 });
-/* авто-смена статуса документа: «Ожидает подписи» → «Отправлено» */
 document.addEventListener("click",function(e){
   var s=e.target.closest("[data-sign-id],[data-mark-id],[data-unmark-id]");
   if(!s) return;
@@ -835,7 +901,6 @@ document.addEventListener("click",function(e){
   else if(s.dataset.markId!==undefined){markDocSent(s.dataset.markId);renderDocs();}
   else if(s.dataset.unmarkId!==undefined){unmarkDocSent(s.dataset.unmarkId);renderDocs();}
 });
-// Привязки кнопок null-safe: отсутствие кнопки в HTML не рвёт скрипт
 if($("btn_save")) $("btn_save").onclick=saveProfile; 
 if($("btn_clear")) $("btn_clear").onclick=clearProfile;
 if($("btn_export")) $("btn_export").onclick=exportJSON; 
