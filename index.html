@@ -233,16 +233,8 @@ footer{text-align:center;font-size:.8rem;color:var(--muted);padding:22px 10px}
     <thead><tr><th>Категория ТС</th><th>Въезд</th><th>Стоянка суточная</th><th>Стоянка месячная</th></tr></thead>
     <tbody id="t_body"></tbody>
   </table>
-  <div id="except_box" class="except-box"></div>
+  <div id="except_box" class="except-box" style="margin-top:12px;padding:12px;background:#e8f5e9;border-radius:8px;font-size:.9rem"></div>
 </div>
-  <div class="card" id="pv_tariffs">
-    <h2>02 · Тарифы (приказ № 11/01)</h2>
-    <table>
-      <thead><tr><th>Категория ТС</th><th>Въезд</th><th>Стоянка суточная</th><th>Стоянка месячная</th></tr></thead>
-      <tbody id="t_body"></tbody>
-    </table>
-    <div class="except-box"><b>Бесплатно:</b> доставка Яндекс / Озон / Лемана Про и экстренные службы.</div>
-  </div>
   <div class="card" id="pv_pay">
     <h2>03 · Оплата</h2>
     <div class="qr-block">
@@ -680,16 +672,22 @@ function loadTariffs(){
 }
 function renderTariffs(){
   if(!TARIFFS_DATA) return;
+  
+  // 1. Заполняем таблицу
   $("t_body").innerHTML=TARIFFS_DATA.категории.map(function(t){
     return "<tr><td>"+esc(t.название)+"</td><td>"+money(t.въезд)+" "+esc(t.единица)+"</td><td>"+
       (t.стоянка_сут==null?"—":money(t.стоянка_сут)+" "+esc(t.единица))+"</td><td>"+
       (t.стоянка_мес==null?"—":money(t.стоянка_мес)+" "+esc(t.единица))+"</td></tr>";
   }).join("");
+  
+  // 2. Заполняем информацию о приказе
   var orderInfo=$("tariff_order_info");
   if(orderInfo && TARIFFS_DATA.приказ){
     orderInfo.innerHTML="<b>Приказ № "+esc(TARIFFS_DATA.приказ.номер)+" от "+esc(TARIFFS_DATA.приказ.дата)+"</b><br>"+
       "<span style='font-size:.82rem;color:#666'>"+esc(TARIFFS_DATA.приказ.основание)+"</span>";
   }
+  
+  // 3. Заполняем блок исключений
   var exceptBox=$("except_box");
   if(exceptBox && TARIFFS_DATA.исключения){
     var freeList=TARIFFS_DATA.исключения.бесплатно.map(function(x){return esc(x);}).join(" / ");
