@@ -226,15 +226,24 @@ footer{text-align:center;font-size:.8rem;color:var(--muted);padding:22px 10px}
       </div>
     </div>
   </div>
+  <div class="card" id="pv_data">
+    <h2>01 · Данные для звонка</h2>
+    <div class="data-cards">
+      <div class="data-card"><b>ФИО гостя</b><span class="ex">Пример: Иванов Иван Иванович</span></div>
+      <div class="data-card"><b>Госномер с регионом</b><span class="ex">Пример: А123АА799</span></div>
+      <div class="data-card"><b>Дата визита</b><span class="ex">Пример: 20.11.2026</span></div>
+    </div>
+    <div class="note">Назовите охране три параметра: ФИО гостя, госномер автомобиля и дату визита. Для грузового транспорта — уточните тариф по телефону КПП.</div>
+  </div>
   <div class="card" id="pv_tariffs">
-  <h2>02 · Тарифы</h2>
-  <div id="tariff_order_info" style="margin-bottom:12px;padding:10px;background:#f0f7f0;border-radius:8px;font-size:.88rem"></div>
-  <table>
-    <thead><tr><th>Категория ТС</th><th>Въезд</th><th>Стоянка суточная</th><th>Стоянка месячная</th></tr></thead>
-    <tbody id="t_body"></tbody>
-  </table>
-  <div id="except_box" class="except-box" style="margin-top:12px;padding:12px;background:#e8f5e9;border-radius:8px;font-size:.9rem"></div>
-</div>
+    <h2>02 · Тарифы</h2>
+    <div id="tariff_order_info" style="margin-bottom:12px;padding:10px;background:#f0f7f0;border-radius:8px;font-size:.88rem"></div>
+    <table>
+      <thead><tr><th>Категория ТС</th><th>Въезд</th><th>Стоянка суточная</th><th>Стоянка месячная</th></tr></thead>
+      <tbody id="t_body"></tbody>
+    </table>
+    <div id="except_box" class="except-box" style="margin-top:12px;padding:12px;background:#e8f5e9;border-radius:8px;font-size:.9rem"></div>
+  </div>
   <div class="card" id="pv_pay">
     <h2>03 · Оплата</h2>
     <div class="qr-block">
@@ -286,7 +295,7 @@ footer{text-align:center;font-size:.8rem;color:var(--muted);padding:22px 10px}
       <a class="btn" href="https://forms.yandex.ru/u/6aff18eb28697b4ecb544905" target="_blank" rel="noopener" style="text-decoration:none">📄 Подписать через Яндекс Форму</a>
     </div>
   </div>
-    <div class="card"><h2>Новости</h2><div id="news"></div></div>
+  <div class="card"><h2>Новости</h2><div id="news"></div></div>
 </section>
 <section id="debts">
   <div class="card">
@@ -361,6 +370,35 @@ function loadArr(k){try{return JSON.parse(localStorage.getItem(k))||[];}catch(e)
 function saveArr(k,v){localStorage.setItem(k,JSON.stringify(v));}
 function fmt(n){return new Intl.NumberFormat("ru-RU",{minimumFractionDigits:2,maximumFractionDigits:2}).format(n);}
 function money(n){return new Intl.NumberFormat("ru-RU",{maximumFractionDigits:0}).format(n);}
+
+function copyPhone() {
+    var phone = "+79855473300";
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(phone).then(function() {
+            alert("Номер скопирован: +7 (985) 547-33-00");
+        }).catch(function() {
+            fallbackCopyPhone(phone);
+        });
+    } else {
+        fallbackCopyPhone(phone);
+    }
+}
+function fallbackCopyPhone(text) {
+    var ta = document.createElement("textarea");
+    ta.value = text;
+    ta.style.position = "fixed";
+    ta.style.left = "-9999px";
+    document.body.appendChild(ta);
+    ta.select();
+    try {
+        document.execCommand("copy");
+        alert("Номер скопирован: +7 (985) 547-33-00");
+    } catch(e) {
+        alert("Не удалось скопировать. Скопируйте вручную: +7 (985) 547-33-00");
+    }
+    document.body.removeChild(ta);
+}
+
 /* ---------- участки ---------- */
 function normLot(s){
   s=String(s||"").toLowerCase();
@@ -398,6 +436,7 @@ function findLotCard(lot){
 }
 function normCad(s){return String(s||"").replace(/\s+/g,"");}
 function normAddr(s){return String(s||"").toLowerCase().replace(/[\s.,]/g,"");}
+
 /* ---------- профиль ---------- */
 function prof(){try{return JSON.parse(localStorage.getItem("ed2_profile"))||null;}catch(e){return null;}}
 function myLot(){var p=prof();return p?normLot(p.lot):"";}
@@ -457,11 +496,19 @@ function clearProfile(){
   show("reg_msg","ok","Профиль и согласие удалены из браузера.");
   renderAll();
 }
+
 /* ---------- данные от локального агента ---------- */
 var D={meta:{},company:{},lots:[],tasks:{},docs:{},news:[],debts:[],elec_meters:[],water_meters:[],appeals:[]};
+var TARIFFS_DATA=null;
+
 function getJSON(name,fb){
   return fetch("data/"+name+".json?t="+Date.now())
     .then(function(r){return r.ok?r.json():fb;}).catch(function(){return fb;});
+}
+function loadTariffs(){
+  return fetch("data/tariffs.json?t="+Date.now())
+    .then(function(r){return r.ok?r.json():null;})
+    .catch(function(){return null;});
 }
 function loadDebts(){
   return fetch("data/debts.csv?t="+Date.now()).then(function(r){
@@ -518,6 +565,7 @@ function loadAll(){
     renderAll();
   });
 }
+
 /* ---------- реквизиты и контакты ---------- */
 function renderCompany(){
   var c=D.company||{};
@@ -548,6 +596,7 @@ function renderCompany(){
   $("lots_list").innerHTML=(D.lots||[]).map(function(l){
     return "<option value='"+esc(l.lot)+"'>"+esc(l.addr_short||"")+"</option>";}).join("");
 }
+
 /* ---------- центр задач ---------- */
 function renderTasks(){
   var p=prof(),box=$("tasks"),t=[];
@@ -584,6 +633,7 @@ function renderTasks(){
     return "<div class='task "+x.cls+"' data-go='"+esc(x.tab)+"'><div><div class='t-title'>"+esc(x.title)+
       "</div><div class='t-sub'>"+esc(x.sub)+"</div></div><div>→</div></div>";}).join("");
 }
+
 /* ---------- счётчики воды ---------- */
 function readings(){var l=myLot();return loadArr("ed2_meters").filter(function(r){return l&&lotMatch(r.lot,l);});}
 function calcWaterDiff(){
@@ -629,6 +679,7 @@ function renderReadings(){
       return "<tr><td>"+esc(x.date)+"</td><td>"+esc(x.type)+"</td><td><b>"+esc(x.cur)+"</b></td><td>"+esc(x.prev==null?"—":x.prev)+"</td><td style='color:#1b5e20;font-weight:bold'>"+esc(diff)+"</td><td>"+photoHtml+"</td><td>"+esc(x.note||"—")+"</td></tr>";
     }).join("")+"</tbody></table>";
 }
+
 /* ---------- показания электросчётчика ---------- */
 function renderElecMeters(){
   var el = $("e_list");
@@ -663,31 +714,21 @@ function renderElecMeters(){
         "<td style='color:"+(parts.length?"#1b5e20":"#999")+";font-weight:bold'>"+diff+"</td></tr>";
 }).join("")+"</tbody></table>";
 }
+
 /* ---------- пропуска ---------- */
-var TARIFFS_DATA=null;
-function loadTariffs(){
-  return fetch("data/тарифы_транспорт.json?t="+Date.now())
-    .then(function(r){return r.ok?r.json():null;})
-    .catch(function(){return null;});
-}
 function renderTariffs(){
   if(!TARIFFS_DATA) return;
-  
-  // 1. Заполняем таблицу
   $("t_body").innerHTML=TARIFFS_DATA.категории.map(function(t){
     return "<tr><td>"+esc(t.название)+"</td><td>"+money(t.въезд)+" "+esc(t.единица)+"</td><td>"+
       (t.стоянка_сут==null?"—":money(t.стоянка_сут)+" "+esc(t.единица))+"</td><td>"+
       (t.стоянка_мес==null?"—":money(t.стоянка_мес)+" "+esc(t.единица))+"</td></tr>";
   }).join("");
-  
-  // 2. Заполняем информацию о приказе
   var orderInfo=$("tariff_order_info");
   if(orderInfo && TARIFFS_DATA.приказ){
     orderInfo.innerHTML="<b>Приказ № "+esc(TARIFFS_DATA.приказ.номер)+" от "+esc(TARIFFS_DATA.приказ.дата)+"</b><br>"+
-      "<span style='font-size:.82rem;color:#666'>"+esc(TARIFFS_DATA.приказ.основание)+"</span>";
+      "<span style='font-size:.82rem;color:#666'>"+esc(TARIFFS_DATA.приказ.основание)+"</span><br>"+
+      "<span style='font-size:.82rem;color:#666'>Издатель: "+esc(TARIFFS_DATA.приказ.издатель)+" · Подписал: "+esc(TARIFFS_DATA.приказ.подписал)+"</span>";
   }
-  
-  // 3. Заполняем блок исключений
   var exceptBox=$("except_box");
   if(exceptBox && TARIFFS_DATA.исключения){
     var freeList=TARIFFS_DATA.исключения.бесплатно.map(function(x){return esc(x);}).join(" / ");
@@ -695,6 +736,7 @@ function renderTariffs(){
       (TARIFFS_DATA.исключения.примечание?"<br><span style='font-size:.82rem;color:#666'>"+esc(TARIFFS_DATA.исключения.примечание)+"</span>":"");
   }
 }
+
 /* ---------- обращения ---------- */
 function renderIssues(){
   var p = prof();
@@ -706,12 +748,10 @@ function renderIssues(){
   var myAppeals = (D.appeals || []).filter(function(a){
     return a.lot && normLot(a.lot) === normLot(p.lot);
   });
-  
   if(!myAppeals.length){
     el.innerHTML = "<p style='color:#666;font-size:.9rem'>У вас пока нет зарегистрированных обращений.</p>";
     return;
   }
-  
   el.innerHTML = myAppeals.slice().reverse().map(function(a){
     var priorityBadge = "";
     if(a.priority && (a.priority.toLowerCase().includes("высок") || a.priority.toLowerCase().includes("срочн"))) {
@@ -719,9 +759,7 @@ function renderIssues(){
     } else if (a.priority) {
         priorityBadge = "<span class='badge'>" + esc(a.priority) + "</span>";
     }
-    
     var notesHtml = a.notes ? "<div style='margin-top:8px; padding:8px; background:#fff3e0; border-radius:6px; font-size:.85rem;'><b>Ответ УК:</b> " + esc(a.notes).replace(/\n/g, "<br>") + "</div>" : "";
-    
     return "<div class='item' style='margin-bottom:12px;'>" +
       "<div style='display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;'>" +
         "<b>" + esc(a.short_desc || "Обращение") + "</b>" +
@@ -733,6 +771,7 @@ function renderIssues(){
     "</div>";
   }).join("");
 }
+
 /* ---------- документы ---------- */
 function signedKey(){return "ed2_signed_"+(myLot()||"guest");}
 function sentKey(){return "ed2_sent_"+(myLot()||"guest");}
@@ -775,6 +814,7 @@ function renderDocs(){
       action+
       "</div>";}).join("");
 }
+
 /* ---------- новости ---------- */
 function renderNews(){
   var nws = D.news;
@@ -797,6 +837,7 @@ function renderNews(){
     }
   }
 }
+
 /* ---------- задолженности ---------- */
 function renderDebts(){
   var p=prof();
@@ -827,6 +868,7 @@ function renderDebts(){
     return "<tr class='mine'><td>"+esc(d.srv)+"</td><td>"+esc(d.per)+
       "</td><td>"+fmt(d.sum)+"</td><td><span class='badge red'>"+esc(d.st)+"</span>"+qrHtml+"</td></tr>";}).join("");
 }
+
 /* ---------- экспорт ---------- */
 function payload(){
   var p=prof();
@@ -845,6 +887,7 @@ function copyJSON(){
   var d=payload(); if(!d) return alert("Сначала заполните профиль собственника.");
   navigator.clipboard.writeText(JSON.stringify(d,null,2)).then(function(){alert("Пакет скопирован в буфер обмена.");});
 }
+
 /* ---------- навигация и инициализация ---------- */
 function go(tab){
   Array.prototype.forEach.call(document.querySelectorAll("#nav button"),function(b){
@@ -862,6 +905,7 @@ function renderAll(){
   try { renderDocs(); } catch(e) { console.error("Ошибка в Документах:", e); }
   try { renderNews(); } catch(e) { console.error("Ошибка в Новостях:", e); }
   try { renderDebts(); } catch(e) { console.error("Ошибка в Долгах:", e); } 
+  try { renderTariffs(); } catch(e) { console.error("Ошибка в Тарифах:", e); }
   var p = prof();
   if(p){ 
     try {
@@ -897,7 +941,6 @@ document.addEventListener("click",function(e){
   else if(t.dataset.go) go(t.dataset.go);
   else if(t.dataset.vote!==undefined) vote(+t.dataset.vote);
 });
-/* авто-смена статуса документа: «Ожидает подписи» → «Отправлено» */
 document.addEventListener("click",function(e){
   var s=e.target.closest("[data-sign-id],[data-mark-id],[data-unmark-id]");
   if(!s) return;
@@ -905,7 +948,6 @@ document.addEventListener("click",function(e){
   else if(s.dataset.markId!==undefined){markDocSent(s.dataset.markId);renderDocs();}
   else if(s.dataset.unmarkId!==undefined){unmarkDocSent(s.dataset.unmarkId);renderDocs();}
 });
-// Привязки кнопок null-safe: отсутствие кнопки в HTML не рвёт скрипт
 if($("btn_save")) $("btn_save").onclick=saveProfile; 
 if($("btn_clear")) $("btn_clear").onclick=clearProfile;
 if($("btn_export")) $("btn_export").onclick=exportJSON; 
@@ -951,33 +993,6 @@ function updateClock() {
 }
 setInterval(updateClock, 1000);
 updateClock();
-function copyPhone() {
-    var phone = "+79855473300";
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(phone).then(function() {
-            alert("Номер скопирован: +7 (985) 547-33-00");
-        }).catch(function() {
-            fallbackCopyPhone(phone);
-        });
-    } else {
-        fallbackCopyPhone(phone);
-    }
-}
-function fallbackCopyPhone(text) {
-    var ta = document.createElement("textarea");
-    ta.value = text;
-    ta.style.position = "fixed";
-    ta.style.left = "-9999px";
-    document.body.appendChild(ta);
-    ta.select();
-    try {
-        document.execCommand("copy");
-        alert("Номер скопирован: +7 (985) 547-33-00");
-    } catch(e) {
-        alert("Не удалось скопировать. Скопируйте вручную: +7 (985) 547-33-00");
-    }
-    document.body.removeChild(ta);
-}
 </script>
 </body>
 </html>
