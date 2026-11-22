@@ -613,12 +613,16 @@ function renderTasks(){
       t.push({cls:"danger",tab:"debts",title:"Задолженность по участку №"+p.lot,
               sub:"К оплате "+fmt(total)+" ₽. Нажмите для деталей."});
     }
-    pickByLot(D.tasks,p.lot).forEach(function(x){
+        pickByLot(D.tasks,p.lot).forEach(function(x){
       t.push({cls:x.priority==="danger"?"danger":"urgent",tab:x.tab,title:x.title,sub:x.sub});
     });
-    var month=new Date().toISOString().slice(0,7);
-    if(!readings().some(function(r){return (r.date||"").indexOf(month)===0;})) 
+    var month = new Date().toISOString().slice(0, 7);
+    var hasCurrentMonthReading = (D.water_meters || []).some(function(r) {
+        return r && lotMatch(r.lot, p.lot) && (r.date || "").indexOf(month) === 0;
+    });
+    if (!hasCurrentMonthReading) {
       t.push({cls:"urgent",tab:"meters",title:"Передайте показания за текущий месяц",sub:"Рекомендуемый срок — до 25 числа"});
+    }
     var unsigned=docsForLot().filter(function(d){return !d.signed;});
     if(unsigned.length)
       t.push({cls:"urgent",tab:"docs",title:"🔔 Новые документы по участку ("+unsigned.length+")",
@@ -636,30 +640,7 @@ function renderTasks(){
 
 /* ---------- счётчики воды ---------- */
 function readings(){var l=myLot();return loadArr("ed2_meters").filter(function(r){return l&&lotMatch(r.lot,l);});}
-function calcWaterDiff(){
-  var cur = parseFloat($("m_cur").value);
-  var prev = $("m_prev").value === "" ? null : parseFloat($("m_prev").value);
-  var diffEl = $("m_diff");
-  if(!diffEl) return;
-  if(isNaN(cur) || cur < 0){ diffEl.value = ""; return; }
-  if(prev === null || isNaN(prev)){ diffEl.value = ""; return; }
-  var diff = cur - prev;
-  if(diff < 0){
-    diffEl.value = "⚠ Текущее < предыдущего";
-    diffEl.style.color = "#d9534f";
-  } else if(diff === 0){
-    diffEl.value = "0 (расхода нет)";
-    diffEl.style.color = "#f0ad4e";
-  } else {
-    diffEl.value = diff.toFixed(2);
-    diffEl.style.color = "#1b5e20";
-  }
-}
-document.addEventListener("input", function(e){
-  if(e.target && (e.target.id === "m_cur" || e.target.id === "m_prev")){
-    calcWaterDiff();
-  }
-});
+function renderReadings(){
 function renderReadings(){
   var p = prof();
   var el = $("m_list");
@@ -716,8 +697,9 @@ function renderElecMeters(){
 }
 
 /* ---------- пропуска ---------- */
+/* ---------- пропуска ---------- */
 function renderTariffs(){
-  if(!TARIFFS_DATA) return;
+  if(!TARIFFS_DATA || !Array.isArray(TARIFFS_DATA.категории)) return;
   $("t_body").innerHTML=TARIFFS_DATA.категории.map(function(t){
     return "<tr><td>"+esc(t.название)+"</td><td>"+money(t.въезд)+" "+esc(t.единица)+"</td><td>"+
       (t.стоянка_сут==null?"—":money(t.стоянка_сут)+" "+esc(t.единица))+"</td><td>"+
@@ -745,8 +727,8 @@ function renderIssues(){
     el.innerHTML = "<p style='color:#666;font-size:.9rem'>Пройдите регистрацию, чтобы увидеть историю ваших обращений.</p>";
     return;
   }
-  var myAppeals = (D.appeals || []).filter(function(a){
-    return a.lot && normLot(a.lot) === normLot(p.lot);
+    var myAppeals = (D.appeals || []).filter(function(a){
+    return a.lot && lotMatch(a.lot, p.lot);
   });
   if(!myAppeals.length){
     el.innerHTML = "<p style='color:#666;font-size:.9rem'>У вас пока нет зарегистрированных обращений.</p>";
@@ -955,9 +937,24 @@ if($("btn_copy")) $("btn_copy").onclick=copyJSON;
 if($("btn_copy_phone")) $("btn_copy_phone").onclick=copyPhone;
 if($("m_date")) $("m_date").valueAsDate=new Date();
 if($("p_date")) $("p_date").valueAsDate=new Date();
-$("r_lot").addEventListener("change",function(){
-  var c=findLotCard(this.value);
-  if(c){ if(c.cadastre) $("r_cad").value=c.cadastre; if(c.addr_short) $("r_addr").value=c.addr_short; }
+$("r_lot").addEventListener("input", function(){
+  var val = this.value.trim();
+  if(val.length < 2) return;
+  var c = findLotCard(val);
+  if(c){ 
+      if(c.cadastre && !$("r_cad").value) $("r_cad").value = c.cadastre; 
+      if(c.addr_short && !$("r_addr").value) $("r_addr").value = c.addr_short; 
+      this.style.borderColor = "#2e7d32";
+  } else {
+      this.style.borderColor = "#c62828";
+  }
+});
+$("r_lot").addEventListener("change", function(){
+  var c = findLotCard(this.value);
+  if(c){ 
+      if(c.cadastre && !$("r_cad").value) $("r_cad").value = c.cadastre; 
+      if(c.addr_short && !$("r_addr").value) $("r_addr").value = c.addr_short; 
+  }
 });
 (function(){
   var links=document.querySelectorAll("#pass_nav a");
