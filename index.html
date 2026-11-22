@@ -98,6 +98,13 @@ footer{text-align:center;font-size:.8rem;color:var(--muted);padding:22px 10px}
 .pay-warn{background:#fff3e0;border:1px solid #ffb74d;color:#e65100;border-radius:10px;padding:12px 14px;font-weight:600;margin-top:12px;font-size:.88rem}
 </style>
 <base target="_self">
+<style>
+/* Резервное CSS-правило на случай, если JS не сработает */
+.poll-card:empty, .poll-section:empty, .poll-block:empty,
+#polls-container:empty, .polls-wrapper:empty, .polls-list:empty {
+    display: none !important;
+}
+</style>
 </head>
 <body>
 <header>
