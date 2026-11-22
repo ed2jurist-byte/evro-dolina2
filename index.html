@@ -641,7 +641,6 @@ function renderTasks(){
 /* ---------- счётчики воды ---------- */
 function readings(){var l=myLot();return loadArr("ed2_meters").filter(function(r){return l&&lotMatch(r.lot,l);});}
 function renderReadings(){
-function renderReadings(){
   var p = prof();
   var el = $("m_list");
   if(!p){
@@ -696,7 +695,6 @@ function renderElecMeters(){
 }).join("")+"</tbody></table>";
 }
 
-/* ---------- пропуска ---------- */
 /* ---------- пропуска ---------- */
 function renderTariffs(){
   if(!TARIFFS_DATA || !Array.isArray(TARIFFS_DATA.категории)) return;
