@@ -953,12 +953,33 @@ function updateClock() {
 }
 setInterval(updateClock, 1000);
 updateClock();
-var nowStr = new Date().toLocaleString("ru-RU");
-localStorage.setItem("ed2_session_start", nowStr);
-window.addEventListener("beforeunload", function() {
-  var endStr = new Date().toLocaleString("ru-RU");
-  localStorage.setItem("ed2_session_end", endStr);
-});
+function copyPhone() {
+    var phone = "+79855473300";
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(phone).then(function() {
+            alert("Номер скопирован: +7 (985) 547-33-00");
+        }).catch(function() {
+            fallbackCopyPhone(phone);
+        });
+    } else {
+        fallbackCopyPhone(phone);
+    }
+}
+function fallbackCopyPhone(text) {
+    var ta = document.createElement("textarea");
+    ta.value = text;
+    ta.style.position = "fixed";
+    ta.style.left = "-9999px";
+    document.body.appendChild(ta);
+    ta.select();
+    try {
+        document.execCommand("copy");
+        alert("Номер скопирован: +7 (985) 547-33-00");
+    } catch(e) {
+        alert("Не удалось скопировать. Скопируйте вручную: +7 (985) 547-33-00");
+    }
+    document.body.removeChild(ta);
+}
 </script>
 </body>
 </html>
