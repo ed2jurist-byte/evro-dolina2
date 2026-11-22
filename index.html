@@ -101,7 +101,8 @@ footer{text-align:center;font-size:.8rem;color:var(--muted);padding:22px 10px}
 <style>
 /* Резервное CSS-правило на случай, если JS не сработает */
 .poll-card:empty, .poll-section:empty, .poll-block:empty,
-#polls-container:empty, .polls-wrapper:empty, .polls-list:empty {
+#polls-container:empty, .polls-wrapper:empty, .polls-list:empty,
+#poll {
     display: none !important;
 }
 </style>
@@ -225,15 +226,15 @@ footer{text-align:center;font-size:.8rem;color:var(--muted);padding:22px 10px}
       </div>
     </div>
   </div>
-  <div class="card" id="pv_data">
-    <h2>01 · Данные для звонка</h2>
-    <div class="data-cards">
-      <div class="data-card"><b>ФИО гостя</b><span class="ex">Пример: Иванов Иван Иванович</span></div>
-      <div class="data-card"><b>Госномер с регионом</b><span class="ex">Пример: А123АА799</span></div>
-      <div class="data-card"><b>Дата визита</b><span class="ex">Пример: 20.11.2026</span></div>
-    </div>
-    <div class="note">Назовите охране три параметра: ФИО гостя, госномер автомобиля и дату визита. Для грузового транспорта — уточните тариф по телефону КПП.</div>
-  </div>
+  <div class="card" id="pv_tariffs">
+  <h2>02 · Тарифы</h2>
+  <div id="tariff_order_info" style="margin-bottom:12px;padding:10px;background:#f0f7f0;border-radius:8px;font-size:.88rem"></div>
+  <table>
+    <thead><tr><th>Категория ТС</th><th>Въезд</th><th>Стоянка суточная</th><th>Стоянка месячная</th></tr></thead>
+    <tbody id="t_body"></tbody>
+  </table>
+  <div id="except_box" class="except-box"></div>
+</div>
   <div class="card" id="pv_tariffs">
     <h2>02 · Тарифы (приказ № 11/01)</h2>
     <table>
@@ -293,7 +294,7 @@ footer{text-align:center;font-size:.8rem;color:var(--muted);padding:22px 10px}
       <a class="btn" href="https://forms.yandex.ru/u/6aff18eb28697b4ecb544905" target="_blank" rel="noopener" style="text-decoration:none">📄 Подписать через Яндекс Форму</a>
     </div>
   </div>
-  <div class="card"><h2>Новости</h2><div id="news"></div><div id="poll" class="item"></div></div>
+    <div class="card"><h2>Новости</h2><div id="news"></div></div>
 </section>
 <section id="debts">
   <div class="card">
@@ -499,7 +500,8 @@ function loadAll(){
     loadDebts(),
     getJSON("engineer_meters",[]),
     getJSON("water_meters",[]),
-    getJSON("appeals",[])
+    getJSON("appeals",[]),
+    loadTariffs()
   ]).then(function(r){
     D.meta=r[0]||{};
     D.company=r[1]||{};
@@ -511,6 +513,7 @@ function loadAll(){
     D.elec_meters=r[7]||[];
     D.water_meters=r[8]||[];
     D.appeals=r[9]||[];
+    TARIFFS_DATA=r[10]||null;
     if(!Array.isArray(D.news)) D.news = [];
     if(!Array.isArray(D.debts)) D.debts = [];
     if(!Array.isArray(D.elec_meters)) D.elec_meters = [];
@@ -669,29 +672,30 @@ function renderElecMeters(){
 }).join("")+"</tbody></table>";
 }
 /* ---------- пропуска ---------- */
-var TARIFFS=[
-  {cat:"До 3,5 т", in:250, day:950, month:25000},
-  {cat:"Свыше 3,5 т", in:600, day:1400, month:37000},
-  {cat:"Спецтехника", in:950, day:null, month:null}
-];
-function renderTariffs(){
-  $("t_body").innerHTML=TARIFFS.map(function(t){
-    return "<tr><td>"+esc(t.cat)+"</td><td>"+money(t.in)+" ₽</td><td>"+
-      (t.day==null?"—":money(t.day)+" ₽")+"</td><td>"+(t.month==null?"—":money(t.month)+" ₽")+"</td></tr>";
-  }).join("");
+var TARIFFS_DATA=null;
+function loadTariffs(){
+  return fetch("data/тарифы_транспорт.json?t="+Date.now())
+    .then(function(r){return r.ok?r.json():null;})
+    .catch(function(){return null;});
 }
-function copyPhone(){
-  var tempInput = document.createElement("input");
-  tempInput.value = "+79855473300";
-  document.body.appendChild(tempInput);
-  tempInput.select();
-  try {
-    document.execCommand("copy");
-    alert("Номер скопирован: +7 (985) 547-33-00");
-  } catch (e) {
-    alert("Не удалось скопировать номер. Пожалуйста, скопируйте вручную: +7 (985) 547-33-00");
+function renderTariffs(){
+  if(!TARIFFS_DATA) return;
+  $("t_body").innerHTML=TARIFFS_DATA.категории.map(function(t){
+    return "<tr><td>"+esc(t.название)+"</td><td>"+money(t.въезд)+" "+esc(t.единица)+"</td><td>"+
+      (t.стоянка_сут==null?"—":money(t.стоянка_сут)+" "+esc(t.единица))+"</td><td>"+
+      (t.стоянка_мес==null?"—":money(t.стоянка_мес)+" "+esc(t.единица))+"</td></tr>";
+  }).join("");
+  var orderInfo=$("tariff_order_info");
+  if(orderInfo && TARIFFS_DATA.приказ){
+    orderInfo.innerHTML="<b>Приказ № "+esc(TARIFFS_DATA.приказ.номер)+" от "+esc(TARIFFS_DATA.приказ.дата)+"</b><br>"+
+      "<span style='font-size:.82rem;color:#666'>"+esc(TARIFFS_DATA.приказ.основание)+"</span>";
   }
-  document.body.removeChild(tempInput);
+  var exceptBox=$("except_box");
+  if(exceptBox && TARIFFS_DATA.исключения){
+    var freeList=TARIFFS_DATA.исключения.бесплатно.map(function(x){return esc(x);}).join(" / ");
+    exceptBox.innerHTML="<b>Бесплатно:</b> "+freeList+"."+
+      (TARIFFS_DATA.исключения.примечание?"<br><span style='font-size:.82rem;color:#666'>"+esc(TARIFFS_DATA.исключения.примечание)+"</span>":"");
+  }
 }
 /* ---------- обращения ---------- */
 function renderIssues(){
