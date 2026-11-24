@@ -837,8 +837,7 @@ function renderNews(){
           +"<b>"+esc(n.title)+"</b>"
           +"<span style='color:#888;font-size:0.85em'>"+esc(n.date)+"</span></div>"
           +"<div style='margin-top:6px;white-space:pre-wrap;color:#333'>"
-          +esc(n.text).replace(/
-/g,"<br>")+"</div>"+att+"</article>";
+          +esc(n.text).replace(/\n/g,"<br>")+"</div>"+att+"</article>";
       }).join('');
     }
   }
@@ -859,8 +858,7 @@ function renderNews(){
           +'padding:10px 12px;margin-bottom:8px;border-radius:4px;">'
           +'<div style="font-weight:600;">'+esc(n.title)+'</div>'
           +'<div style="color:#555;font-size:0.9em;margin-top:4px;white-space:pre-wrap;">'
-          +esc(n.text).replace(/
-/g,"<br>")+'</div>'+att
+          +esc(n.text).replace(/\n/g,"<br>")+'</div>'+att
           +'<div style="color:#888;font-size:0.8em;margin-top:4px;">'+esc(n.date)+'</div></div>';
       }).join("");
     }
@@ -1037,6 +1035,6 @@ function updateClock() {
 }
 setInterval(updateClock, 1000);
 updateClock();
-<script>
+</script>
 </body>
 </html>
