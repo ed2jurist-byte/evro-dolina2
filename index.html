@@ -826,8 +826,7 @@ function renderNews(){
     } else {
       newsEl.innerHTML = newsOnly.map(function(n){
         var att = n.attachment_url ? '<div style="margin-top:8px"><a href="'+n.attachment_url+'" download style="display:inline-block;padding:6px 12px;background:#1976d2;color:#fff;border-radius:4px;text-decoration:none;font-size:0.9em">📥 '+esc(n.attachment)+'</a></div>' : "";
-        return "<article style='border-bottom:1px solid #eee;padding:10px 0'><div style='display:flex;justify-content:space-between;align-items:baseline'><b>"+esc(n.title)+"</b><span style='color:#888;font-size:0.85em'>"+esc(n.date)+"</span></div><div style='margin-top:6px;white-space:pre-wrap;color:#333'>"+esc(n.text).replace(/
-/g,"<br>")+"</div>"+att+"</article>";
+        return "<article style='border-bottom:1px solid #eee;padding:10px 0'><div style='display:flex;justify-content:space-between;align-items:baseline'><b>"+esc(n.title)+"</b><span style='color:#888;font-size:0.85em'>"+esc(n.date)+"</span></div><div style='margin-top:6px;white-space:pre-wrap;color:#333'>"+esc(n.text).replace(/\n/g,"<br>")+"</div>"+att+"</article>";
       }).join('');
     }
   }
@@ -839,8 +838,7 @@ function renderNews(){
     } else {
       importantBox.innerHTML = impOnly.map(function(n){
         var att = n.attachment_url ? '<div style="margin-top:6px"><a href="'+n.attachment_url+'" target="_blank" style="color:#1976d2;text-decoration:none;font-size:0.9em">📎 Скачать: '+esc(n.attachment)+'</a></div>' : "";
-        return '<div style="background:#fff8e1;border-left:4px solid #f9a825;padding:10px 12px;margin-bottom:8px;border-radius:4px;"><div style="font-weight:600;">'+esc(n.title)+'</div><div style="color:#555;font-size:0.9em;margin-top:4px;white-space:pre-wrap;">'+esc(n.text).replace(/
-/g,"<br>")+'</div>'+att+'<div style="color:#888;font-size:0.8em;margin-top:4px;">'+esc(n.date)+'</div></div>';
+        return '<div style="background:#fff8e1;border-left:4px solid #f9a825;padding:10px 12px;margin-bottom:8px;border-radius:4px;"><div style="font-weight:600;">'+esc(n.title)+'</div><div style="color:#555;font-size:0.9em;margin-top:4px;white-space:pre-wrap;">'+esc(n.text).replace(/\n/g,"<br>")+'</div>'+att+'<div style="color:#888;font-size:0.8em;margin-top:4px;">'+esc(n.date)+'</div></div>';
       }).join("");
     }
   }
