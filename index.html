@@ -95,8 +95,16 @@ footer{text-align:center;font-size:.8rem;color:var(--muted);padding:22px 10px}
 @media(max-width:750px){.order-steps{grid-template-columns:1fr}}
 .order-step{background:#fff;border:1px solid #e0e8e0;border-radius:10px;padding:16px 12px 12px;font-size:.84rem;position:relative;margin-top:10px}
 .order-step .num{position:absolute;top:-13px;left:12px;background:var(--green);color:#fff;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.85rem}
-.pay-warn{background:#fff3e0;border:1px solid #ffb74d;color:#e65100;border-radius:10px;padding:12px 14px;font-weight:600;margin-top:12px;font-size:.88rem}
+.pay-warn{...}
+/* ↓ ваш медиа-запрос ↓ */
+@media (max-width: 600px) {
+  header { padding-left: 70px; text-align: left; }
+  header img { left: 10px; height: 45px; }
+  header h1 { font-size: 1.1rem; }
+  header p { font-size: 0.8rem; }
+}
 </style>
+<base target="_self">
 <base target="_self">
 <style>
 /* Резервное CSS-правило на случай, если JS не сработает */
