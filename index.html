@@ -816,30 +816,34 @@ function renderDocs(){
 
 /* ---------- новости ---------- */
 function renderNews(){
-  var nws = D.news;
+  // Основной рендер теперь происходит асинхронно через скрипт внизу файла (data/news.json)
+  // Эта функция служит резервной, если данные уже загружены в D.news
+  var nws = D.news || [];
   if(!Array.isArray(nws)) nws = [];
-  $("news").innerHTML=nws.map(function(n){
-    def render_news_fallback(news_list):
-    """Резервный рендер новостей, если JS не загрузился."""
-    if not news_list:
-        return ""
-    html = '<div id="news" style="display:none;">'
-    for n in news_list:
-        html += "<div class='item'><b>"+esc(n.title)+"</b><span class='badge'>Новости</span><br>"+
-            "<span style='color:#666;font-size:.8rem'>"+esc(n.date)+"</span><p style='margin-top:6px'>"+esc(n.text).replace("\n","<br>")+"</p>"
-        if n.get("attachment_url"):
-            html += '<div style="margin-top:6px"><a href="'+esc(n["attachment_url"])+'" download style="color:#1976d2">📥 '+esc(n.get("attachment",""))+'</a></div>'
-    html += "</div>"
-    return html
+  
+  var newsEl = $("news-block");
+  if(newsEl && nws.length > 0) {
+      var newsOnly = nws.filter(function(n){ return n.type === 'news' && n.active !== false; });
+      if(newsOnly.length > 0) {
+          newsEl.innerHTML = newsOnly.map(function(n){
+              var att = n.attachment_url ? "<div style='margin-top:8px'><a href='"+n.attachment_url+"' download style='display:inline-block;padding:6px 12px;background:#1976d2;color:#fff;border-radius:4px;text-decoration:none;font-size:0.9em'>📥 "+esc(n.attachment)+"</a></div>" : "";
+              return "<article style='border-bottom:1px solid #eee;padding:10px 0'><div style='display:flex;justify-content:space-between;align-items:baseline'><b>"+esc(n.title)+"</b><span style='color:#888;font-size:0.85em'>"+esc(n.date)+"</span></div><div style='margin-top:6px;white-space:pre-wrap;color:#333'>"+esc(n.text).replace(/
+/g,"<br>")+"</div>"+att+"</article>";
+          }).join('');
+      }
+  }
+
   var importantBox = $("important-notices");
   if(importantBox){
-    var impNews = nws.filter(function(n){ return n.important === true; });
+    var impNews = nws.filter(function(n){ return n.type === 'important' && n.active !== false; });
     if(impNews.length > 0){
       importantBox.innerHTML = impNews.map(function(n){
-        return "<div style='margin-bottom:10px; padding-bottom:10px; border-bottom:1px solid #ffe0b2;'>"+
-               "<b style='color:var(--amber);'>"+esc(n.title)+"</b><br>"+
-               "<span style='font-size:.8rem; color:#666;'>"+esc(n.date)+"</span>"+
-               "<p style='margin-top:4px; font-size:.9rem;'>"+esc(n.text).replace(/\n/g,"<br>")+"</p></div>";
+        var att = n.attachment_url ? "<div style='margin-top:6px'><a href='"+n.attachment_url+"' target='_blank' style='color:#1976d2;text-decoration:none;font-size:0.9em'>📎 Скачать: "+esc(n.attachment)+"</a></div>" : "";
+        return "<div style='background:#fff8e1;border-left:4px solid #f9a825;padding:10px 12px;margin-bottom:8px;border-radius:4px;'>"+
+               "<div style='font-weight:600;'>"+esc(n.title)+"</div>"+
+               "<div style='color:#555;font-size:0.9em;margin-top:4px;white-space:pre-wrap;'>"+esc(n.text).replace(/
+/g,"<br>")+"</div>"+att+
+               "<div style='color:#888;font-size:0.8em;margin-top:4px;'>"+esc(n.date)+"</div></div>";
       }).join("");
     } else {
       importantBox.innerHTML = "<p style='color: var(--muted); font-style: italic;'>Объявлений пока нет.</p>";
@@ -1026,7 +1030,7 @@ updateClock();
     });
   }
   function renderImportant(list){
-    var el = document.getElementById('important-block');
+    var el = document.getElementById('important-notices');
     if(!el) return;
     if(!list || !list.length){ el.innerHTML = 'Объявлений пока нет.'; return; }
     var html = '';
