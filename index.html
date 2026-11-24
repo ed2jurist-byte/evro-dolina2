@@ -818,7 +818,6 @@ function renderDocs(){
 function renderNews(){
   var nws = D.news || [];
   if(!Array.isArray(nws)) nws = [];
-  // Фильтруем только активные новости
   var newsOnly = nws.filter(function(n){ return n.type === 'news' && n.active !== false; });
   var newsEl = $("news-block");
   if(newsEl){
@@ -841,6 +840,28 @@ function renderNews(){
       }).join('');
     }
   }
+  var impOnly = nws.filter(function(n){ return n.type === 'important' && n.active !== false; });
+  var importantBox = $("important-notices");
+  if(importantBox){
+    if(impOnly.length === 0){
+      importantBox.innerHTML = '<p style="color: var(--muted); font-style: italic;">Объявлений пока нет.</p>';
+    } else {
+      importantBox.innerHTML = impOnly.map(function(n){
+        var att = n.attachment_url
+          ? '<div style="margin-top:6px"><a href="'+n.attachment_url+'" target="_blank" '
+            +'style="color:#1976d2;text-decoration:none;font-size:0.9em">'
+            +'📎 Скачать: '+esc(n.attachment)+'</a></div>'
+          : "";
+        return '<div style="background:#fff8e1;border-left:4px solid #f9a825;'
+          +'padding:10px 12px;margin-bottom:8px;border-radius:4px;">'
+          +'<div style="font-weight:600;">'+esc(n.title)+'</div>'
+          +'<div style="color:#555;font-size:0.9em;margin-top:4px;white-space:pre-wrap;">'
+          +esc(n.text).replace(/\n/g,"<br>")+'</div>'+att
+          +'<div style="color:#888;font-size:0.8em;margin-top:4px;">'+esc(n.date)+'</div></div>';
+      }).join("");
+    }
+  }
+}
   // Рендер важных объявлений
   var impOnly = nws.filter(function(n){ return n.type === 'important' && n.active !== false; });
   var importantBox = $("important-notices");
