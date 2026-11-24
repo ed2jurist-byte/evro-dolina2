@@ -816,11 +816,10 @@ function renderDocs(){
 
 /* ---------- новости ---------- */
 function renderNews(){
-  // Основной рендер теперь происходит асинхронно через скрипт внизу файла (data/news.json)
-  // Эта функция служит резервной, если данные уже загружены в D.news
   var nws = D.news || [];
   if(!Array.isArray(nws)) nws = [];
   
+  // Рендер новостей в #news-block
   var newsEl = $("news-block");
   if(newsEl && nws.length > 0) {
       var newsOnly = nws.filter(function(n){ return n.type === 'news' && n.active !== false; });
@@ -833,6 +832,7 @@ function renderNews(){
       }
   }
 
+  // Рендер важных объявлений в #important-notices
   var importantBox = $("important-notices");
   if(importantBox){
     var impNews = nws.filter(function(n){ return n.type === 'important' && n.active !== false; });
