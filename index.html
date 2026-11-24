@@ -314,7 +314,7 @@ footer{text-align:center;font-size:.8rem;color:var(--muted);padding:22px 10px}
       <a class="btn" href="https://forms.yandex.ru/u/6aff18eb28697b4ecb544905" target="_blank" rel="noopener" style="text-decoration:none">📄 Подписать через Яндекс Форму</a>
     </div>
   </div>
-  <div class="card"><h2>Новости</h2><div id="news"></div></div>
+  <div class="card"><h2>Новости</h2><div id="news-block" style="margin-top:8px;">Загрузка новостей…</div></div>
 </section>
 <section id="debts">
   <div class="card">
@@ -819,8 +819,18 @@ function renderNews(){
   var nws = D.news;
   if(!Array.isArray(nws)) nws = [];
   $("news").innerHTML=nws.map(function(n){
-    return "<div class='item'><b>"+esc(n.title)+"</b><span class='badge'>Новости</span><br>"+
-      "<span style='color:#666;font-size:.8rem'>"+esc(n.date)+"</span><p style='margin-top:6px'>"+esc(n.text).replace(/\n/g,"<br>")+"</p></div>";}).join("");
+    def render_news_fallback(news_list):
+    """Резервный рендер новостей, если JS не загрузился."""
+    if not news_list:
+        return ""
+    html = '<div id="news" style="display:none;">'
+    for n in news_list:
+        html += "<div class='item'><b>"+esc(n.title)+"</b><span class='badge'>Новости</span><br>"+
+            "<span style='color:#666;font-size:.8rem'>"+esc(n.date)+"</span><p style='margin-top:6px'>"+esc(n.text).replace("\n","<br>")+"</p>"
+        if n.get("attachment_url"):
+            html += '<div style="margin-top:6px"><a href="'+esc(n["attachment_url"])+'" download style="color:#1976d2">📥 '+esc(n.get("attachment",""))+'</a></div>'
+    html += "</div>"
+    return html
   var importantBox = $("important-notices");
   if(importantBox){
     var impNews = nws.filter(function(n){ return n.important === true; });
@@ -1007,6 +1017,80 @@ function updateClock() {
 }
 setInterval(updateClock, 1000);
 updateClock();
+<script>
+(function(){
+  function fmtDate(s){ return s || ''; }
+  function escapeHtml(t){
+    return String(t||'').replace(/[&<>"']/g, function(c){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+    });
+  }
+  function renderImportant(list){
+    var el = document.getElementById('important-block');
+    if(!el) return;
+    if(!list || !list.length){ el.innerHTML = 'Объявлений пока нет.'; return; }
+    var html = '';
+    list.forEach(function(it){
+      html += '<div style="background:#fff8e1;border-left:4px solid #f9a825;'
+            + 'padding:10px 12px;margin-bottom:8px;border-radius:4px;">'
+            +   '<div style="font-weight:600;">' + escapeHtml(it.title) + '</div>'
+            +   '<div style="color:#555;font-size:0.9em;margin-top:4px;white-space:pre-wrap;">'
+            +     escapeHtml(it.text) + '</div>';
+      if(it.attachment_url){
+        html += '<div style="margin-top:6px;">'
+              +   '<a href="' + it.attachment_url + '" target="_blank" '
+              +      'style="color:#1976d2;text-decoration:none;font-size:0.9em;">'
+              +     '📎 Скачать: ' + escapeHtml(it.attachment) + '</a>'
+              + '</div>';
+      }
+      html += '<div style="color:#888;font-size:0.8em;margin-top:4px;">'
+            +   fmtDate(it.date) + '</div>'
+            + '</div>';
+    });
+    el.innerHTML = html;
+  }
+  function renderNews(list){
+    var el = document.getElementById('news-block');
+    if(!el) return;
+    if(!list || !list.length){ el.innerHTML = 'Новостей пока нет.'; return; }
+    var html = '';
+    list.forEach(function(it){
+      html += '<article style="border-bottom:1px solid #eee;padding:10px 0;">'
+            +   '<div style="display:flex;justify-content:space-between;align-items:baseline;">'
+            +     '<b>' + escapeHtml(it.title) + '</b>'
+            +     '<span style="color:#888;font-size:0.85em;">' + fmtDate(it.date) + '</span>'
+            +   '</div>'
+            +   '<div style="margin-top:6px;white-space:pre-wrap;color:#333;">'
+            +     escapeHtml(it.text) + '</div>';
+      if(it.attachment_url){
+        html += '<div style="margin-top:8px;">'
+              +   '<a href="' + it.attachment_url + '" target="_blank" '
+              +      'download style="display:inline-block;padding:6px 12px;'
+              +      'background:#1976d2;color:#fff;border-radius:4px;'
+              +      'text-decoration:none;font-size:0.9em;">'
+              +     '📥 Скачать: ' + escapeHtml(it.attachment) + '</a>'
+              + '</div>';
+      }
+      html += '</article>';
+    });
+    el.innerHTML = html;
+  }
+  function loadJSON(path, cb){
+    var x = new XMLHttpRequest();
+    x.open('GET', path, true);
+    x.responseType = 'json';
+    x.onload = function(){ cb(x.status === 200 ? x.response : null); };
+    x.onerror = function(){ cb(null); };
+    x.send();
+  }
+  // загружаем оба файла параллельно
+  loadJSON('data/important.json', renderImportant);
+  loadJSON('data/news.json', function(d){
+    // news.json содержит и news, и important — фильтруем только type=="news"
+    if(!Array.isArray(d)){ renderNews([]); return; }
+    renderNews(d.filter(function(it){ return it.active !== false && it.type === 'news'; }));
+  });
+})();
 </script>
 </body>
 </html>
