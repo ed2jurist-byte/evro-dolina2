@@ -95,25 +95,14 @@ footer{text-align:center;font-size:.8rem;color:var(--muted);padding:22px 10px}
 @media(max-width:750px){.order-steps{grid-template-columns:1fr}}
 .order-step{background:#fff;border:1px solid #e0e8e0;border-radius:10px;padding:16px 12px 12px;font-size:.84rem;position:relative;margin-top:10px}
 .order-step .num{position:absolute;top:-13px;left:12px;background:var(--green);color:#fff;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.85rem}
-.pay-warn {
-    background: #fff3cd;
-    border: 1px solid #ffc107;
-    border-radius: 8px;
-    padding: 12px 16px;
-    margin: 16px 0;
-    color: #856404;
-    font-size: 14px;
-    line-height: 1.5;
-    text-align: center;
-}
-/* ↓ ваш медиа-запрос ↓ */
+.pay-warn{background:#fff3cd;border:1px solid #ffc107;border-radius:8px;padding:12px 16px;margin:16px 0;color:#856404;font-size:14px;line-height:1.5;text-align:center}
 @media (max-width: 600px) {
   header { padding: 16px 12px !important; text-align: center !important; }
   header img {
-    position: static !important;   /* убираем из потока absolute */
-    transform: none !important;    /* отключаем вертикальное центрирование */
+    position: static !important;
+    transform: none !important;
     display: block !important;
-    margin: 0 auto 10px !important; /* логотип сверху по центру */
+    margin: 0 auto 10px !important;
     height: 44px !important;
     max-width: 75% !important;
   }
@@ -123,18 +112,14 @@ footer{text-align:center;font-size:.8rem;color:var(--muted);padding:22px 10px}
 </style>
 <base target="_self">
 <style>
-/* Резервное CSS-правило на случай, если JS не сработает */
 .poll-card:empty, .poll-section:empty, .poll-block:empty,
 #polls-container:empty, .polls-wrapper:empty, .polls-list:empty,
-#poll {
-    display: none !important;
-}
+#poll { display: none !important; }
 </style>
 </head>
 <body>
 <header style="position:relative; text-align:center;">
   <img src="logo.png" alt="Логотип ООО «ЭК «ЕД-2»" style="position:absolute; left:20px; top:50%; transform:translateY(-50%); height:60px; max-width:200px; object-fit:contain;">
-  
   <h1 id="h_set">КП «Европейская долина 2»</h1>
   <p id="h_org">ООО «ЭК «ЕД-2» — личный кабинет собственника</p>
   <div style="font-size: 0.85rem; opacity: 0.9; margin-top: 8px;">
@@ -192,6 +177,7 @@ footer{text-align:center;font-size:.8rem;color:var(--muted);padding:22px 10px}
     <div class="note" style="background:#e8f5e9; border-left-color:#2e7d32; margin-bottom:12px">
       Показания, переданные через Яндекс Форму, обрабатываются главным инженером и отображаются здесь в сводном виде. Функции локального экспорта отключены.
     </div>
+    <div id="water_meters_list"></div>
     <div id="m_list"></div>
   </div>
   <div class="card" id="elec_meter_block">
@@ -463,6 +449,43 @@ function findLotCard(lot){
 function normCad(s){return String(s||"").replace(/\s+/g,"");}
 function normAddr(s){return String(s||"").toLowerCase().replace(/[\s.,]/g,"");}
 
+/* ---------- автоподстановка участка ---------- */
+function applyLotAutofill(rawVal){
+  var lotEl = $("r_lot");
+  var cadEl = $("r_cad");
+  var addrEl = $("r_addr");
+  if(!lotEl || !cadEl || !addrEl) return;
+  var val = String(rawVal || "").trim();
+  if(!val){
+    lotEl.style.borderColor = "";
+    if(cadEl.dataset.autofilled === "1"){ cadEl.value = ""; delete cadEl.dataset.autofilled; }
+    if(addrEl.dataset.autofilled === "1"){ addrEl.value = ""; delete addrEl.dataset.autofilled; }
+    return;
+  }
+  var c = findLotCard(val);
+  if(c){
+    lotEl.style.borderColor = "#2e7d32";
+    if(c.cadastre){
+      cadEl.value = c.cadastre;
+      cadEl.dataset.autofilled = "1";
+    } else if(cadEl.dataset.autofilled === "1"){
+      cadEl.value = "";
+      delete cadEl.dataset.autofilled;
+    }
+    if(c.addr_short){
+      addrEl.value = c.addr_short;
+      addrEl.dataset.autofilled = "1";
+    } else if(addrEl.dataset.autofilled === "1"){
+      addrEl.value = "";
+      delete addrEl.dataset.autofilled;
+    }
+  } else {
+    lotEl.style.borderColor = "#c62828";
+    if(cadEl.dataset.autofilled === "1"){ cadEl.value = ""; delete cadEl.dataset.autofilled; }
+    if(addrEl.dataset.autofilled === "1"){ addrEl.value = ""; delete addrEl.dataset.autofilled; }
+  }
+}
+
 /* ---------- профиль ---------- */
 function prof(){try{return JSON.parse(localStorage.getItem("ed2_profile"))||null;}catch(e){return null;}}
 function myLot(){var p=prof();return p?normLot(p.lot):"";}
@@ -517,6 +540,9 @@ function clearProfile(){
   localStorage.removeItem(sk);
   ["r_fio","r_lot","r_cad","r_addr","r_tel","r_mail","r_mosenergo_num","r_mosenergo_date"].forEach(function(i){$(i).value="";});
   $("r_mosenergo").value="";
+  $("r_lot").style.borderColor="";
+  delete $("r_cad").dataset.autofilled;
+  delete $("r_addr").dataset.autofilled;
   $("r_c1").checked=false;$("r_c2").checked=false;$("r_c3").checked=false;
   $("r_mosenergo_details").style.display="none";
   show("reg_msg","ok","Профиль и согласие удалены из браузера.");
@@ -529,7 +555,12 @@ var TARIFFS_DATA=null;
 
 function getJSON(name,fb){
   return fetch("data/"+name+".json?t="+Date.now())
-    .then(function(r){return r.ok?r.json():fb;}).catch(function(){return fb;});
+    .then(function(r){
+      if(!r.ok) { console.warn("⚠️ "+name+".json: HTTP "+r.status); return fb; }
+      return r.json();
+    })
+    .then(function(data){ return data; })
+    .catch(function(e){ console.error("❌ Ошибка загрузки "+name+".json:", e); return fb; });
 }
 function loadTariffs(){
   return fetch("data/tariffs.json?t="+Date.now())
@@ -639,7 +670,7 @@ function renderTasks(){
       t.push({cls:"danger",tab:"debts",title:"Задолженность по участку №"+p.lot,
               sub:"К оплате "+fmt(total)+" ₽. Нажмите для деталей."});
     }
-        pickByLot(D.tasks,p.lot).forEach(function(x){
+    pickByLot(D.tasks,p.lot).forEach(function(x){
       t.push({cls:x.priority==="danger"?"danger":"urgent",tab:x.tab,title:x.title,sub:x.sub});
     });
     var month = new Date().toISOString().slice(0, 7);
@@ -684,6 +715,40 @@ function renderReadings(){
       var diff = (x.diff==null||x.diff==="") ? "—" : x.diff;
       return "<tr><td>"+esc(x.date)+"</td><td>"+esc(x.type)+"</td><td><b>"+esc(x.cur)+"</b></td><td>"+esc(x.prev==null?"—":x.prev)+"</td><td style='color:#1b5e20;font-weight:bold'>"+esc(diff)+"</td><td>"+photoHtml+"</td><td>"+esc(x.note||"—")+"</td></tr>";
     }).join("")+"</tbody></table>";
+}
+
+function renderWaterMeters(){
+  var el = $("water_meters_list");
+  if(!el) return;
+  var p = prof();
+  var wm = (D.water_meters || []).filter(function(x){ return x && lotMatch(x.lot, p ? p.lot : ""); });
+  
+  if(!p || !wm.length){
+    el.innerHTML = "<div style='display:grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap:10px; margin-top:12px;'>"+
+      "<div class='item' style='text-align:center; padding:10px;'><b style='font-size:.75rem;color:var(--muted)'>Тип счётчика</b><div style='font-size:.9rem;margin-top:4px'>ХВС</div></div>"+
+      "<div class='item' style='text-align:center; padding:10px;'><b style='font-size:.75rem;color:var(--muted)'>Дата</b><div style='font-size:.9rem;margin-top:4px'>ДД.ММ.ГГГГ</div></div>"+
+      "<div class='item' style='text-align:center; padding:10px;'><b style='font-size:.75rem;color:var(--muted)'>Текущее</b><div style='font-size:.9rem;margin-top:4px'>000.00</div></div>"+
+      "<div class='item' style='text-align:center; padding:10px;'><b style='font-size:.75rem;color:var(--muted)'>Предыдущее</b><div style='font-size:.9rem;margin-top:4px'>000.00</div></div>"+
+      "<div class='item' style='text-align:center; padding:10px;'><b style='font-size:.75rem;color:var(--muted)'>Расход</b><div style='font-size:.9rem;margin-top:4px'>0.00</div></div>"+
+      "</div>";
+    return;
+  }
+  
+  el.innerHTML = "<div style='margin-top:12px'>" + wm.slice().reverse().map(function(x){
+    var type = esc(x.type || "ХВС");
+    var date = esc(x.date || "—");
+    var cur = esc(x.cur != null ? x.cur : "—");
+    var prev = esc(x.prev != null ? x.prev : "—");
+    var diff = esc(x.diff != null ? x.diff : "—");
+    var diffColor = (parseFloat(diff) > 0) ? "#1b5e20" : "#999";
+    return "<div class='item' style='display:grid; grid-template-columns: repeat(5, 1fr); gap:8px; text-align:center; margin-bottom:8px;'>"+
+      "<div><b style='font-size:.75rem;color:var(--muted)'>Тип</b><div>"+type+"</div></div>"+
+      "<div><b style='font-size:.75rem;color:var(--muted)'>Дата</b><div>"+date+"</div></div>"+
+      "<div><b style='font-size:.75rem;color:var(--muted)'>Текущее</b><div><b>"+cur+"</b></div></div>"+
+      "<div><b style='font-size:.75rem;color:var(--muted)'>Предыдущее</b><div>"+prev+"</div></div>"+
+      "<div><b style='font-size:.75rem;color:var(--muted)'>Расход</b><div style='color:"+diffColor+"; font-weight:bold'>"+diff+"</div></div>"+
+      "</div>";
+  }).join("") + "</div>";
 }
 
 /* ---------- показания электросчётчика ---------- */
@@ -751,7 +816,7 @@ function renderIssues(){
     el.innerHTML = "<p style='color:#666;font-size:.9rem'>Пройдите регистрацию, чтобы увидеть историю ваших обращений.</p>";
     return;
   }
-    var myAppeals = (D.appeals || []).filter(function(a){
+  var myAppeals = (D.appeals || []).filter(function(a){
     return a.lot && lotMatch(a.lot, p.lot);
   });
   if(!myAppeals.length){
@@ -765,14 +830,14 @@ function renderIssues(){
     } else if (a.priority) {
         priorityBadge = "<span class='badge'>" + esc(a.priority) + "</span>";
     }
-    var notesHtml = a.notes ? "<div style='margin-top:8px; padding:8px; background:#fff3e0; border-radius:6px; font-size:.85rem;'><b>Ответ УК:</b> " + esc(a.notes).replace(/\\n/g, "<br>") + "</div>" : "";
+    var notesHtml = a.notes ? "<div style='margin-top:8px; padding:8px; background:#fff3e0; border-radius:6px; font-size:.85rem;'><b>Ответ УК:</b> " + esc(a.notes).replace(/\n/g, "<br>") + "</div>" : "";
     return "<div class='item' style='margin-bottom:12px;'>" +
       "<div style='display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;'>" +
         "<b>" + esc(a.short_desc || "Обращение") + "</b>" +
         "<div>" + (a.category ? "<span class='badge'>" + esc(a.category) + "</span>" : "") + priorityBadge + "</div>" +
       "</div>" +
       "<span style='color:#666;font-size:.8rem'>№ " + esc(a.id) + " · " + esc(a.date) + "</span>" +
-      "<p style='margin-top:6px; font-size:.9rem;'>" + esc(a.full_desc).replace(/\\n/g, "<br>") + "</p>" +
+      "<p style='margin-top:6px; font-size:.9rem;'>" + esc(a.full_desc).replace(/\n/g, "<br>") + "</p>" +
       notesHtml +
     "</div>";
   }).join("");
@@ -802,7 +867,7 @@ function renderDocs(){
   }
   if(unauthBlock) unauthBlock.style.display="none";
   if(!docs.length){el.innerHTML="<p style='color:#666;font-size:.9rem'>Документов по вашему участку нет.</p>";return;}
-  el.innerHTML=docs.map(function(d,i){
+  el.innerHTML=docs.map(function(d){
     var downloadBtn = d.url ? "<a class='btn outline' style='margin:0 0 8px 0; display:inline-block; font-size:.82rem' href='"+esc(d.url)+"' target='_blank' rel='noopener'>📥 Скачать документ</a><br>" : "";
     var action="";
     if(d.signed){
@@ -825,7 +890,7 @@ function renderDocs(){
 function renderNews(){
   var nws = D.news || [];
   if(!Array.isArray(nws)) nws = [];
-  var newsOnly = nws.filter(function(n){ return n.type === 'news' && n.active !== false; });
+  var newsOnly = nws.filter(function(n){ return !n.type || n.type === 'news'; });
   var newsEl = $("news-block");
   if(newsEl){
     if(newsOnly.length === 0){
@@ -837,7 +902,7 @@ function renderNews(){
       }).join('');
     }
   }
-  var impOnly = nws.filter(function(n){ return n.type === 'important' && n.active !== false; });
+  var impOnly = nws.filter(function(n){ return n.type === 'important'; });
   var importantBox = $("important-notices");
   if(importantBox){
     if(impOnly.length === 0){
@@ -886,8 +951,9 @@ function renderDebts(){
 function payload(){
   var p=prof();
   if(!p) return null;
+  var myAppeals = (D.appeals || []).filter(function(a){ return a.lot && lotMatch(a.lot, p.lot); });
   return {system:"KP_ED2_LK",exported_at:new Date().toISOString(),owner_profile:p,
-          meter_readings:readings(),issues_and_requests:[],
+          meter_readings:readings(),issues_and_requests:myAppeals,
           documents_confirmed:loadArr(signedKey())};
 }
 function exportJSON(){
@@ -913,6 +979,7 @@ function renderAll(){
   try { renderCompany(); } catch(e) { console.error("Ошибка в Компании:", e); }
   try { renderTasks(); } catch(e) { console.error("Ошибка в Задачах:", e); }
   try { renderReadings(); } catch(e) { console.error("Ошибка в Воде:", e); }
+  try { renderWaterMeters(); } catch(e) { console.error("Ошибка в Водосчетчиках:", e); }
   try { renderElecMeters(); } catch(e) { console.error("Ошибка в Счетчиках:", e); }
   try { renderIssues(); } catch(e) { console.error("Ошибка в Обращениях:", e); }
   try { renderDocs(); } catch(e) { console.error("Ошибка в Документах:", e); }
@@ -952,7 +1019,7 @@ document.addEventListener("click",function(e){
   if(!t) return;
   if(t.dataset.tab) go(t.dataset.tab);
   else if(t.dataset.go) go(t.dataset.go);
-  else if(t.dataset.vote!==undefined) vote(+t.dataset.vote);
+  else if(t.dataset.vote!==undefined && typeof vote==="function") vote(+t.dataset.vote);
 });
 document.addEventListener("click",function(e){
   var s=e.target.closest("[data-sign-id],[data-mark-id],[data-unmark-id]");
@@ -968,25 +1035,10 @@ if($("btn_copy")) $("btn_copy").onclick=copyJSON;
 if($("btn_copy_phone")) $("btn_copy_phone").onclick=copyPhone;
 if($("m_date")) $("m_date").valueAsDate=new Date();
 if($("p_date")) $("p_date").valueAsDate=new Date();
-$("r_lot").addEventListener("input", function(){
-  var val = this.value.trim();
-  if(val.length < 2) return;
-  var c = findLotCard(val);
-  if(c){ 
-      if(c.cadastre && !$("r_cad").value) $("r_cad").value = c.cadastre; 
-      if(c.addr_short && !$("r_addr").value) $("r_addr").value = c.addr_short; 
-      this.style.borderColor = "#2e7d32";
-  } else {
-      this.style.borderColor = "#c62828";
-  }
-});
-$("r_lot").addEventListener("change", function(){
-  var c = findLotCard(this.value);
-  if(c){ 
-      if(c.cadastre && !$("r_cad").value) $("r_cad").value = c.cadastre; 
-      if(c.addr_short && !$("r_addr").value) $("r_addr").value = c.addr_short; 
-  }
-});
+$("r_lot").addEventListener("input", function(){ applyLotAutofill(this.value); });
+$("r_lot").addEventListener("change", function(){ applyLotAutofill(this.value); });
+$("r_cad").addEventListener("input", function(){ delete this.dataset.autofilled; });
+$("r_addr").addEventListener("input", function(){ delete this.dataset.autofilled; });
 (function(){
   var links=document.querySelectorAll("#pass_nav a");
   function setActive(id){
