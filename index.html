@@ -1022,5 +1022,35 @@ function updateClock() {
 setInterval(updateClock, 1000);
 updateClock();
 </script>
+<script>
+(function () {
+  const ENDPOINT_URL = 'https://script.google.com/macros/s/AKfycbzYu70didL7RW8t63a0ZCaFWpyaE0Pllp7IHrmRZ7GBxTX7chQ9dl6Pwh_JZLzqQfEe/exec';
+
+  function getVisitorId() {
+    const key = 'site_vid_v1';
+    let id = localStorage.getItem(key);
+    if (!id) {
+      id = 'v_' + Math.random().toString(36).slice(2, 10) + '_' + Date.now().toString(36);
+      try { localStorage.setItem(key, id); } catch (e) {}
+    }
+    return id;
+  }
+
+  const payload = {
+    url: window.location.href,
+    referrer: document.referrer || 'Прямой заход',
+    visitorId: getVisitorId(),
+    screen: window.screen.width + 'x' + window.screen.height,
+    lang: navigator.language || ''
+  };
+
+  fetch(ENDPOINT_URL, {
+    method: 'POST',
+    mode: 'no-cors',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify(payload)
+  }).catch(function () {});
+})();
+</script>
 </body>
 </html>
