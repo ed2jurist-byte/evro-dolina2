@@ -1,5 +1,5 @@
 {
- "generated_at": "26.11.2026 15:19",
+ "generated_at": "27.11.2026 14:12",
  "source_date": "25.11.2026",
  "debtors_file": "Должники.xlsx",
  "registry_file": "реестр_собственников_КП_ЕД2_09.11.26.xlsx",
@@ -7,7 +7,7 @@
  "debt_lots": 0,
  "yellow_skipped": 0,
  "unmatched": 0,
- "registry_issues": 59,
+ "registry_issues": 58,
  "poll_votes": 0,
  "cabinet_url": "https://ed2jurist-byte.github.io/evro-dolina2/"
 }
