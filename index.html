@@ -947,6 +947,13 @@ function renderDebts(){
       "</td><td>"+fmt(d.sum)+"</td><td><span class='badge red'>"+esc(d.st)+"</span>"+qrHtml+"</td></tr>";}).join("");
 }
 
+/* ---------- блок обратной связи в MAX (только для зарегистрированных) ---------- */
+function renderMaxFeedback(){
+  var el=$("max_feedback_block");
+  if(!el) return;
+  el.style.display = prof() ? "block" : "none";
+}
+
 /* ---------- экспорт ---------- */
 function payload(){
   var p=prof();
@@ -986,6 +993,7 @@ function renderAll(){
   try { renderNews(); } catch(e) { console.error("Ошибка в Новостях:", e); }
   try { renderDebts(); } catch(e) { console.error("Ошибка в Долгах:", e); } 
   try { renderTariffs(); } catch(e) { console.error("Ошибка в Тарифах:", e); }
+  try { renderMaxFeedback(); } catch(e) { console.error("Ошибка в блоке MAX:", e); }
   var p = prof();
   if(p){ 
     try {
@@ -1105,7 +1113,7 @@ updateClock();
 })();
 </script>
 <!-- Кнопка обратной связи в MAX -->
-<div style="text-align: center; padding: 20px; margin-top: 20px; border-top: 1px solid #ddd;">
+<div id="max_feedback_block" style="display:none; text-align: center; padding: 20px; margin-top: 20px; border-top: 1px solid #ddd;">
     <p style="font-family: sans-serif; font-size: 14px; color: #555; margin-bottom: 10px;">
         Остались вопросы? Напишите нам в MAX:
     </p>
@@ -1114,6 +1122,9 @@ updateClock();
        style="display: inline-block; padding: 12px 24px; background-color: #2F5E3D; color: white; text-decoration: none; border-radius: 8px; font-family: sans-serif; font-weight: bold;">
        Задать вопрос в MAX
     </a>
+    <p style="font-family: sans-serif; font-size: 12px; color: #888; margin-top: 10px; line-height: 1.4;">
+        💡 Чтобы активировать чат с ботом, отправьте ему команду <b style="color:#2F5E3D;">/start</b>
+    </p>
 </div>
 
 </body>
