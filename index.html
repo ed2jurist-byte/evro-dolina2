@@ -415,6 +415,7 @@ function fallbackCopyPhone(text) {
 function normLot(s){
   s=String(s||"").toLowerCase();
   s=s.replace(/\([^)]*\)/g,"");
+  s=s.replace(/(?:^|[\s\d\/])(строительный|строительн\.?|стр\.?|участок)(?=$|[\s,])/g,function(m,w){return m.slice(0,m.length-w.length);});
   s=s.replace(/\s+\d*\s*оч\.?\s*$/,"");
   s=s.replace(/(\d)оч\.?$/,"$1");
   s=s.replace(/^уч\.?\s*№?\s*/,"");
